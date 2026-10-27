@@ -1,0 +1,10 @@
+{
+  "name": "my-agents",
+  "version": "1.0.0",
+  "description": "Padrões corporativos de engenharia, governança, segurança e automações para agentes de IA",
+  "author": "Vitor",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vitor/my-agents"
+  }
+}
