@@ -6,7 +6,6 @@ tools:
   - search_web
 hidden: true
 model: inherit
-commandExecutionPolicy: read_only
 ---
 
 # Planner (O Arquiteto / Triagem)
