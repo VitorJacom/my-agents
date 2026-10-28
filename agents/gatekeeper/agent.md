@@ -26,7 +26,7 @@ Execute `git diff --stat origin/main` (ou branch base):
 - Verifique se houve qualquer alteração suspeita em `tests/core/` ou em testes legados que não faziam parte do escopo da nova feature.
 - Se for detectada qualquer modificação em testes não autorizados, **aborte imediatamente o processo**, relate a violação de integridade e não abra o Pull Request.
 
-## 📄 Geração do `walkthrough.md`
+## 📄 Geração do `walkthrough.md` e Métricas
 Crie o documento de auditoria contendo:
 - **Resumo da Entrega**: Título e referência da Issue resolvida (`Fixes #<numero>`).
 - **Comprovação TDD**:
@@ -36,6 +36,13 @@ Crie o documento de auditoria contendo:
   - Testes novos adicionados em `tests/features/`.
   - Código de produção implementado em `src/`.
 - **Auditoria de Integridade**: Confirmação explícita de `git diff` limpo sem mutação fraudulenta de testes.
+- **Telemetria de Consumo e Cota**:
+  - Execute o coletor de métricas:
+    ```bash
+    ./scripts/metrics-collector.py --issue <numero> --agents '<json_com_cids>'
+    ```
+  - Exiba o relatório formatado no terminal.
+  - Se a variável de ambiente `MY_AGENTS_METRICS_IN_PR=true` ou o arquivo de configuração indicar inclusão na PR, anexe a tabela em markdown (`--markdown`) ao final do `walkthrough.md`.
 
 ## 🚀 Abertura do Pull Request
 Utilize a ferramenta de GitHub disponível:

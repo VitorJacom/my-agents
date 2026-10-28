@@ -70,9 +70,11 @@ O agente orquestrador deve guiar a execução estado por estado, chamando os sub
 
 ### 📍 ESTADO 4: GATEKEEPING & HANDOFF
 1. Invoque o subagente `gatekeeper`:
+   - Envie os IDs de conversa de todos os subagentes que participaram da rodada (`planner`, `qa-engineer`, `coder`).
    - Executar auditoria de integridade com `git diff --stat origin/main` (ou branch base).
    - Validar que nenhum teste fora da nova feature foi modificado ou relaxado.
+   - Executar `./scripts/metrics-collector.py` para calcular o consumo de tokens e a estimativa de cota das janelas de 5h e semanal.
    - Gerar o artefato consolidado `walkthrough.md`.
    - Comitar as alterações e abrir o Pull Request no GitHub (via MCP ou `gh pr create`) vinculando a Issue (`Fixes #<numero>`).
 2. **Conclusão & Handoff**:
-   - Apresente ao usuário o link do Pull Request aberto, o resumo das validações e a documentação gerada em `walkthrough.md`.
+   - Apresente ao usuário o link do Pull Request aberto, a tabela de telemetria de consumo/cota e a documentação gerada em `walkthrough.md`.
