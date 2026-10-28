@@ -81,10 +81,6 @@ def collect_metrics(agents_dict, issue_num=None):
             tot_tokens += metrics["total_tokens"]
             tot_time += metrics["duration_seconds"]
 
-    # Cálculo estimado de impacto na cota (/usage)
-    pct_5h = (tot_tokens / DEFAULT_QUOTA_5H_TOKENS) * 100
-    pct_weekly = (tot_tokens / DEFAULT_QUOTA_WEEKLY_TOKENS) * 100
-
     return {
         "agents": results,
         "totals": {
@@ -94,10 +90,6 @@ def collect_metrics(agents_dict, issue_num=None):
             "total_tokens": tot_tokens,
             "duration_seconds": tot_time
         },
-        "quota_impact": {
-            "pct_5h": pct_5h,
-            "pct_weekly": pct_weekly
-        },
         "issue_num": issue_num
     }
 
@@ -105,7 +97,7 @@ def render_terminal(data):
     issue_header = f" (ISSUE #{data['issue_num']})" if data['issue_num'] else ""
     out = []
     out.append("=" * 82)
-    out.append(f" 📊 RELATÓRIO DE TELEMETRIA & IMPACTO DE COTA (/usage){issue_header}")
+    out.append(f" 📊 RELATÓRIO DE TELEMETRIA DA ESTEIRA{issue_header}")
     out.append("=" * 82)
     out.append(f"{'Agente':<16} │ {'Tempo':<10} │ {'Input':<12} │ {'Output':<10} │ {'Cache':<9} │ {'Total Tokens':<12}")
     out.append("─" * 17 + "┼" + "─" * 12 + "┼" + "─" * 14 + "┼" + "─" * 12 + "┼" + "─" * 11 + "┼" + "─" * 14)
@@ -118,13 +110,6 @@ def render_terminal(data):
     dur_total = format_duration(t["duration_seconds"])
     out.append("─" * 17 + "┼" + "─" * 12 + "┼" + "─" * 14 + "┼" + "─" * 12 + "┼" + "─" * 11 + "┼" + "─" * 14)
     out.append(f"{'TOTAL ESTEIRA':<16} │ {dur_total:<10} │ {t['input_tokens']:>12,} │ {t['output_tokens']:>10,} │ {t['cache_tokens']:>9,} │ {t['total_tokens']:>12,}")
-    out.append("=" * 82)
-    
-    q = data["quota_impact"]
-    out.append("💡 Impacto Estimado de Cota (Calibração inicial baseada em gasto de tokens):")
-    out.append(f"   • Consumo na janela de 5 horas: ~{q['pct_5h']:.1f}% da cota")
-    out.append(f"   • Consumo na janela semanal:    ~{q['pct_weekly']:.2f}% da cota")
-    out.append("   • Para conferir o status oficial das suas cotas ao vivo, digite '/usage'.")
     out.append("=" * 82)
     return "\n".join(out)
 
@@ -141,12 +126,6 @@ def render_markdown(data):
     t = data["totals"]
     dur_total = format_duration(t["duration_seconds"])
     md.append(f"| **TOTAL** | **{dur_total}** | **{t['input_tokens']:,}** | **{t['output_tokens']:,}** | **{t['cache_tokens']:,}** | **{t['total_tokens']:,}** |\n")
-    
-    q = data["quota_impact"]
-    md.append("> **Impacto Estimado na Cota do Plano:**")
-    md.append(f"> - Janela de 5 horas: ~`{q['pct_5h']:.1f}%` consumido")
-    md.append(f"> - Janela Semanal: ~`{q['pct_weekly']:.2f}%` consumido")
-    md.append(">\n> *Observação: Estimativa de cota inicial baseada em volume de tokens, calibrável via comando `/usage`.*")
     return "\n".join(md)
 
 def main():
