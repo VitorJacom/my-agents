@@ -67,3 +67,18 @@ Ao responder a uma solicitação de implementação ou depuração, o agente dev
 2. **Arquivos Afetados**: Listar com links clicáveis todos os arquivos alterados ou criados.
 3. **Validação Executada**: Mostrar o resultado dos testes ou comandos de validação rodados.
 4. **Próximos Passos**: Recomendar os próximos passos ou pontos de atenção.
+
+---
+
+## 6. Diretrizes de Execução Multiagente
+
+### 6.1. Proibição de Emulação Monolítica
+- Quando um fluxo ou tarefa exigir o envolvimento de múltiplos papéis especializados (ex: Arquiteto, QA, Coder, Auditor):
+  - **NUNCA** simule o diálogo ou as ações das personas dentro de uma única sessão principal monolítica.
+  - **SEMPRE** instancie os subagentes correspondentes usando a ferramenta `invoke_subagent` com seu respectivo `Role` e `Prompt` específico.
+  - O agente pai atua exclusivamente como **orquestrador**, aguardando as respostas e validando os critérios de transição de estado antes de disparar o próximo subagente.
+
+### 6.2. Confinamento de Permissões em Agentes
+- Para criar subagentes restritos (somente-leitura ou restritos de escrita):
+  - Declare explicitamente apenas as tools necessárias na chave `tools:` do frontmatter (ex.: `[read_file, search_web]` para agentes somente-leitura).
+  - Nunca declare ferramentas de execução (`run_command`, `write_file`) em agentes que devem ser estritamente passivos ou de auditoria.

@@ -23,6 +23,10 @@ O usuário dispara o comando informando o número ou URL da Issue:
 
 ## 🔄 Máquina de Estados e Protocolo de Orquestração
 
+> [!IMPORTANT]
+> **Execução Concorrente e Isolada:**
+> Cada estado do pipeline DEVE invocar o subagente correspondente usando `invoke_subagent`. O orquestrador nunca executa o código ou os testes diretamente; ele delega, aguarda a mensagem com o resultado e audita a transição.
+
 O agente orquestrador deve guiar a execução estado por estado, chamando os subagentes dedicados via `invoke_subagent` e validando os critérios de transição:
 
 ### 📍 ESTADO 1: PLANNING
