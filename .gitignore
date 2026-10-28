@@ -1,0 +1,19 @@
+# Dependências e Builds
+node_modules/
+dist/
+build/
+*.log
+
+# Ambiente e Segredos
+.env
+.env.*
+!.env.example
+
+# Sandbox / Ambiente de Testes Isolado
+sandbox/
+
+# Sistema Operacional e IDEs
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
