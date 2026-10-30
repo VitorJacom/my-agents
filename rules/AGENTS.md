@@ -60,7 +60,22 @@ Ao concluir alterações significativas, forneça um checklist das modificaçõe
 
 ---
 
-## 5. Protocolo de Resposta do Agente
+## 5. Eficiência de Contexto e Busca Cirúrgica (Anti-Token Waste & Zero-Hallucination)
+
+- **Princípio Search-First (CodeSearch)**:
+  - **Proibido varrer o repositório cegamente**: Jamais execute comandos recursivos de dump (`find .`, `ls -R`, ou leitura sequencial de pastas inteiras) no início de uma sessão.
+  - Para localizar trechos de código, definições de tipos, rotas ou funções, realize **buscas cirúrgicas** direcionadas por termos/símbolos em vez de ler arquivos inteiros.
+  - Caso o usuário aponte trechos usando o painel `/codesearch`, aproveite diretamente a referência fornecida.
+- **Leitura Delimitada e Paginada**:
+  - Ao inspecionar arquivos grandes, sempre que a linha de interesse for conhecida pela busca prévia, restrinja o escopo utilizando intervalos específicos de linhas (`StartLine` e `EndLine`), evitando carregar blocos desnecessários na janela de contexto.
+- **Mapa Rápido de Projeto**:
+  - Para entender o ecossistema e comandos de execução, inspecione apenas arquivos essenciais de manifesto (ex.: `package.json`, `pyproject.toml`, `go.mod` ou um `PROJECT.md` raiz, se existente).
+- **Delegação para Subagente de Pesquisa (`research`)**:
+  - Quando a tarefa exigir uma investigação profunda ou leitura extensiva de múltiplos módulos para entender a arquitetura, delegue a exploração ao subagente `research` para isolar a contaminação da janela de contexto principal e retornar apenas uma síntese objetiva.
+
+---
+
+## 6. Protocolo de Resposta do Agente
 
 Ao responder a uma solicitação de implementação ou depuração, o agente deve:
 1. **Contexto e Causa-Raiz**: Explicar brevemente o diagnóstico ou o que foi planejado.
@@ -70,7 +85,7 @@ Ao responder a uma solicitação de implementação ou depuração, o agente dev
 
 ---
 
-## 6. Diretrizes de Execução Multiagente
+## 7. Diretrizes de Execução Multiagente
 
 ### 6.1. Proibição de Emulação Monolítica
 - Quando um fluxo ou tarefa exigir o envolvimento de múltiplos papéis especializados (ex: Arquiteto, QA, Coder, Auditor):
