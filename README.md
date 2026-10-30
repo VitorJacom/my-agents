@@ -6,13 +6,13 @@ Repositório central de padrões de engenharia, governança, segurança e automa
 
 ## 📦 O que este Plugin inclui
 
-### 1. 📋 Diretrizes Centrais (`rules/AGENTS.md`)
+### 1. 📋 Diretrizes Centrais & Manifesto AIDD (`rules/AGENTS.md`)
 Regras sempre ativas para o agente durante todo o ciclo de desenvolvimento:
-- **Comunicação Híbrida**: Relatórios, explicações e interação com o usuário em Português; código, commits e identificadores em Inglês.
-- **Git Flow & Conventional Commits**: Padrão de commits semânticos (`feat`, `fix`, `refactor`, `test`, etc.) e nomenclatura de branches.
-- **TDD & Testes Obrigatórios**: Nenhuma entrega sem testes automatizados que cubram tanto o caminho feliz quanto casos de borda.
-- **Clean Architecture & SOLID**: Código desacoplado, sem complexidade ciclomática desnecessária e tratamento explícito de erros.
-- **Segurança**: Proibição de exposição de secrets, credenciais ou arquivos `.env`.
+- **Os 4 Valores do Manifesto AIDD**: *Method over Model*, *Ownership over Delegation*, *Understanding over Acceptance* e *Outcome over Output*.
+- **O Triângulo Canônico de Arquivos**: `task.md` (com regra de semáforo rígida: apenas UMA tarefa em `[/]` por vez), `implementation_plan.md` (contrato prévio obrigatório) e `walkthrough.md` (relatório de provas determinísticas que substitui a inspeção manual no VS Code).
+- **A Trava Dupla Anti-Fraude**: Separação física de pastas (`tests/core/` intocável vs `tests/features/` para novas features) + a *Golden Rule* em bash executada no Gatekeeper/CI.
+- **Mutation Testing (Anti-Testes Falsos)**: Reprovação imediata de testes tautológicos ou vazios.
+- **Comunicação Híbrida**: Relatórios e interação em Português; código, commits e docstrings em Inglês.
 - **Anti-Token Waste**: Busca cirúrgica, leitura paginada e persistência de contexto sem ler o disco inteiro.
 - **Blindagem Anti-Alucinação (Duplo Gate)**: Proibição de suposições ou invenção de estruturas fora do `PROJECT_CONTEXT.md` (Gate 1) + auditoria de conformidade no Gatekeeper (Gate 2).
 
@@ -20,16 +20,21 @@ Regras sempre ativas para o agente durante todo o ciclo de desenvolvimento:
 - **`safety-guard` (`PreToolUse`)**: Intercepta `run_command` e bloqueia comandos destrutivos sistêmicos (`rm -rf /`, `mkfs`) e tentativas de exibir chaves privadas SSH (`id_rsa`, etc.).
 - **`context-loader` (`SessionStart`)**: Injeta automaticamente o resumo do `PROJECT_CONTEXT.md` ao iniciar qualquer novo chat, garantindo zero desperdício de tokens.
 
-### 3. 🤖 Esteira Multiagente Determinística (`agents/`)
-Subagentes com papéis estritos e travas anti-fraude:
-- **`planner`**: Arquiteto e triagem de requisitos (somente leitura; rejeita escopos com > 3 passos).
-- **`qa-engineer`**: Engenheiro de testes TDD (cria testes de aceite em `tests/features/` e valida estado RED).
-- **`coder`**: Construtor de software (escrita restrita a `src/`; zero permissão de alterar testes; loop máximo de 3 tentativas).
-- **`gatekeeper`**: Auditor de integridade (audita `git diff` contra fraudes, compila `walkthrough.md` e abre PR no GitHub).
+### 3. 🤖 Esteiras Especializadas de Subagentes (`agents/`)
+Subagentes com papéis estritos, travas anti-fraude e isolamento físico de processos:
+- **Planejamento de Produto & Arquitetura**:
+  - **`product-owner`**: Engenharia de requisitos, personas e critérios Gherkin/Checklist.
+  - **`system-architect`**: Mapeamento de impacto em `src/`, ADRs em `docs/adr/` e garantia de atomicidade (<= 3 passos).
+- **Execução Técnica TDD**:
+  - **`planner`**: Arquiteto e triagem de requisitos (somente leitura; rejeita escopos com > 3 passos).
+  - **`qa-engineer`**: Engenheiro de testes TDD (cria testes de aceite em `tests/features/` e valida estado RED).
+  - **`coder`**: Construtor de software (escrita restrita a `src/`; zero permissão de alterar testes; loop máximo de 3 tentativas).
+  - **`gatekeeper`**: Auditor de integridade (executa a Golden Rule em bash, audita `git diff` contra fraudes, compila `walkthrough.md` e abre PR no GitHub).
 
 ### 4. 🧠 Skills Especializadas (`skills/`)
 Procedimentos acionados sob demanda pelo agente ou pelo desenvolvedor:
-- **`issue-pipeline`** (`/run-issue <numero_ou_url>`): Orquestra o ciclo completo ponta a ponta (Planner ➔ QA ➔ Coder ➔ Gatekeeper ➔ PR).
+- **`plan-feature`** (`/plan-feature <ideia_ou_issue>`): Esteira de planejamento no GitHub (PO ➔ Arquiteto ➔ Gate de Aprovação ➔ Issues no GitHub).
+- **`issue-pipeline`** (`/run-issue <numero_ou_url>`): Orquestra o ciclo técnico completo de TDD (Planner ➔ QA ➔ Coder ➔ Gatekeeper ➔ PR).
 - **`publish-rule-issue`** (`/publish-rule-issue`): Publica aprendizados do `/learn` diretamente como Issue no repositório `VitorJacom/my-agents`.
 - **`git-workflow`**: Criação de branches semânticas, commits Conventional Commits e templates de PR.
 - **`code-review`**: Análise estática, segurança (OWASP), arquitetura e refatoração com relatório de severidade.

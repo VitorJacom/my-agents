@@ -1,10 +1,66 @@
-# Diretrizes de Governança e Engenharia para Agentes
+# Diretrizes de Governança e Engenharia para Agentes (Manifesto AIDD)
 
 Este documento estabelece os padrões e comportamentos mandatórios que qualquer agente de desenvolvimento de IA deve seguir ao atuar neste e em outros projetos.
 
 ---
 
-## 1. Comunicação e Idioma (Padrão Híbrido)
+## 🏛️ Os 4 Valores do Manifesto AIDD (AI-Driven Development)
+
+1. **Método sobre o Modelo (Method over Model)**: O processo, o sandboxing, as travas de Git e a máquina de estados determinística importam mais do que qual LLM está sendo executado.
+2. **Responsabilidade sobre Delegação (Ownership over Delegation)**: A IA acelera e gera, mas os contratos determinísticos e você garantem as regras inegociáveis.
+3. **Compreensão sobre Aceitação (Understanding over Acceptance)**: Não se aceita código por presunção; aceita-se por testes determinísticos executados com evidências irrefutáveis no `walkthrough.md`.
+4. **Resultado sobre Volume (Outcome over Output)**: Gerar 10.000 linhas ou queimar milhões de tokens é desperdício; o que vale é a issue atômica resolvida com CI verde.
+
+---
+
+## 🔺 1. O Triângulo de Arquivos de Ciclo de Vida (Raiz do Projeto)
+
+O agente **não conversa em texto corrido para gerenciar estado**; ele é obrigado a persistir e transitar estado por meio de três arquivos padronizados:
+
+### 1.1. `task.md` (A Memória e Semáforo da Tarefa Ativa)
+- O estado de execução vive exclusivamente aqui, com marcações rígidas:
+  - `[ ]`: Tarefa pendente.
+  - `[/]`: Tarefa em progresso.
+  - `[x]`: Tarefa concluída com testes verdes.
+- **Regra de Semáforo Inviolável**: **Apenas UMA tarefa pode estar em `[/]` por vez**. O agente é estritamente proibido de iniciar a tarefa seguinte enquanto a atual não estiver com testes passando e carimbada com `[x]`.
+
+### 1.2. `implementation_plan.md` (O Contrato Técnico Preliminar)
+- Especifica com precisão cirúrgica quais arquivos serão tocados em `src/`, quais funções/interfaces serão criadas e quais testes serão exigidos em `tests/features/`.
+- **Nenhum código de produção em `src/` pode ser gerado antes de esse plano existir e ser aprovado.**
+
+### 1.3. `walkthrough.md` (O Relatório de Provas Determinísticas)
+- É a substituição da inspeção manual no VS Code.
+- Contém a prova irrefutável de cumprimento da tarefa: comando exato executado (ex.: `pytest`, `npx vitest run`), logs de 100% de sucesso, saída de `git status --short` e diff dos arquivos modificados. Se o relatório estiver verde e sem desvios, o merge pode ser feito com segurança.
+
+---
+
+## 🛡️ 2. A Trava Dupla Anti-Fraude (Defesa em Profundidade)
+
+Para impedir o "golpe do estagiário" (quando o modelo tenta alterar, comentar ou apagar testes antigos para forçar a suíte a passar):
+
+### 2.1. Separação Canônica de Pastas de Teste
+- `tests/core/`: Guarda as regras de negócio históricas e fundamentais. **Zona intocável.**
+- `tests/features/`: Onde o QA cria novos testes de aceitação da issue ativa.
+
+### 2.2. A "Golden Rule" via Bash (Gatekeeper & CI)
+Antes de comitar ou abrir PR, o Gatekeeper e o CI executam a checagem determinística do Git:
+```bash
+MODIFIED=$(git diff --name-only origin/main...HEAD 2>/dev/null | grep -E '^tests/core/' || true)
+if [ -n "$MODIFIED" ]; then
+  echo "ALERTA DE FRAUDE: O agente modificou arquivos protegidos em tests/core/!"
+  exit 1
+fi
+```
+Se houver **1 caractere alterado** em `tests/core/`, a esteira é abortada imediatamente (Circuit-Breaker).
+
+### 2.3. Anti-Triviality & Mutation Testing (Exterminador de Testes Falsos)
+- Proibido testes vazios ou tautológicos (ex.: `expect(true).toBe(true)` ou `assert True`).
+- O teste deve conter asserções de negócio e falhar comprovadamente no estado inicial (**RED**).
+- Em auditorias estritas, ferramentas de mutação (ex: Stryker para JS/TS ou Mutmut para Python) invertem operadores; se o teste continuar passando com código mutado, o teste é considerado falso e rejeitado.
+
+---
+
+## 3. Comunicação e Idioma (Padrão Híbrido)
 
 - **Interação com o Desenvolvedor**: A comunicação direta, relatórios, resumos de planos e explicações de decisões devem ser feitas em **Português (pt-BR)** de forma clara, objetiva e colaborativa.
 - **Artefatos de Código e Engenharia**:
@@ -14,9 +70,9 @@ Este documento estabelece os padrões e comportamentos mandatórios que qualquer
 
 ---
 
-## 2. Padrões de Git e Versionamento
+## 4. Padrões de Git e Versionamento
 
-### 2.1. Conventional Commits
+### 4.1. Conventional Commits
 Toda alteração comitada deve seguir o padrão: `<tipo>(<escopo opcional>): <descrição no imperativo>`:
 - `feat`: Nova funcionalidade para o usuário ou sistema.
 - `fix`: Correção de bug.
@@ -25,93 +81,39 @@ Toda alteração comitada deve seguir o padrão: `<tipo>(<escopo opcional>): <de
 - `chore`: Atualização de dependências, tarefas de build ou configurações de infraestrutura.
 - `docs`: Alterações exclusivamente em documentação.
 
-*Exemplo*: `feat(auth): add jwt token refresh handler`
-
-### 2.2. Estrutura de Branches
+### 4.2. Estrutura de Branches
 - `feature/<nome-curto>`: Novas funcionalidades.
 - `fix/<nome-curto>`: Correção de defeitos.
 - `refactor/<nome-curto>`: Melhorias arquiteturais e refatoração.
-
-### 2.3. Resumo de Alterações
-Ao concluir alterações significativas, forneça um checklist das modificações feitas e verifique sempre o `git status` / `git diff` antes de finalizar.
-
----
-
-## 3. Qualidade de Código e Engenharia
-
-### 3.1. Testes Obrigatórios e TDD
-- **Nenhuma entrega sem testes**: Qualquer código novo ou correção de bug deve ser acompanhada de testes automatizados (unitários, integração ou e2e conforme o escopo).
-- **Cobertura de Bordas**: Além do caminho feliz (*happy path*), sempre inclua cenários com valores nulos/indefinidos, erros de rede, payloads inválidos e timeouts.
-- **Validação Local**: Sempre execute a suíte de testes antes de considerar a tarefa finalizada.
-
-### 3.2. Clean Code e SOLID
-- **Single Responsibility**: Funções e módulos devem ter uma única responsabilidade bem delimitada.
-- **Simplicidade (KISS & YAGNI)**: Não implemente abstrações desnecessárias para cenários hipotéticos futuros.
-- **Imutabilidade e Funções Puras**: Priorize dados imutáveis e funções sem efeitos colaterais sempre que aplicável.
-- **Tratamento Explícito de Erros**: Nunca capture erros silenciosamente (`catch {}` vazio). Sempre registre ou propague o erro adequadamente.
-
----
-
-## 4. Segurança e Proteção de Segredos
-
-- **Zero Credenciais em Repositório**: Jamais escreva senhas, tokens de API, chaves privadas ou strings de conexão diretamente no código.
-- **Arquivos Protegidos**: Arquivos `.env`, `.env.*.local`, `*.pem`, `id_rsa` e similares nunca devem ser versionados.
-- **Validação de Inputs**: Sempre valide entradas de usuários e requisições externas para evitar injeções (SQL, Command Injection, XSS).
 
 ---
 
 ## 5. Eficiência de Contexto e Busca Cirúrgica (Anti-Token Waste)
 
-- **Princípio Search-First (CodeSearch)**:
-  - **Proibido varrer o repositório cegamente**: Jamais execute comandos recursivos de dump (`find .`, `ls -R`, ou leitura sequencial de pastas inteiras) no início de uma sessão ou novo chat.
-  - O agente deve se orientar primariamente pelo arquivo canônico `PROJECT_CONTEXT.md` presente na raiz do projeto, que resume a arquitetura, stack e o estado atual.
-  - Para localizar trechos de código, definições de tipos, rotas ou funções, realize **buscas cirúrgicas** direcionadas por termos/símbolos em vez de ler arquivos inteiros.
-- **Leitura Delimitada e Paginada**:
-  - Ao inspecionar arquivos grandes, restrinja o escopo utilizando intervalos específicos de linhas (`StartLine` e `EndLine`), evitando carregar blocos desnecessários na janela de contexto.
-- **Delegação para Subagente de Pesquisa (`research`)**:
-  - Quando a tarefa exigir uma investigação profunda ou leitura extensiva de múltiplos módulos para entender a arquitetura, delegue a exploração ao subagente `research` para isolar a contaminação da janela de contexto principal e retornar apenas uma síntese objetiva.
+- **Princípio Search-First**: Proibido varrer o repositório cegamente (`find .`, `ls -R`). O agente orienta-se primariamente pelo `PROJECT_CONTEXT.md` na raiz e realiza buscas cirúrgicas por símbolos.
+- **Leitura Delimitada**: Utilize paginação com `StartLine` e `EndLine` para inspecionar apenas trechos necessários.
+- **Delegação para `research`**: Para investigações extensivas, delegue ao subagente de pesquisa isolando a janela de contexto.
 
 ---
 
 ## 6. Blindagem Contra Alucinação e Grounding Mandatório (Duplo Gate)
 
 ### 6.1. Gate 1: Princípio da Verificação Antes da Suposição
-- **Zero Alucinação de Padrões e Regras**: É expressamente PROIBIDO ao agente assumir ou inventar:
-  - Estruturas de pastas que divirjam das convenções canônicas declaradas no `PROJECT_CONTEXT.md`.
-  - Bibliotecas, frameworks ou dependências que não constem no manifesto do projeto (`package.json`, `pyproject.toml`, etc.).
-  - Esquemas de arquivos (Markdown, JSON, YAML) inventados ad-hoc. Toda documentação ou artefato deve seguir a estrutura canônica existente no projeto.
-- **Regra de Parada e Confirmação**: Se um padrão arquitetural, esquema de dados ou convenção de arquivo não estiver explicitamente evidente no `PROJECT_CONTEXT.md` ou na base de código, o agente DEVE verificar os arquivos de especificação ou solicitar clarificação ao desenvolvedor antes de criar artefatos.
+- Proibido supor bibliotecas inexistentes no manifesto (`package.json`, etc.), inventar pastas ou desviar de `PROJECT_CONTEXT.md`.
+- Na dúvida, verifique a especificação ou pare e solicite confirmação ao desenvolvedor.
 
 ### 6.2. Gate 2: Auditoria de Conformidade no Gatekeeper
-- Antes de qualquer entrega, Pull Request ou commit ser finalizado, o subagente `gatekeeper` deve auditar o `git diff` contra os padrões canônicos estabelecidos em `PROJECT_CONTEXT.md`. Qualquer desvio estrutural ou arquivo criado fora de padrão resultará no bloqueio imediato da entrega.
-
----
-
-## 6. Protocolo de Resposta do Agente
-
-Ao responder a uma solicitação de implementação ou depuração, o agente deve:
-1. **Contexto e Causa-Raiz**: Explicar brevemente o diagnóstico ou o que foi planejado.
-2. **Arquivos Afetados**: Listar com links clicáveis todos os arquivos alterados ou criados.
-3. **Validação Executada**: Mostrar o resultado dos testes ou comandos de validação rodados.
-4. **Próximos Passos**: Recomendar os próximos passos ou pontos de atenção.
-
-### 6.1. Protocolo Pós-Learn (Globalização de Regras)
-- Sempre que um ciclo de comando `/learn` for concluído com sucesso em qualquer projeto:
-  - O agente deve **obrigatoriamente perguntar** ao desenvolvedor ao final da resposta:
-    > *"Deseja abrir uma task de melhoria no repositório central `VitorJacom/my-agents` para persistir e padronizar essa regra globalmente?"*
-  - Se o usuário confirmar ("sim", "pode criar", etc.), o agente deve acionar a skill [`publish-rule-issue`](file:///home/vitor/Projetos/03-pessoal/my-agents/skills/publish-rule-issue/SKILL.md) e registrar a Issue estruturada no GitHub via `gh issue create`.
+- Antes de qualquer entrega, o Gatekeeper audita o `git diff` contra os padrões canônicos estabelecidos em `PROJECT_CONTEXT.md`.
 
 ---
 
 ## 7. Diretrizes de Execução Multiagente
 
-### 6.1. Proibição de Emulação Monolítica
-- Quando um fluxo ou tarefa exigir o envolvimento de múltiplos papéis especializados (ex: Arquiteto, QA, Coder, Auditor):
-  - **NUNCA** simule o diálogo ou as ações das personas dentro de uma única sessão principal monolítica.
-  - **SEMPRE** instancie os subagentes correspondentes usando a ferramenta `invoke_subagent` com seu respectivo `Role` e `Prompt` específico.
-  - O agente pai atua exclusivamente como **orquestrador**, aguardando as respostas e validando os critérios de transição de estado antes de disparar o próximo subagente.
+### 7.1. Proibição de Emulação Monolítica
+- Quando um fluxo exigir múltiplos papéis especializados (ex: PO, Arquiteto, QA, Coder, Gatekeeper), **NUNCA** simule o diálogo dentro de uma única sessão principal monolítica. Instancie os subagentes via `invoke_subagent`.
 
-### 6.2. Confinamento de Permissões em Agentes
-- Para criar subagentes restritos (somente-leitura ou restritos de escrita):
-  - Declare explicitamente apenas as tools necessárias na chave `tools:` do frontmatter (ex.: `[read_file, search_web]` para agentes somente-leitura).
-  - Nunca declare ferramentas de execução (`run_command`, `write_file`) em agentes que devem ser estritamente passivos ou de auditoria.
+### 7.2. Confinamento de Permissões
+- Declare apenas as tools estritamente necessárias na chave `tools:` do `agent.md`. Agentes passivos/somente-leitura nunca devem ter ferramentas de escrita ou terminal aberto.
+
+### 7.3. Protocolo Pós-Learn (Globalização de Regras)
+- Ao concluir um ciclo de `/learn`, o agente deve perguntar se deseja registrar a melhoria no repositório central `VitorJacom/my-agents` via skill `publish-rule-issue`.
