@@ -117,3 +117,25 @@ Toda alteração comitada deve seguir o padrão: `<tipo>(<escopo opcional>): <de
 
 ### 7.3. Protocolo Pós-Learn (Globalização de Regras)
 - Ao concluir um ciclo de `/learn`, o agente deve perguntar se deseja registrar a melhoria no repositório central `VitorJacom/my-agents` via skill `publish-rule-issue`.
+
+---
+
+## 8. Protocolo de Validação Isolada em Sandbox (Clean Room Testing)
+
+Para certificar que novos plugins, esteiras, skills e regras funcionem de forma idêntica à experiência de um usuário real em um repositório externo consumidor:
+
+### 8.1. O Princípio do Clean Room (Ambiente Estéril)
+- **Proibição de Herança de Contexto**: Nunca execute testes de esteiras ou validações no sandbox dependendo do histórico acumulado na conversa principal de desenvolvimento. O agente que atua no sandbox deve operar com contexto 100% limpo.
+- **Simulação Fiel de Repositório de "Verdade"**: O diretório `sandbox/` deve possuir sua própria infraestrutura de repositório consumidor: seu próprio `.git`, seu `PROJECT_CONTEXT.md` e sua pasta local `.agents/` (contendo `.agents/plugins.json` e/ou os plugins baixados em `.agents/plugins/<nome>`).
+
+### 8.2. Isolamento de Workspace Obrigatório (`cd` no Sandbox + Nova Instância `agy`)
+- Para garantir que **NENHUM** contexto, regra ou arquivo residual do projeto raiz contamine o teste:
+  1. O agente é **estritamente obrigado a navegar via `cd` para dentro do diretório do sandbox** antes de disparar o comando do Antigravity CLI.
+  2. Disparar uma **nova instância desacoplada do CLI** (`agy`) em modo de execução pontual:
+  ```bash
+  cd /caminho/do/sandbox && agy --dangerously-skip-permissions -p "<comando ou instrução a ser testada>"
+  ```
+- **Por que esta regra é inviolável**:
+  - O Antigravity CLI descobre o workspace e a árvore de configurações a partir do diretório de trabalho atual (CWD). Ao dar `cd sandbox`, o `agy` descobre exclusivamente o `.agents/` e o `PROJECT_CONTEXT.md` do sandbox, impedindo que qualquer contexto do repositório pai vaze para a sessão.
+  - A execução desacoplada via `-p` garante uma sessão efêmera e estéril, comprovando que qualquer desenvolvedor externo que clonar o projeto consumidor terá o mesmo comportamento determinístico.
+

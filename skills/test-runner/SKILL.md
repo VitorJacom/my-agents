@@ -44,3 +44,23 @@ Se um teste quebrar, siga a seguinte ordem:
    - Faça ajustes pontuais na função ou classe sob teste.
 4. **Adicione Testes de Regressão**:
    - Se a falha foi causada por um bug recém-descoberto, crie um caso de teste específico que reproduzia a quebra antes da correção.
+
+---
+
+## 4. Validação em Clean Room (Ambientes Sandbox & Projetos Consumidores)
+
+Ao validar o funcionamento de plugins, regras e esteiras em um repositório de teste ou sandbox (ex.: `sandbox/`):
+1. **Obrigatório dar `cd` no Sandbox**:
+   - Nunca execute testes do sandbox a partir da raiz do repositório pai de desenvolvimento do plugin.
+   - Navegue explicitamente para o diretório antes da execução:
+   ```bash
+   cd /caminho/do/sandbox
+   ```
+2. **Executar via Nova Instância de CLI (`agy`)**:
+   - Dispare uma instância desacoplada e sem herança de histórico para comprovar que o repositório consumidor funciona isoladamente:
+   ```bash
+   cd sandbox && agy --dangerously-skip-permissions -p "npx vitest run"
+   ```
+3. **Auditoria de Descoberta**:
+   - Verifique se a nova instância lê as regras e skills diretamente de `sandbox/.agents/` e `PROJECT_CONTEXT.md` local, garantindo zero contaminação do chat de desenvolvimento.
+
