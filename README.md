@@ -13,9 +13,12 @@ Regras sempre ativas para o agente durante todo o ciclo de desenvolvimento:
 - **TDD & Testes Obrigatórios**: Nenhuma entrega sem testes automatizados que cubram tanto o caminho feliz quanto casos de borda.
 - **Clean Architecture & SOLID**: Código desacoplado, sem complexidade ciclomática desnecessária e tratamento explícito de erros.
 - **Segurança**: Proibição de exposição de secrets, credenciais ou arquivos `.env`.
+- **Anti-Token Waste**: Busca cirúrgica, leitura paginada e persistência de contexto sem ler o disco inteiro.
+- **Blindagem Anti-Alucinação (Duplo Gate)**: Proibição de suposições ou invenção de estruturas fora do `PROJECT_CONTEXT.md` (Gate 1) + auditoria de conformidade no Gatekeeper (Gate 2).
 
-### 2. 🛡️ Guardrails de Segurança (`hooks.json` + `scripts/safety-guard.sh`)
-- Hook `PreToolUse` bloqueante para interceptar comandos com potencial destrutivo (ex: `rm -rf /`) ou tentativas de leitura inadvertida de credenciais/chaves privadas SSH.
+### 2. 🛡️ Guardrails de Segurança & Persistência de Contexto (`hooks.json`)
+- **`safety-guard` (`PreToolUse`)**: Intercepta `run_command` e bloqueia comandos destrutivos sistêmicos (`rm -rf /`, `mkfs`) e tentativas de exibir chaves privadas SSH (`id_rsa`, etc.).
+- **`context-loader` (`SessionStart`)**: Injeta automaticamente o resumo do `PROJECT_CONTEXT.md` ao iniciar qualquer novo chat, garantindo zero desperdício de tokens.
 
 ### 3. 🤖 Esteira Multiagente Determinística (`agents/`)
 Subagentes com papéis estritos e travas anti-fraude:
@@ -36,24 +39,99 @@ Procedimentos acionados sob demanda pelo agente ou pelo desenvolvedor:
 
 ---
 
-## 🛠️ Como Instalar e Utilizar
+## 🛠️ Como Inserir e Utilizar o Plugin em Outros Projetos
 
-### Instalação via CLI (`agy plugin`)
-Você pode instalar este plugin globalmente ou no seu projeto usando a CLI do Antigravity:
+Você pode habilitar o plugin nos seus outros projetos de **três maneiras**, dependendo da sua preferência de escopo:
+
+---
+
+### Opção 1: Instalação Global na Máquina (Recomendada)
+Esta é a forma mais prática: o plugin fica ativo para **todos** os repositórios e projetos que você abrir no Antigravity CLI.
+
+Execute uma única vez no terminal:
 
 ```bash
 # A partir do caminho local
 agy plugin install /home/vitor/Projetos/03-pessoal/my-agents
 
-# Ou diretamente do repositório Git (quando publicado)
-agy plugin install https://github.com/vitor/my-agents.git
+# Ou diretamente do repositório remoto do GitHub
+agy plugin install https://github.com/VitorJacom/my-agents.git
 ```
 
-### Executando a Esteira de Issues
-No chat ou terminal do Antigravity no projeto onde o plugin estiver ativo:
-```text
-/run-issue #12
+> [!TIP]
+> **Como verificar se está ativo:**
+> Rode `agy plugin list`. O `my-agents` deve aparecer com status `(enabled)`.
+
+---
+
+### Opção 2: Ativação Declarada por Projeto via `plugins.json`
+Se você deseja controlar explicitamente quais projetos utilizam o plugin sem instalar tudo de forma global, adicione a configuração no projeto de destino:
+
+No seu projeto alvo (ex.: `meu-app/`):
+1. Crie ou edite o arquivo `.agents/plugins.json`:
+```json
+{
+  "plugins": [
+    "/home/vitor/Projetos/03-pessoal/my-agents"
+  ]
+}
 ```
+
+2. O Antigravity carregará automaticamente todas as regras, skills, hooks e subagentes sempre que esse workspace estiver aberto.
+
+---
+
+### Opção 3: Git Submodule no Workspace (Para Times e CI/CD)
+Se você compartilha o projeto com outros desenvolvedores ou executa em esteiras de CI/CD, vincule o plugin como submódulo Git dentro da pasta de plugins do workspace:
+
+```bash
+# Na raiz do seu projeto de destino:
+mkdir -p .agents/plugins
+git submodule add https://github.com/VitorJacom/my-agents.git .agents/plugins/my-agents
+```
+
+O Antigravity detecta automaticamente plugins localizados em `.agents/plugins/<nome_do_plugin>`.
+
+---
+
+## 📋 Preparando o Projeto de Destino: `PROJECT_CONTEXT.md`
+
+Para que o novo projeto usufrua da **Persistência de Contexto Econômica** e da **Blindagem Anti-Alucinação (Duplo Gate)**:
+
+1. Execute o script sincronizador apontando para a raiz do seu projeto:
+   ```bash
+   /home/vitor/Projetos/03-pessoal/my-agents/scripts/sync-project-context.py /caminho/do/meu-projeto
+   ```
+   Isso criará o arquivo canônico `PROJECT_CONTEXT.md` na raiz do seu projeto com o template oficial.
+
+2. Ajuste as seções `## 🛠️ Stack Tecnológica` e `## 📂 Estrutura Canônica de Diretórios` para refletir a arquitetura daquele projeto.
+
+---
+
+## 🚀 Comandos Rápidos nos Seus Projetos
+
+Uma vez ativo no seu projeto, você tem acesso aos seguintes comandos no chat do Antigravity:
+
+- **Executar uma Issue do GitHub na esteira TDD determinística**:
+  ```text
+  /run-issue #42
+  ```
+- **Publicar uma regra aprendida via `/learn` de volta para o repo central**:
+  ```text
+  /publish-rule-issue
+  ```
+- **Auditar código antes de abrir PR**:
+  ```text
+  /code-review
+  ```
+- **Criar commits e branches semânticas**:
+  ```text
+  /git-workflow
+  ```
+- **Ativar a statusline customizada com modelo e alerta de quota**:
+  ```text
+  /statusline /home/vitor/Projetos/03-pessoal/my-agents/scripts/statusline-quota.sh
+  ```
 
 ---
 
@@ -62,12 +140,17 @@ No chat ou terminal do Antigravity no projeto onde o plugin estiver ativo:
 ```text
 my-agents/
 ├── plugin.json                 # Manifesto do plugin
-├── README.md                   # Documentação do plugin
-├── hooks.json                  # Registro de hooks de ciclo de vida
+├── README.md                   # Documentação completa
+├── PROJECT_CONTEXT.md          # Contexto canônico da arquitetura
+├── hooks.json                  # Registro de hooks de ciclo de vida (SessionStart, PreToolUse)
 ├── scripts/
-│   └── safety-guard.sh         # Validador de segurança PreToolUse
+│   ├── safety-guard.sh         # Validador de segurança PreToolUse
+│   ├── session-start-context.sh# Injetor leve de contexto SessionStart
+│   ├── sync-project-context.py # Atualizador automático do PROJECT_CONTEXT.md
+│   ├── metrics-collector.py    # Coletor de telemetria e tokens por agente
+│   └── statusline-quota.sh     # Renderizador customizado da statusline
 ├── rules/
-│   └── AGENTS.md               # Diretrizes mandatórias de engenharia
+│   └── AGENTS.md               # Diretrizes mandatórias globais e Duplo Gate
 ├── agents/                     # Subagentes especializados da esteira
 │   ├── planner/
 │   │   └── agent.md
@@ -79,15 +162,10 @@ my-agents/
 │       └── agent.md
 └── skills/
     ├── issue-pipeline/         # Orquestrador da esteira /run-issue
-    │   └── SKILL.md
+    ├── publish-rule-issue/     # Publicador de regras pós-learn no GitHub
     ├── git-workflow/           # Fluxo de branches, commits e PRs
-    │   └── SKILL.md
     ├── code-review/            # Auditoria e refatoração de código
-    │   └── SKILL.md
     ├── test-runner/            # Execução e diagnóstico de testes
-    │   └── SKILL.md
     ├── docker-dev/             # Gestão de containers e Docker
-    │   └── SKILL.md
     └── architecture-decision/  # Documentação de ADRs
-        └── SKILL.md
 ```
