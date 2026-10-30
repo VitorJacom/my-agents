@@ -27,6 +27,7 @@ Subagentes com papéis estritos e travas anti-fraude:
 ### 4. 🧠 Skills Especializadas (`skills/`)
 Procedimentos acionados sob demanda pelo agente ou pelo desenvolvedor:
 - **`issue-pipeline`** (`/run-issue <numero_ou_url>`): Orquestra o ciclo completo ponta a ponta (Planner ➔ QA ➔ Coder ➔ Gatekeeper ➔ PR).
+- **`publish-rule-issue`** (`/publish-rule-issue`): Publica aprendizados do `/learn` diretamente como Issue no repositório `VitorJacom/my-agents`.
 - **`git-workflow`**: Criação de branches semânticas, commits Conventional Commits e templates de PR.
 - **`code-review`**: Análise estática, segurança (OWASP), arquitetura e refatoração com relatório de severidade.
 - **`test-runner`**: Deteção automática do framework de testes e execução cirúrgica com diagnóstico de causas-raiz.

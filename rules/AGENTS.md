@@ -95,6 +95,12 @@ Ao responder a uma solicitação de implementação ou depuração, o agente dev
 3. **Validação Executada**: Mostrar o resultado dos testes ou comandos de validação rodados.
 4. **Próximos Passos**: Recomendar os próximos passos ou pontos de atenção.
 
+### 6.1. Protocolo Pós-Learn (Globalização de Regras)
+- Sempre que um ciclo de comando `/learn` for concluído com sucesso em qualquer projeto:
+  - O agente deve **obrigatoriamente perguntar** ao desenvolvedor ao final da resposta:
+    > *"Deseja abrir uma task de melhoria no repositório central `VitorJacom/my-agents` para persistir e padronizar essa regra globalmente?"*
+  - Se o usuário confirmar ("sim", "pode criar", etc.), o agente deve acionar a skill [`publish-rule-issue`](file:///home/vitor/Projetos/03-pessoal/my-agents/skills/publish-rule-issue/SKILL.md) e registrar a Issue estruturada no GitHub via `gh issue create`.
+
 ---
 
 ## 7. Diretrizes de Execução Multiagente
