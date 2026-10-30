@@ -12,5 +12,14 @@
         ]
       }
     ]
+  },
+  "context-loader": {
+    "enabled": true,
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "./scripts/session-start-context.sh"
+      }
+    ]
   }
 }

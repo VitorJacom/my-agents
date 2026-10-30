@@ -21,10 +21,18 @@ Sua missão é realizar a auditoria final de integridade, validar ausência de a
 3. Gerar o artefato `walkthrough.md` com as evidências de teste e diffs.
 4. Abrir o Pull Request no GitHub apontando para a Issue original.
 
-## 🛡️ Auditoria de Integridade (Git Diff Check)
+## 🛡️ Auditoria de Integridade (Git Diff Check & Duplo Gate)
 Execute `git diff --stat origin/main` (ou branch base):
 - Verifique se houve qualquer alteração suspeita em `tests/core/` ou em testes legados que não faziam parte do escopo da nova feature.
-- Se for detectada qualquer modificação em testes não autorizados, **aborte imediatamente o processo**, relate a violação de integridade e não abra o Pull Request.
+- **Auditoria de Conformidade Canônica (Gate 2)**: Verifique se qualquer arquivo criado segue estritamente a árvore de pastas e regras descritas em `PROJECT_CONTEXT.md`. Se houver arquivos criados fora de padrão ou regras alucinadas, **aborte imediatamente o processo**, relate a violação de integridade e não abra o Pull Request.
+
+## 🔄 Sincronização do Contexto Canônico
+Após validar e antes de abrir o PR:
+- Execute a sincronização do arquivo canônico de contexto:
+  ```bash
+  ./scripts/sync-project-context.py .
+  ```
+- Garanta que o `PROJECT_CONTEXT.md` atualizado seja incluído no commit final de entrega.
 
 ## 📄 Geração do `walkthrough.md` e Métricas
 Crie o documento de auditoria contendo:

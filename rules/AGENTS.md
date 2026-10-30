@@ -60,18 +60,30 @@ Ao concluir alterações significativas, forneça um checklist das modificaçõe
 
 ---
 
-## 5. Eficiência de Contexto e Busca Cirúrgica (Anti-Token Waste & Zero-Hallucination)
+## 5. Eficiência de Contexto e Busca Cirúrgica (Anti-Token Waste)
 
 - **Princípio Search-First (CodeSearch)**:
-  - **Proibido varrer o repositório cegamente**: Jamais execute comandos recursivos de dump (`find .`, `ls -R`, ou leitura sequencial de pastas inteiras) no início de uma sessão.
+  - **Proibido varrer o repositório cegamente**: Jamais execute comandos recursivos de dump (`find .`, `ls -R`, ou leitura sequencial de pastas inteiras) no início de uma sessão ou novo chat.
+  - O agente deve se orientar primariamente pelo arquivo canônico `PROJECT_CONTEXT.md` presente na raiz do projeto, que resume a arquitetura, stack e o estado atual.
   - Para localizar trechos de código, definições de tipos, rotas ou funções, realize **buscas cirúrgicas** direcionadas por termos/símbolos em vez de ler arquivos inteiros.
-  - Caso o usuário aponte trechos usando o painel `/codesearch`, aproveite diretamente a referência fornecida.
 - **Leitura Delimitada e Paginada**:
-  - Ao inspecionar arquivos grandes, sempre que a linha de interesse for conhecida pela busca prévia, restrinja o escopo utilizando intervalos específicos de linhas (`StartLine` e `EndLine`), evitando carregar blocos desnecessários na janela de contexto.
-- **Mapa Rápido de Projeto**:
-  - Para entender o ecossistema e comandos de execução, inspecione apenas arquivos essenciais de manifesto (ex.: `package.json`, `pyproject.toml`, `go.mod` ou um `PROJECT.md` raiz, se existente).
+  - Ao inspecionar arquivos grandes, restrinja o escopo utilizando intervalos específicos de linhas (`StartLine` e `EndLine`), evitando carregar blocos desnecessários na janela de contexto.
 - **Delegação para Subagente de Pesquisa (`research`)**:
   - Quando a tarefa exigir uma investigação profunda ou leitura extensiva de múltiplos módulos para entender a arquitetura, delegue a exploração ao subagente `research` para isolar a contaminação da janela de contexto principal e retornar apenas uma síntese objetiva.
+
+---
+
+## 6. Blindagem Contra Alucinação e Grounding Mandatório (Duplo Gate)
+
+### 6.1. Gate 1: Princípio da Verificação Antes da Suposição
+- **Zero Alucinação de Padrões e Regras**: É expressamente PROIBIDO ao agente assumir ou inventar:
+  - Estruturas de pastas que divirjam das convenções canônicas declaradas no `PROJECT_CONTEXT.md`.
+  - Bibliotecas, frameworks ou dependências que não constem no manifesto do projeto (`package.json`, `pyproject.toml`, etc.).
+  - Esquemas de arquivos (Markdown, JSON, YAML) inventados ad-hoc. Toda documentação ou artefato deve seguir a estrutura canônica existente no projeto.
+- **Regra de Parada e Confirmação**: Se um padrão arquitetural, esquema de dados ou convenção de arquivo não estiver explicitamente evidente no `PROJECT_CONTEXT.md` ou na base de código, o agente DEVE verificar os arquivos de especificação ou solicitar clarificação ao desenvolvedor antes de criar artefatos.
+
+### 6.2. Gate 2: Auditoria de Conformidade no Gatekeeper
+- Antes de qualquer entrega, Pull Request ou commit ser finalizado, o subagente `gatekeeper` deve auditar o `git diff` contra os padrões canônicos estabelecidos em `PROJECT_CONTEXT.md`. Qualquer desvio estrutural ou arquivo criado fora de padrão resultará no bloqueio imediato da entrega.
 
 ---
 
