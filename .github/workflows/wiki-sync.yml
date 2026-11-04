@@ -23,30 +23,37 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -euo pipefail
+
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
           WIKI_REPO="https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.wiki.git"
 
-          git clone "$WIKI_REPO" wiki-temp || {
-            echo "Aviso: A Wiki do repositório pode estar desativada ou não ter sido inicializada com sua primeira página no GitHub."
-            echo "Para ativar, acesse a aba 'Wiki' no repositório do GitHub e crie a página inicial (Home)."
-            exit 0
-          }
+          echo "Clonando o repositório da GitHub Wiki..."
+          if ! git clone "$WIKI_REPO" wiki-temp; then
+            echo "::error::Falha ao clonar o repositório da Wiki (https://github.com/${{ github.repository }}.wiki.git)."
+            echo "::error::Certifique-se de que a Wiki está ativada e que a primeira página (Home) foi criada na aba 'Wiki' do GitHub."
+            exit 1
+          fi
 
+          echo "Copiando documentação de docs/ para a Wiki..."
           cp -r docs/* wiki-temp/
 
-          # Garante que Home.md exista caso a Wiki use a convenção padrão do GitHub
-          if [ -f "wiki-temp/ARCHITECTURE.md" ] && [ ! -f "wiki-temp/Home.md" ]; then
+          # Garante que Home.md contenha a arquitetura caso a Wiki use a convenção Home do GitHub
+          if [ -f "wiki-temp/ARCHITECTURE.md" ]; then
             cp wiki-temp/ARCHITECTURE.md wiki-temp/Home.md
           fi
 
           cd wiki-temp
           git add .
           if git diff --cached --quiet; then
-            echo "Nenhuma alteração de documentação detectada na Wiki."
+            echo "Nenhuma alteração de documentação detectada na Wiki. Nada a commitar."
           else
             git commit -m "docs(wiki): sync documentation from docs/ [skip ci]"
-            git push origin master || git push origin main
+            if ! git push origin master && ! git push origin main; then
+              echo "::error::Falha ao enviar commits para o repositório da Wiki."
+              exit 1
+            fi
             echo "Wiki sincronizada com sucesso!"
           fi
