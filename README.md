@@ -9,8 +9,9 @@ Repositório central de padrões de engenharia, governança, segurança e automa
 ### 1. 📋 Diretrizes Centrais & Manifesto AIDD (`rules/AGENTS.md`)
 Regras sempre ativas para o agente durante todo o ciclo de desenvolvimento:
 - **Os 4 Valores do Manifesto AIDD**: *Method over Model*, *Ownership over Delegation*, *Understanding over Acceptance* e *Outcome over Output*.
-- **O Triângulo Canônico de Arquivos**: `task.md` (com regra de semáforo rígida: apenas UMA tarefa em `[/]` por vez), `implementation_plan.md` (contrato prévio obrigatório) e `walkthrough.md` (relatório de provas determinísticas com exigência de prova visual condicional para interfaces gráficas e UIs).
+- **O Triângulo Canônico Efêmero**: `task.md` (com regra de semáforo rígida: apenas UMA tarefa em `[/]` por vez), `implementation_plan.md` (contrato prévio) e `walkthrough.md` (prova determinística publicada diretamente no corpo do PR no GitHub, mantendo a raiz limpa via `.gitignore`).
 - **A Trava Dupla Anti-Fraude**: Separação física de pastas (`tests/core/` intocável vs `tests/features/` para novas features) + a *Golden Rule* em bash executada no Gatekeeper/CI.
+- **Documentação Viva e Wiki Sync**: Fonte única da verdade em `docs/ARCHITECTURE.md`, espelhada automaticamente para a GitHub Wiki via GitHub Actions em cada push na `main`.
 - **Mutation Testing (Anti-Testes Falsos)**: Reprovação imediata de testes tautológicos ou vazios.
 - **Comunicação Híbrida**: Relatórios e interação em Português; código, commits e docstrings em Inglês.
 - **Anti-Token Waste**: Busca cirúrgica, leitura paginada e persistência de contexto sem ler o disco inteiro.
@@ -24,7 +25,7 @@ Regras sempre ativas para o agente durante todo o ciclo de desenvolvimento:
 Subagentes com papéis estritos, travas anti-fraude e isolamento físico de processos:
 - **Planejamento de Produto & Arquitetura**:
   - **`product-owner`**: Engenharia de requisitos, personas e critérios Gherkin/Checklist.
-  - **`system-architect`**: Mapeamento de impacto em `src/`, ADRs em `docs/adr/` e garantia de atomicidade (<= 3 passos).
+  - **`system-architect`**: Mapeamento de impacto em `src/`, consolidação em `docs/ARCHITECTURE.md` e garantia de atomicidade (<= 3 passos).
 - **Design de Interface & Experiência do Usuário**:
   - **`uiux-designer`**: Hierarquia visual, ergonomia, contraste de luminância monocromático (Value Contrast / WCAG), affordance, prova visual headless e *game feel / juiciness*.
 - **Execução Técnica TDD**:

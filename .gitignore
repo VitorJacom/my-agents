@@ -17,3 +17,9 @@ sandbox/
 Thumbs.db
 .idea/
 .vscode/
+
+# Arquivos Efêmeros de Ciclo de Vida do Agente (AIDD)
+task.md
+implementation_plan.md
+walkthrough.md
+

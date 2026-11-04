@@ -7,11 +7,11 @@
 ## 📂 Estrutura Canônica de Diretórios
 - `src/`: Código-fonte de produção.
 - `tests/`: Suíte de testes automatizados (`tests/core/` para testes de base e `tests/features/` para novas features TDD).
-- `docs/`: Documentação técnica e ADRs (`docs/adr/`).
+- `docs/`: Documentação técnica viva e decisões consolidadas (`docs/ARCHITECTURE.md`).
 
 ## 📍 Estado Atual da Arquitetura & Entregas (Auto-Sync)
-- **Última Atualização**: 2026-11-04 15:33
-- **Branch Ativa**: `feature/uiux-and-gamedev-patterns`
+- **Última Atualização**: 2026-11-04 16:06
+- **Branch Ativa**: `feature/lifecycle-governance-and-wiki-sync`
 - **Último Commit**: `9c1c85a - feat(statusline): add custom statusline renderer for Antigravity CLI with quota display (vitor jacom)`
 - **Resumo de Alterações Recentes**:
 ```text

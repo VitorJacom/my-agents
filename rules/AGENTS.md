@@ -13,9 +13,11 @@ Este documento estabelece os padrões e comportamentos mandatórios que qualquer
 
 ---
 
-## 🔺 1. O Triângulo de Arquivos de Ciclo de Vida (Raiz do Projeto)
+## 🔺 1. O Triângulo de Arquivos de Ciclo de Vida Efêmero (Raiz do Projeto)
 
-O agente **não conversa em texto corrido para gerenciar estado**; ele é obrigado a persistir e transitar estado por meio de três arquivos padronizados:
+O agente **não conversa em texto corrido para gerenciar estado**; ele é obrigado a persistir e transitar estado por meio de três arquivos padronizados.
+> [!IMPORTANT]
+> **Natureza Efêmera e Publicação no PR**: `task.md`, `implementation_plan.md` e `walkthrough.md` são ferramentas de trabalho locais e **devem estar no `.gitignore`**. Eles não poluem a branch `main`. A persistência histórica do `walkthrough.md` é feita pelo `gatekeeper` diretamente no corpo oficial do Pull Request no GitHub (`gh pr create --body-file walkthrough.md`).
 
 ### 1.1. `task.md` (A Memória e Semáforo da Tarefa Ativa)
 - O estado de execução vive exclusivamente aqui, com marcações rígidas:
@@ -29,7 +31,7 @@ O agente **não conversa em texto corrido para gerenciar estado**; ele é obriga
 - **Nenhum código de produção em `src/` pode ser gerado antes de esse plano existir e ser aprovado.**
 
 ### 1.3. `walkthrough.md` (O Relatório de Provas Determinísticas)
-- É a substituição da inspeção manual no VS Code.
+- É a substituição da inspeção manual no VS Code e a descrição oficial do Pull Request.
 - Contém a prova irrefutável de cumprimento da tarefa: comando exato executado (ex.: `pytest`, `npx vitest run`), logs de 100% de sucesso, saída de `git status --short` e diff dos arquivos modificados. Se o relatório estiver verde e sem desvios, o merge pode ser feito com segurança.
 - **Prova Visual Condicional (Anti-Cegueira de Código em UIs)**: Sempre que a tarefa envolver componentes visuais (Front-end Web, Mobile, Jogos 2D/3D ou UIs ricas de terminal), testes unitários lógicos 100% verdes NÃO são suficientes. O relatório DEVE conter evidências visuais irrefutáveis (screenshot gerado via navegador headless como `chromium --headless`, logs de renderização do canvas ou prova gráfica visual), prevenindo interfaces quebradas, textos ilegíveis ou paletas sem contraste de luminância. Tarefas puramente backend, CLI ou de infraestrutura permanecem isentas de comprovação gráfica.
 

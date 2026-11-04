@@ -1,0 +1,52 @@
+name: Sync Documentation to GitHub Wiki
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/**'
+      - '.github/workflows/wiki-sync.yml'
+  workflow_dispatch:
+
+jobs:
+  sync-wiki:
+    name: Mirror docs/ to GitHub Wiki
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Sync docs to GitHub Wiki
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          WIKI_REPO="https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.wiki.git"
+
+          git clone "$WIKI_REPO" wiki-temp || {
+            echo "Aviso: A Wiki do repositório pode estar desativada ou não ter sido inicializada com sua primeira página no GitHub."
+            echo "Para ativar, acesse a aba 'Wiki' no repositório do GitHub e crie a página inicial (Home)."
+            exit 0
+          }
+
+          cp -r docs/* wiki-temp/
+
+          # Garante que Home.md exista caso a Wiki use a convenção padrão do GitHub
+          if [ -f "wiki-temp/ARCHITECTURE.md" ] && [ ! -f "wiki-temp/Home.md" ]; then
+            cp wiki-temp/ARCHITECTURE.md wiki-temp/Home.md
+          fi
+
+          cd wiki-temp
+          git add .
+          if git diff --cached --quiet; then
+            echo "Nenhuma alteração de documentação detectada na Wiki."
+          else
+            git commit -m "docs(wiki): sync documentation from docs/ [skip ci]"
+            git push origin master || git push origin main
+            echo "Wiki sincronizada com sucesso!"
+          fi
