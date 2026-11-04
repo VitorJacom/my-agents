@@ -35,6 +35,11 @@ O agente **não conversa em texto corrido para gerenciar estado**; ele é obriga
 - Contém a prova irrefutável de cumprimento da tarefa: comando exato executado (ex.: `pytest`, `npx vitest run`), logs de 100% de sucesso, saída de `git status --short` e diff dos arquivos modificados. Se o relatório estiver verde e sem desvios, o merge pode ser feito com segurança.
 - **Prova Visual Condicional (Anti-Cegueira de Código em UIs)**: Sempre que a tarefa envolver componentes visuais (Front-end Web, Mobile, Jogos 2D/3D ou UIs ricas de terminal), testes unitários lógicos 100% verdes NÃO são suficientes. O relatório DEVE conter evidências visuais irrefutáveis (screenshot gerado via navegador headless como `chromium --headless`, logs de renderização do canvas ou prova gráfica visual), prevenindo interfaces quebradas, textos ilegíveis ou paletas sem contraste de luminância. Tarefas puramente backend, CLI ou de infraestrutura permanecem isentas de comprovação gráfica.
 
+### 1.4. Tolerância Zero a Falsos Positivos em Automações (Fail-Fast Mandatório)
+- Scripts de automação, workflows de CI/CD, hooks e steps em bash NUNCA devem mascarar falhas de operações dependentes com `exit 0` (ex.: capturar erro de clone, push ou rede e sair com sucesso informativo).
+- Todo script de automação deve iniciar com `set -euo pipefail`.
+- Se uma dependência externa falhar (ex: clone da Wiki, API fora do ar, build ausente), o script DEVE emitir erro explícito e encerrar com `exit 1` (usando anotações `::error::` no GitHub Actions), garantindo que o pipeline fique vermelho (RED) imediatamente.
+
 ---
 
 ## 🛡️ 2. A Trava Dupla Anti-Fraude (Defesa em Profundidade)
@@ -96,6 +101,10 @@ Toda alteração comitada deve seguir o padrão: `<tipo>(<escopo opcional>): <de
 - **Princípio Search-First**: Proibido varrer o repositório cegamente (`find .`, `ls -R`). O agente orienta-se primariamente pelo `PROJECT_CONTEXT.md` na raiz e realiza buscas cirúrgicas por símbolos.
 - **Leitura Delimitada**: Utilize paginação com `StartLine` e `EndLine` para inspecionar apenas trechos necessários.
 - **Delegação para `research`**: Para investigações extensivas, delegue ao subagente de pesquisa isolando a janela de contexto.
+
+### 5.1. Princípio da Neutralidade de Domínio em Plugins Globais
+- Em plugins globais (como `my-agents`), é estritamente proibido criar regras globais em `rules/` contendo convenções específicas de um único nicho (ex: física de jogos 2D, frameworks específicos de frontend ou ORMs particulares).
+- **Regras de Nicho pertencem a Skills (`skills/`)**: Devem ser modularizadas como Skills acionadas por *Progressive Disclosure*, garantindo Zero Token Waste em projetos que operam em outros domínios.
 
 ---
 
