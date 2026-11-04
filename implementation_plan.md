@@ -1,14 +1,21 @@
-# Implementation Plan - Protocolo de Validação Isolada em Sandbox (Clean Room Testing)
+# Implementation Plan - Generalização Sem Viés: Regras Visuais, Subagente UI/UX e Skill de Game Dev
 
-## Contexto & Motivação
-Para evitar contaminação cognitiva e vazamento de contexto entre o desenvolvimento do plugin e os testes automatizados simulados no `sandbox/`, formalizamos o protocolo Clean Room. O agente é estritamente orientado a executar `cd` dentro da pasta do sandbox antes de inicializar qualquer novo processo do Antigravity CLI (`agy`), garantindo que o workspace seja descoberto isoladamente e que as configurações de `.agents/` do projeto consumidor sejam validadas de forma autêntica.
+## Contexto & Decisão Arquitetural (ADR-0001)
+Atendendo às demandas das Issues #1 e #2 sem introduzir viés de domínio no plugin global `my-agents`, decompomos a implementação em:
+1. Cláusula de Prova Visual Condicional no Manifesto AIDD (`rules/AGENTS.md`).
+2. Subagente Transversal de UI/UX (`agents/uiux-designer/agent.md`).
+3. Skill Especializada sob demanda de Game Dev (`skills/game-dev-patterns/SKILL.md`) com *Progressive Disclosure*.
+4. Atualização de documentação em `README.md`.
 
 ## Arquivos Impactados
-- `rules/AGENTS.md`: Adição da Seção 8 contendo o protocolo Clean Room, a obrigatoriedade de navegar com `cd <sandbox>` antes do comando `agy` e as regras de simulação fiel de repositório consumidor.
-- `skills/test-runner/SKILL.md`: Adição de diretrizes para testes de caixa-preta e regressão em repositórios sandbox via CLI desacoplada.
-- `~/.gemini/config/plugins/my-agents`: Atualização da instalação global do plugin com `agy plugin install .`.
+- `docs/adr/0001-generalizacao-de-regras-visuais-e-subagente-uiux.md`: Registro da decisão arquitetural (status: Aceita).
+- `rules/AGENTS.md`: Atualização da Seção 1.3 (`walkthrough.md`) com diretrizes de inspeção visual condicional para camadas com UI/Frontend/Games.
+- `agents/uiux-designer/agent.md`: Novo subagente especialista em hierarquia visual, contraste de valor, acessibilidade e microinterações táteis/game feel.
+- `skills/game-dev-patterns/SKILL.md`: Nova skill contendo os padrões de física 2D, FPS independence, debounce de colisões e cinemática procedural.
+- `README.md`: Documentação das novas capacidades do plugin.
 
 ## Passos de Verificação Determinística
-1. Executar `agy plugin validate .` na raiz para garantir conformidade do manifesto e dos componentes.
-2. Executar `cd sandbox && agy --dangerously-skip-permissions -p "npx vitest run"` para comprovar o funcionamento de uma nova instância em ambiente estéril.
-3. Gerar o relatório irrefutável de provas em `walkthrough.md`.
+1. Executar `agy plugin validate .` na raiz para assegurar que agentes, skills e regras estão perfeitamente registrados e válidos.
+2. Atualizar a instalação global do plugin com `agy plugin install .`.
+3. Executar Clean Room test no sandbox com uma nova instância isolada de `agy`.
+4. Registrar saída e evidências no `walkthrough.md`.

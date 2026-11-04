@@ -10,8 +10,8 @@
 - `docs/`: Documentação técnica e ADRs (`docs/adr/`).
 
 ## 📍 Estado Atual da Arquitetura & Entregas (Auto-Sync)
-- **Última Atualização**: 2026-10-30 15:21
-- **Branch Ativa**: `main`
+- **Última Atualização**: 2026-11-04 15:33
+- **Branch Ativa**: `feature/uiux-and-gamedev-patterns`
 - **Último Commit**: `9c1c85a - feat(statusline): add custom statusline renderer for Antigravity CLI with quota display (vitor jacom)`
 - **Resumo de Alterações Recentes**:
 ```text
