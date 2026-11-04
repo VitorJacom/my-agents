@@ -31,6 +31,7 @@ O agente **não conversa em texto corrido para gerenciar estado**; ele é obriga
 ### 1.3. `walkthrough.md` (O Relatório de Provas Determinísticas)
 - É a substituição da inspeção manual no VS Code.
 - Contém a prova irrefutável de cumprimento da tarefa: comando exato executado (ex.: `pytest`, `npx vitest run`), logs de 100% de sucesso, saída de `git status --short` e diff dos arquivos modificados. Se o relatório estiver verde e sem desvios, o merge pode ser feito com segurança.
+- **Prova Visual Condicional (Anti-Cegueira de Código em UIs)**: Sempre que a tarefa envolver componentes visuais (Front-end Web, Mobile, Jogos 2D/3D ou UIs ricas de terminal), testes unitários lógicos 100% verdes NÃO são suficientes. O relatório DEVE conter evidências visuais irrefutáveis (screenshot gerado via navegador headless como `chromium --headless`, logs de renderização do canvas ou prova gráfica visual), prevenindo interfaces quebradas, textos ilegíveis ou paletas sem contraste de luminância. Tarefas puramente backend, CLI ou de infraestrutura permanecem isentas de comprovação gráfica.
 
 ---
 

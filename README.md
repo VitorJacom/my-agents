@@ -9,7 +9,7 @@ Repositório central de padrões de engenharia, governança, segurança e automa
 ### 1. 📋 Diretrizes Centrais & Manifesto AIDD (`rules/AGENTS.md`)
 Regras sempre ativas para o agente durante todo o ciclo de desenvolvimento:
 - **Os 4 Valores do Manifesto AIDD**: *Method over Model*, *Ownership over Delegation*, *Understanding over Acceptance* e *Outcome over Output*.
-- **O Triângulo Canônico de Arquivos**: `task.md` (com regra de semáforo rígida: apenas UMA tarefa em `[/]` por vez), `implementation_plan.md` (contrato prévio obrigatório) e `walkthrough.md` (relatório de provas determinísticas que substitui a inspeção manual no VS Code).
+- **O Triângulo Canônico de Arquivos**: `task.md` (com regra de semáforo rígida: apenas UMA tarefa em `[/]` por vez), `implementation_plan.md` (contrato prévio obrigatório) e `walkthrough.md` (relatório de provas determinísticas com exigência de prova visual condicional para interfaces gráficas e UIs).
 - **A Trava Dupla Anti-Fraude**: Separação física de pastas (`tests/core/` intocável vs `tests/features/` para novas features) + a *Golden Rule* em bash executada no Gatekeeper/CI.
 - **Mutation Testing (Anti-Testes Falsos)**: Reprovação imediata de testes tautológicos ou vazios.
 - **Comunicação Híbrida**: Relatórios e interação em Português; código, commits e docstrings em Inglês.
@@ -25,6 +25,8 @@ Subagentes com papéis estritos, travas anti-fraude e isolamento físico de proc
 - **Planejamento de Produto & Arquitetura**:
   - **`product-owner`**: Engenharia de requisitos, personas e critérios Gherkin/Checklist.
   - **`system-architect`**: Mapeamento de impacto em `src/`, ADRs em `docs/adr/` e garantia de atomicidade (<= 3 passos).
+- **Design de Interface & Experiência do Usuário**:
+  - **`uiux-designer`**: Hierarquia visual, ergonomia, contraste de luminância monocromático (Value Contrast / WCAG), affordance, prova visual headless e *game feel / juiciness*.
 - **Execução Técnica TDD**:
   - **`planner`**: Arquiteto e triagem de requisitos (somente leitura; rejeita escopos com > 3 passos).
   - **`qa-engineer`**: Engenheiro de testes TDD (cria testes de aceite em `tests/features/` e valida estado RED).
@@ -36,6 +38,7 @@ Procedimentos acionados sob demanda pelo agente ou pelo desenvolvedor:
 - **`plan-feature`** (`/plan-feature <ideia_ou_issue>`): Esteira de planejamento no GitHub (PO ➔ Arquiteto ➔ Gate de Aprovação ➔ Issues no GitHub).
 - **`issue-pipeline`** (`/run-issue <numero_ou_url>`): Orquestra o ciclo técnico completo de TDD (Planner ➔ QA ➔ Coder ➔ Gatekeeper ➔ PR).
 - **`publish-rule-issue`** (`/publish-rule-issue`): Publica aprendizados do `/learn` diretamente como Issue no repositório `VitorJacom/my-agents`.
+- **`game-dev-patterns`**: Engenharia e física para jogos 2D (fixed timestep, independência de FPS, debounce de overlap e alcance cinemático).
 - **`git-workflow`**: Criação de branches semânticas, commits Conventional Commits e templates de PR.
 - **`code-review`**: Análise estática, segurança (OWASP), arquitetura e refatoração com relatório de severidade.
 - **`test-runner`**: Deteção automática do framework de testes e execução cirúrgica com diagnóstico de causas-raiz.
