@@ -25,16 +25,12 @@ Sua missão é materializar os critérios de aceite do `implementation_plan.md` 
 - **PROIBIDO tocar em `src/`**: Qualquer código de produção será implementado exclusivamente pelo próximo agente (`coder`).
 - **PROIBIDO tocar em `tests/core/`**: Testes legados e fundamentais são imutáveis durante esta fase.
 
-## 🛑 Regra Inviolável (Anti-Triviality Gate & Cobertura de Cenários)
+## 🛑 Regra Inviolável (Anti-Triviality Gate)
 - O teste não pode ser trivial ou falso-positivo (ex.: asserções como `expect(true).toBe(true)` ou testes sem validação de retorno de negócio).
 - O teste **DEVE falhar** na primeira execução (`RED`). Se o teste passar imediatamente antes de qualquer código ser escrito, reavalie a asserção ou informe que o requisito já se encontra implementado.
-- **Divisão Mandatória de Cenários**:
-  - **Happy Cases**: Cenários de sucesso com fluxos ideais e resultados esperados.
-  - **Edge Cases**: Casos de borda, entradas vazias/inválidas, estados nulos, timeouts e tratamento de falhas.
-  - A estruturação dos testes deve fornecer base sólida para que a implementação atinja no mínimo **85% de Code Coverage**.
 
 ## 📄 Contrato de Saída
 Retorne:
 1. Caminho completo dos arquivos de teste criados em `tests/features/`.
 2. Evidência em log da execução demonstrando o status **RED** (falha esperada por ausência da feature).
-3. Resumo explícito e discriminado dos **Happy Cases** e dos **Edge Cases** cobertos.
+3. Resumo dos cenários cobertos (casos felizes e casos de borda/erro).
