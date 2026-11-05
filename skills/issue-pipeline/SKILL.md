@@ -48,9 +48,10 @@ O agente orquestrador deve guiar a execução estado por estado, chamando os sub
    ```
 2. Invoque o subagente `qa-engineer`:
    - Instrua-o a ler `implementation_plan.md` e criar os testes de aceite estritamente em `tests/features/`.
+   - Instrua-o a cobrir explicitamente **Happy Cases** e **Edge Cases**.
    - Instrua-o a rodar o test runner e capturar a prova de falha (**RED**).
 3. **Validação do Portão de QA**:
-   - Os testes novos falharam conforme esperado e cobrem regras reais?
+   - Os testes novos falharam conforme esperado e cobrem regras reais, contemplando cenários ideais e de borda/erro?
    - **Se SIM (Aprovado)**: Registre a prova do RED e avance para o **ESTADO 3**.
    - **Se NÃO (Falso Positivo ou Teste Trivial)**: Interrompa a esteira e exija correção dos testes.
 
@@ -60,11 +61,13 @@ O agente orquestrador deve guiar a execução estado por estado, chamando os sub
 1. Invoque o subagente `coder`:
    - Instrua-o a implementar a solução estritamente dentro da pasta `src/`.
    - Lembre-o da **Trava Anti-Fraude**: é proibido tocar em arquivos da pasta `tests/`.
+   - Exigir **Code Coverage >= 85%**.
+   - Em caso de alterações visuais/front-end, gerar screenshots/prints das telas renderizadas.
    - Execute o loop de até 3 iterações (editar código ➔ rodar testes).
 2. **Validação do Portão de Implementação**:
-   - Todos os testes passaram (**GREEN**)?
+   - Todos os testes passaram (**GREEN**) e a cobertura é superior ou igual a 85%?
    - **Se SIM (Sucesso)**: Avance para o **ESTADO 4**.
-   - **Se NÃO (Estourou 3 tentativas sem passar)**: Interrompa a esteira imediatamente com status de falha e apresente o log de erro ao usuário.
+   - **Se NÃO (Estourou 3 tentativas sem passar ou coverage < 85%)**: Interrompa a esteira imediatamente com status de falha e apresente o log de erro ao usuário.
 
 ---
 
@@ -74,9 +77,10 @@ O agente orquestrador deve guiar a execução estado por estado, chamando os sub
    - Executar auditoria de integridade com `git diff --stat origin/main` (ou branch base).
    - Validar que nenhum teste fora da nova feature foi modificado ou relaxado.
    - **Auditoria do Duplo Gate**: Comprovar conformidade estrutural contra o `PROJECT_CONTEXT.md` (zero alucinação de padrões).
+   - Validar **Code Coverage >= 85%**, presença de logs de **Happy Cases** e **Edge Cases** e prints de tela em caso de Front-end.
    - Executar `./scripts/sync-project-context.py .` para persistir o novo estado arquitetural da entrega.
    - Executar `./scripts/metrics-collector.py` para calcular o consumo de tokens da esteira.
-   - Gerar o artefato consolidado `walkthrough.md`.
+   - Gerar o artefato consolidado `walkthrough.md` com evidências e prints.
    - Comitar as alterações e abrir o Pull Request no GitHub (via MCP ou `gh pr create`) vinculando a Issue (`Fixes #<numero>`).
 2. **Conclusão & Handoff**:
    - Apresente ao usuário o link do Pull Request aberto, a tabela de telemetria de consumo/cota e a documentação gerada em `walkthrough.md`.

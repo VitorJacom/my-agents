@@ -36,13 +36,18 @@ fi
 ## 🔍 Auditoria de Conformidade Canônica (Gate 2)
 - Verifique se os arquivos criados ou modificados respeitam estritamente a árvore e convenções declaradas no `PROJECT_CONTEXT.md`.
 - Verifique a ausência de testes vazios ou tautológicos (Anti-Triviality).
+- **Auditoria de Code Coverage >= 85%**: Exigir relatório de cobertura e confirmar que o code coverage é igual ou superior a 85%. Se for menor, reprovar a entrega imediatamente.
+- **Auditoria de Cenários (Happy & Edge Cases)**: Confirmar que tanto Happy Cases quanto Edge Cases foram executados, comprovados e registrados.
+- **Auditoria de Front-End (Prints de Telas)**: Se a tarefa envolver componentes visuais de Front-End, verificar e exigir que screenshots das telas feitas estejam devidamente gravados e anexados no `walkthrough.md` e corpo do PR.
 
 ## 📄 Geração do `walkthrough.md` (A Prova Determinística)
 Crie o documento de auditoria contendo:
 - **Resumo da Entrega**: Título e referência da Issue resolvida (`Fixes #<numero>`).
 - **Comprovação TDD**:
-  - Evidência do estado inicial RED (testes falhando criados pelo QA).
+  - Evidência do estado inicial RED (testes falhando criados pelo QA cobrindo Happy Cases e Edge Cases).
   - Evidência do estado final GREEN (suíte completa passando após implementação).
+  - Relatório de **Code Coverage (>= 85%)** comprovado.
+- **Evidência Visual (Front-End)**: Prints/screenshots renderizados das telas implementadas (se aplicável).
 - **Mapa de Alterações**:
   - Saída do comando `git status --short`.
   - Resumo de diffs em `src/` e `tests/features/`.
