@@ -38,8 +38,17 @@ my-agents/
 │   ├── test-statusline.sh    # Benchmark sub-50ms e suite de integridade
 │   └── worktree-manager.sh   # Gestor de ciclo de vida de worktrees isolados
 ├── hooks.json                # Guardrails de execução e injeção de contexto
-└── docs/                     # Documentação viva do sistema
-    └── ARCHITECTURE.md       # Fonte única da verdade (este documento)
+└── docs/                     # Documentação viva e modular do sistema (espelhada na Wiki)
+    ├── ARCHITECTURE.md       # Fonte única da verdade arquitetural (ADRs e Decisões Técnicas)
+    ├── Home.md               # Landing Hub da GitHub Wiki
+    ├── _Sidebar.md           # Navegação lateral estruturada da GitHub Wiki
+    ├── _Footer.md            # Rodapé institucional padronizado da GitHub Wiki
+    ├── Getting-Started.md    # Guia de onboarding e setup para desenvolvedores e agentes
+    ├── AIDD-Manifesto.md     # Valores e governança do Manifesto AI-Driven Development
+    ├── Architecture.md       # Visão estrutural de alto nível para a Wiki
+    ├── Subagents.md          # Catálogo canônico das 7 personas de subagentes
+    ├── Skills-Catalog.md     # Catálogo de skills sob demanda (Progressive Disclosure)
+    └── Troubleshooting.md    # Resolução de problemas e procedimentos operacionais
 ```
 
 ---
@@ -124,3 +133,39 @@ Para equilibrar a velocidade e economia de tokens da IA com a visibilidade de ge
      - Em `/plan-feature`: Estado condicional **UI/UX & Mockup Design** acionado entre o `product-owner` e o `system-architect` exclusivamente quando a demanda possuir impacto visual (`[UI/UX Required: YES]`), injetando o `## Visual & UI/UX Contract` no `planning_proposal.md` e no corpo das Issues do GitHub.
      - Em `/run-issue`: No Estado de Planejamento, se a Issue for visual mas não possuir contrato prévio, o `uiux-designer` é acionado em Modo 1 para estabelecer o contrato; durante a codificação, o `coder` implementa estritamente os Design Tokens; antes do PR, o `uiux-designer` opera em Modo 2 (Auditoria Visual Headless) validando a tela real contra o mockup aprovado antes da liberação pelo `gatekeeper`.
   3. **Efemeridade de Artefatos de Preview**: Arquivos temporários `.mockup-preview.html` e `.mockup-preview.png` são adicionados ao `.gitignore` para não poluir a árvore Git de produção.
+
+---
+
+### Decisão 0007 (2026-11-06): Integração Nativa de Milestones e GitHub Projects v2 com Degradação Graciosa
+* **Status**: Proposta
+* **Contexto**: O ciclo AIDD gerenciava o ciclo de vida de issues de forma pontual no GitHub (`gh issue create`, `gh pr create`), sem integração com a camada de gestão de projetos (GitHub Projects v2) e sem amarração a metas de entrega (Milestones). Isso impedia que times humanos acompanhassem o progresso visual em tempo real em quadros Kanban/Views ou agrupassem entregas atômicas em sprints/versões oficiais sem trabalho manual pós-criação.
+* **Solução Adotada**:
+  1. **Declaração Canônica em `PROJECT_CONTEXT.md`**:
+     - Introdução da seção `## 🎯 Rastreamento & GitHub Governance` para declarar `Active Milestone` e metadados do `GitHub Project v2` (Owner, Project Number e mapeamento de campos de Status: `Planned`, `In Progress`, `In Review`, `Done`).
+  2. **Amarração Nativa de Milestones em `/plan-feature`**:
+     - O Estado 4 do `/plan-feature` detecta se há uma Milestone ativa declarada no contexto ou passada na invocação e inclui a flag `--milestone "<milestone>"` na execução de `gh issue create`.
+  3. **Adição e Transição de Status em GitHub Projects v2**:
+     - Em `/plan-feature` (Estado 4): Ao criar cada issue, o orquestrador invoca `gh project item-add <project_number> --owner <owner> --url <issue_url>`, vinculando-a ao quadro do projeto de forma automatizada.
+     - Em `/run-issue` (`issue-pipeline`): No início da execução (Estado 1/2), o status do item é atualizado para `In Progress`; na fase final (Estado 4 / Gatekeeper), o status transita para `In Review` com o PR aberto.
+  4. **Princípio da Degradação Graciosa (Non-Blocking)**:
+     - Todas as chamadas ao `gh project` são executadas com fallback resiliente e alertas informativos. Falhas por ausência de permissões no token (ex: falta de escopo `project`), projetos não configurados ou erros de rede NUNCA quebram a esteira de desenvolvimento AIDD.
+  5. **Taxonomia Padronizada de Labels e Views AIDD**:
+     - Padronização de labels para consistência entre boards e automações (`type:*`, `status:*`, `aidd:*`).
+     - Definição canônica de Views recomendadas no GitHub Projects v2 (Board Kanban, Sprint/Milestone View e Roadmap).
+
+---
+
+### Decisão 0008 (2026-11-06): Arquitetura da Informação Modular e Governança da GitHub Wiki
+* **Status**: Proposta
+* **Contexto**: A documentação pública na GitHub Wiki dependia de um espelhamento monolítico de `docs/ARCHITECTURE.md` sobrescrito como `Home.md` em `.github/workflows/wiki-sync.yml`. Esse comportamento resultava em uma página única de texto corrido com mais de 150 linhas e centenas de tópicos misturados, ausência de barra de navegação lateral (`_Sidebar.md`), ausência de rodapé institucional (`_Footer.md`), e falta de guias dedicados de onboarding, catálogo de subagentes e catálogo de skills. Além disso, não existia verificação automatizada de integridade sintática e de links internos, arriscando dead links na Wiki do repositório.
+* **Solução Adotada**:
+  1. **Taxonomia Modular de Arquitetura da Informação**:
+     - Decomposição funcional de `docs/` em 9 artefatos temáticos coesos: `Home.md`, `_Sidebar.md`, `_Footer.md`, `Getting-Started.md`, `Subagents.md`, `Skills-Catalog.md`, `AIDD-Manifesto.md`, `Architecture.md` e `Troubleshooting.md`.
+     - `ARCHITECTURE.md` (em maiúsculas) permanece como a fonte canônica interna de decisões arquiteturais do repositório, enquanto `Architecture.md` atua como a página de visão geral voltada para o leitor da Wiki.
+  2. **Navegação Canônica da Wiki (`_Sidebar.md` e `_Footer.md`)**:
+     - Adoção dos recursos nativos do GitHub Wiki para barra lateral fixa e rodapé comum, permitindo que o leitor navegue rapidamente entre Manuais, Governança AIDD e Catálogo de Recursos sem perder o contexto.
+  3. **Refatoração do Pipeline de Sincronização (`.github/workflows/wiki-sync.yml`)**:
+     - Eliminação do workaround legado que sobrescrevia `Home.md` a partir de `ARCHITECTURE.md`.
+     - Preservação da integridade estrutural: cópia de todos os arquivos de `docs/` diretamente para o clone da Wiki, mantendo cada documento em seu escopo de URL nativo do GitHub (`https://github.com/<owner>/<repo>/wiki/<slug>`).
+  4. **Garantia Determinística de Integridade via Testes TDD (`tests/features/test_wiki_structure_and_links.sh`)**:
+     - Implementação de suíte de testes de conformidade que valida a presença física de todos os artefatos de documentação, verifica a resolução de todos os links internos de navegação (anti-dead link) e audita o pipeline do GitHub Actions contra regressões no script de sincronização.

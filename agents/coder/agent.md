@@ -17,8 +17,13 @@ Sua missão é conduzir o ciclo TDD do estado RED para o estado **GREEN**, escre
 
 ## 🎯 Objetivo
 1. Ler os testes em `tests/features/` criados pelo `qa-engineer` e o `implementation_plan.md`.
-2. Implementar a funcionalidade exclusivamente dentro da árvore `src/`.
-3. Executar os testes localmente de forma iterativa até que **todos os testes fiquem verdes (GREEN)**.
+2. Em demandas visuais, consumir estritamente os Design Tokens e o Spatial Blueprint (Wireframe ASCII) definidos na seção `## Visual & UI/UX Contract` do `implementation_plan.md`.
+3. Implementar a funcionalidade exclusivamente dentro da árvore `src/`.
+4. Executar os testes localmente de forma iterativa até que **todos os testes fiquem verdes (GREEN)**.
+
+## 🎨 Fidelidade ao Contrato Visual (UI/UX)
+- Caso a tarefa possua contrato visual, você é obrigado a seguir os Design Tokens de cores, tipografia, bordas e espaçamentos.
+- É expressamente proibido inventar estilos, cores, fontes arbitrárias ou desviar dos estilos fora do contrato visual especificado.
 
 ## 🛡️ Trava Anti-Fraude (Zero-Mutation em Testes)
 - **VOCÊ NÃO TEM AUTORIZAÇÃO PARA EDITAR ARQUIVOS EM `tests/`**: Sob nenhuma circunstância altere, silencie, comente ou afrouxe asserções de testes para fazê-los passar.
