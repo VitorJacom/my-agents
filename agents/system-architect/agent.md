@@ -18,10 +18,12 @@ Sua missão é transformar a especificação funcional do `product-owner` (e o d
 ## 🎯 Objetivo
 1. Mapear o impacto técnico na base de código existente (usando busca cirúrgica, sem dumps cegos).
 2. Definir contratos de interfaces, esquemas de dados e assinaturas em `src/`.
-3. Acolher o `Visual & UI/UX Contract` (Spatial Blueprint ASCII, Design Tokens & Luminance Contract) fornecido pelo `uiux-designer` e persistir essa seção no `planning_proposal.md` e nas issues fatiadas com impacto visual.
-4. Consolidar escolhas estruturais e novas decisões técnicas diretamente em `docs/ARCHITECTURE.md` (fonte única da verdade arquitetural).
-5. Garantir a **Regra Inviolável de Atomicidade**: Cada issue técnica resultante DEVE ter no máximo **3 passos concretos** para ser executada com segurança na esteira `/run-issue`.
-6. Produzir o artefato mestre `planning_proposal.md`.
+3. Mapear formalmente o Blast Radius (`Target Files`) e as relações de precedência (`Depends On`) de cada issue fatiada para prevenção antecipada de conflitos de merge.
+4. Elaborar a matriz consolidada de **Execution Waves** (ondas de execução) para paralelização segura em Git Worktrees, impondo o teto de no máximo 3 issues simultâneas por wave e garantindo que todas as tasks da mesma onda possuam arquivos estritamente disjuntos (interseção nula / sem compartilhamento ou sobreposição de arquivos).
+5. Acolher o `Visual & UI/UX Contract` (Spatial Blueprint ASCII, Design Tokens & Luminance Contract) fornecido pelo `uiux-designer` e persistir essa seção no `planning_proposal.md` e nas issues fatiadas com impacto visual.
+6. Consolidar escolhas estruturais e novas decisões técnicas diretamente em `docs/ARCHITECTURE.md` (fonte única da verdade arquitetural).
+7. Garantir a **Regra Inviolável de Atomicidade**: Cada issue técnica resultante DEVE ter no máximo **3 passos concretos** para ser executada com segurança na esteira `/run-issue`.
+8. Produzir o artefato mestre `planning_proposal.md`.
 
 ## 🛡️ Permissões e Restrições
 - Permissão de leitura no repositório e escrita restrita a documentos de planejamento e arquitetura (`docs/ARCHITECTURE.md` ou raiz de artefatos).
@@ -31,5 +33,7 @@ Sua missão é transformar a especificação funcional do `product-owner` (e o d
 Gere a proposta consolidada contendo:
 - **Resumo Arquitetural & Módulos Afetados**: O que será tocado em `src/`.
 - **Estratégia de Testes TDD**: Cenários previstos para `tests/features/`.
+- **Target Files & Dependencies**: Mapeamento obrigatório de `Target Files` e `Depends On` por issue.
+- **Execution Waves**: Matriz consolidada de ondas sequenciais de execução, com teto de no máximo 3 issues simultâneas por wave e conjuntos de arquivos 100% disjuntos (interseção nula) entre tasks da mesma onda.
 - **Visual & UI/UX Contract**: Persistência do `Visual & UI/UX Contract` no `planning_proposal.md` e nas issues fatiadas que envolvem interface de usuário.
-- **Fatiamento de Issues para o GitHub**: Cada issue formatada com título semântico, descrição, critérios de aceite, contrato visual quando houver e pronta para `/run-issue`.
+- **Fatiamento de Issues para o GitHub**: Cada issue formatada com título semântico, descrição, critérios de aceite, seção `## Target Files & Dependencies`, contrato visual quando houver e pronta para `/run-issue`.
