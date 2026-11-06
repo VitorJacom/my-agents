@@ -36,7 +36,8 @@ my-agents/
 │   ├── statusline-quota.sh   # Renderizador modular da statusline
 │   ├── install-statusline.sh # Automação de setup plug-and-play
 │   ├── test-statusline.sh    # Benchmark sub-50ms e suite de integridade
-│   └── worktree-manager.sh   # Gestor de ciclo de vida de worktrees isolados
+│   ├── worktree-manager.sh   # Gestor de ciclo de vida de worktrees isolados
+│   └── reconcile-github-governance.sh # Reconciliação idempotente de governança e backlog
 ├── hooks.json                # Guardrails de execução e injeção de contexto
 └── docs/                     # Documentação viva e modular do sistema (espelhada na Wiki)
     ├── ARCHITECTURE.md       # Fonte única da verdade arquitetural (ADRs e Decisões Técnicas)
@@ -203,3 +204,18 @@ Para equilibrar a velocidade e economia de tokens da IA com a visibilidade de ge
      - Preservação da integridade estrutural: cópia de todos os arquivos de `docs/` diretamente para o clone da Wiki, mantendo cada documento em seu escopo de URL nativo do GitHub (`https://github.com/<owner>/<repo>/wiki/<slug>`).
   4. **Garantia Determinística de Integridade via Testes TDD (`tests/features/test_wiki_structure_and_links.sh`)**:
      - Implementação de suíte de testes de conformidade que valida a presença física de todos os artefatos de documentação, verifica a resolução de todos os links internos de navegação (anti-dead link) e audita o pipeline do GitHub Actions contra regressões no script de sincronização.
+
+---
+
+### Decisão 0009 (2026-11-06): Reconciliação Idempotente de Governança no GitHub e Backfill de Backlog
+* **Status**: Implementada
+* **Contexto**: Com o suporte nativo a Milestones e GitHub Projects v2 (Decisão 0007), issues existentes, épicos desmembrados ou itens criados fora do pipeline AIDD sofrem deriva de governança (ausência de milestone ativa ou não vinculação ao quadro do Project v2). Além disso, falhas transitórias de conectividade ou execuções legadas necessitavam de um mecanismo determinístico de auditoria e reconciliação em lote.
+* **Solução Adotada**:
+  1. **Script Utilitário de Reconciliação (`scripts/reconcile-github-governance.sh`)**:
+     - Varredura determinística de issues abertas via GitHub CLI (`gh issue list`).
+     - Extração canônica de `Active Milestone`, `Owner` e `Project Number` a partir de `PROJECT_CONTEXT.md` (ou caminho alternativo via `--context-file`).
+     - Atribuição idempotente da Milestone ativa às issues desprovidas de marco (`gh issue edit --milestone`), preservando milestones distintas pré-existentes.
+     - Vinculação resiliente ao GitHub Projects v2 (`gh project item-add`) operando sob o princípio da degradação graciosa (não bloqueante em falhas de API/permissões).
+     - Suporte mandatório a execução simulada (`--dry-run`) e especificação de repositório remoto (`--repo` / `-R`).
+  2. **Integração Operacional com o Pipeline de Planejamento (`skills/plan-feature/SKILL.md`)**:
+     - Inclusão do procedimento de reconciliação de governança no ciclo operacional de fatiamento de backlog, garantindo que o breakdown de épicos e sub-issues reflita imediatamente nas Views canônicas (Kanban Board, Milestone Roadmap e Backlog Table) do GitHub Projects v2.
