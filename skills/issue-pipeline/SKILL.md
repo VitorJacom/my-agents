@@ -1,16 +1,24 @@
 ---
 name: issue-pipeline
 description: >-
-  Orquestra o ciclo completo e determinístico de desenvolvimento de uma Issue do GitHub:
-  Planner ➔ [UI/UX Designer (se UI)] ➔ QA Engineer (RED) ➔ Coder (GREEN) ➔ [Visual Audit Gate (se UI)] ➔ Gatekeeper (Auditoria & PR).
+  Orquestra o ciclo completo e determinístico de desenvolvimento de uma ou múltiplas Issues do GitHub:
+  Modo Unitário e Modo Maestro Multi-Issue (Pre-flight, Execution Waves, Merge Queue e Auto-Reconciliação).
 ---
 
 # Issue Pipeline Orchestrator (`/run-issue`)
 
-Esta Skill gerencia a execução da máquina de estados do pipeline determinístico multiagente para implementar requisitos e Issues do GitHub com garantia estrita de integridade e TDD.
+Esta Skill gerencia a execução da máquina de estados do pipeline determinístico multiagente para implementar requisitos e Issues do GitHub com garantia estrita de integridade, TDD e arquitetura limpa.
+
+Suporta operação em dois modos de trabalho:
+1. **Modo Unitário**: Processamento focado e atômico de 1 única Issue com branch de feature direta para a branch principal.
+2. **Modo Maestro**: Orquestração multi-issue concorrente com particionamento em ondas de execução (Execution Waves), branch intermediária de integração, isolamento em Git worktrees, Merge Queue sequencial e Auto-Reconciliação.
+
+---
 
 ## 🚀 Como Invocar
-O usuário dispara o comando informando o número ou URL da Issue:
+
+### 1. Modo Unitário (1 Issue)
+O usuário dispara o comando informando o número ou URL de uma única Issue:
 ```text
 /run-issue #12
 # ou
@@ -19,13 +27,30 @@ O usuário dispara o comando informando o número ou URL da Issue:
 /run-issue https://github.com/org/repo/issues/12
 ```
 
+### 2. Modo Maestro (Multi-Issue & Épicos)
+O usuário dispara a esteira informando múltiplas issues ou a flag de épico:
+```text
+# Multi-issue explícito com múltiplos identificadores:
+/run-issue #12 #13 #14
+# ou múltiplos números:
+/run-issue 12 13 14
+
+# Modo Maestro via Épico:
+/run-issue --epic #10
+# ou
+/run-issue --epic 10
+```
+
 ---
 
-## 🔄 Máquina de Estados e Protocolo de Orquestração
+## 🔄 Visão Geral dos Estados (Modo Unitário e Modo Maestro)
 
 ```mermaid
-flowchart TD
-    Start["[Entrada: /run-issue #XX]"] --> E1["1. PLANNING<br/>(planner: implementation_plan.md & task.md)"]
+flowchart TD %% Orquestrador: Modo Unitário e Modo Maestro com Merge Queue e Ondas (Waves)
+    Start["[Entrada: /run-issue]"] --> CheckMode{"Modo de Execução?"}
+    
+    %% Modo Unitário
+    CheckMode -- "Modo Unitário (1 Issue)" --> E1["1. PLANNING<br/>(planner: implementation_plan.md & task.md)"]
     E1 --> CheckContract{"Interface Visual?<br/>(UI_UX_REQUIRED: true) e<br/>sem Contrato Prévio?"}
     CheckContract -- "Sim" --> E1Fallback["1.1 Fallback UI/UX<br/>(uiux-designer: Modo 1 Mockup-as-Code)"]
     CheckContract -- "Não" --> E2["2. TEST DESIGN (RED)<br/>(qa-engineer: tests/features/)"]
@@ -37,14 +62,35 @@ flowchart TD
     E35 --> VisualVerdict{"Veredito Visual?"}
     VisualVerdict -- "VISUAL_AUDIT: REJECTED" --> E3
     VisualVerdict -- "VISUAL_AUDIT: APPROVED" --> E4
-    E4 --> End["[ Pull Request Criado & Handoff ]"]
+    E4 --> EndUnit["[ Pull Request Criado & Handoff ]"]
+
+    %% Modo Maestro
+    CheckMode -- "Modo Maestro (Multi-Issue / --epic)" --> MPre["M1. Pre-flight & Wave Partitioning<br/>(Análise de Target Files & Precedências)"]
+    MPre --> MBranch["M2. Criação da Branch Intermediária<br/>(integration/batch-* ou epic/*)"]
+    MBranch --> MWave["M3. Despacho Concorrente da Onda (Wave)<br/>(invoke_subagent 'self' em worktrees isoladas)"]
+    MWave --> MMQ["M4. Merge Queue Sequencial<br/>(worktree-manager.sh rebase-sync --base)"]
+    MMQ --> MCheckSync{"Rebase & Suíte Acumulada GREEN?"}
+    MCheckSync -- "Sim" --> MAutoMerge["M5. Auto-Merge na Branch Intermediária<br/>& Cleanup da Worktree"]
+    MCheckSync -- "Não (RED / Conflito)" --> MReconcile["M6. Auto-Reconciliação<br/>(Até 2 tentativas com coder em worktree)"]
+    MReconcile --> MReconcileVerdict{"Sucesso na Reconciliação?"}
+    MReconcileVerdict -- "GREEN" --> MAutoMerge
+    MReconcileVerdict -- "Esgotou 2 tentativas" --> MFailSafe["M7. Fail-Safe: Marca FAILED_RECONCILIATION<br/>(Preserva branch intermediária e avança fila)"]
+    MAutoMerge --> MMoreWaves{"Mais Ondas / Issues?"}
+    MFailSafe --> MMoreWaves
+    MMoreWaves -- "Sim" --> MWave
+    MMoreWaves -- "Não" --> MPR["M8. Gatekeeper Final & PR Consolidado<br/>(PR consolidado para main)"]
+    MPR --> EndMaestro["[ Pull Request Consolidado Criado ]"]
 ```
 
 > [!IMPORTANT]
 > **Execução Concorrente e Isolada:**
 > Cada estado do pipeline DEVE invocar o subagente correspondente usando `invoke_subagent`. O orquestrador nunca executa o código ou os testes diretamente; ele delega, aguarda a mensagem com o resultado e audita a transição.
 
-O agente orquestrador deve guiar a execução estado por estado, chamando os subagentes dedicados via `invoke_subagent` e validando os critérios de transição:
+---
+
+## 🏛️ Fluxo 1: Modo Unitário (1 Issue)
+
+O agente orquestrador guia a execução estado por estado, chamando os subagentes dedicados via `invoke_subagent` e validando os critérios de transição:
 
 ### 📍 ESTADO 1: PLANNING
 1. Identifique o número da Issue e seu contexto.
@@ -128,3 +174,70 @@ O agente orquestrador deve guiar a execução estado por estado, chamando os sub
    - Comitar as alterações e abrir o Pull Request no GitHub (via MCP ou `gh pr create`) vinculando a Issue (`Fixes #<numero>`).
 2. **Conclusão & Handoff**:
    - Apresente ao usuário o link do Pull Request aberto, a tabela de telemetria de consumo/cota e a documentação gerada em `walkthrough.md`.
+
+---
+
+## 🚀 Fluxo 2: Modo Maestro (Multi-Issue Orchestration)
+
+O **Modo Maestro** coordena o ciclo de vida completo de batches de issues ou épicos inteiros, eliminando gargalos de concorrência e garantindo integridade estrita por isolamento físico de workspaces.
+
+### 📍 M1. Pre-flight & Wave Partitioning
+Antes de qualquer despacho de código, o Maestro realiza a etapa de **Pre-flight** de `Target Files` e análise de precedências (`depends_on`):
+1. **Mapeamento de Blast Radius**: Para cada issue do lote, inspeciona o escopo pretendido e extrai a lista de `Target Files`.
+2. **Partição em Ondas (Execution Waves)**:
+   - **Regra de Capacidade Máxima**: Cada onda possui teto de no máximo 3 workers simultâneos (concurrency cap <= 3 workers por onda).
+   - **Regra de Arquivos Disjuntos**: É obrigatório que haja arquivos disjuntos (`Target Files` com interseção nula / sem sobreposição) entre todas as issues de uma mesma onda.
+   - Se `TargetFiles(Issue_A) ∩ TargetFiles(Issue_B) != ∅`, a Issue B é obrigatoriamente alocada em uma onda subsequente (`Wave(B) > Wave(A)`).
+
+### 📍 M2. Criação da Branch Intermediária
+O Maestro cria e valida a branch intermediária de integração como base de todo o ciclo:
+- Para batches de issues explícitas: `integration/batch-<timestamp_ou_hash>` (ex.: `integration/batch-20261106`).
+- Para épicos: `epic/issue-<id>-<slug>` (ex.: `epic/issue-10-auth-system`).
+
+### 📍 M3. Despacho Concorrente de Workers Isolados em Worktrees
+Para cada issue pertencente à onda ativa:
+1. O Maestro cria uma worktree estéril com lock exclusivo derivando da branch intermediária:
+   ```bash
+   ./scripts/worktree-manager.sh create <id> --base <branch_intermediaria>
+   ```
+2. O Maestro despacha workers isolados disparando o pipeline via `invoke_subagent 'self'` (ou invocando subagentes workers dedicados para cada issue em sua worktree isolada `.worktrees/issue-<id>`).
+3. Cada worker opera com contexto limpo, executando seu planejamento, testes (RED), codificação (GREEN) e auditoria local sem colidir com as demais worktrees.
+
+### 📍 M4 & M5. Merge Queue Sequencial & Validação da Suíte Acumulada
+À medida que os workers concluem suas tarefas, o Maestro gerencia a **Merge Queue** de forma estritamente sequencial:
+1. **Rebase e Sincronização**:
+   ```bash
+   ./scripts/worktree-manager.sh rebase-sync <id> --base <branch_intermediaria>
+   ```
+2. **Validação da Suíte Acumulada**:
+   - Dentro da worktree sincronizada, o Maestro executa toda a suíte de testes acumulada (`tests/core/` + `tests/features/`).
+   - Todos os testes legados somados aos testes introduzidos pelas issues anteriores já mescladas devem passar (**GREEN**).
+3. **Auto-Merge na Branch Intermediária**:
+   - Com o teste acumulado verde, o Maestro executa o auto-merge na branch intermediária (`git checkout <branch_intermediaria> && git merge --ff-only feature/issue-<id>`).
+   - Realiza a limpeza da worktree de forma idempotente via `./scripts/worktree-manager.sh remove <id>`.
+
+### 📍 M6 & M7. Protocolo de Auto-Reconciliação e Travas Anti-Fraude
+Se o comando de sincronização reportar conflito de rebase (Exit Code 4) ou se a suíte acumulada quebrar (RED):
+1. **Loop de Auto-Reconciliação**:
+   - O Maestro inicia a Auto-Reconciliação na worktree isolada `.worktrees/issue-<id>`.
+   - Invoca o subagente `coder` concedendo um limite de **até 2 tentativas** (duas tentativas) para resolver os conflitos semânticos e fazer a suíte acumulada passar.
+2. **Trava Anti-Fraude Inviolável**:
+   - O subagente `coder` é proibido de alterar `tests/core/` e testes já integrados em `tests/features/` (testes pré-existentes na base branch intermediária).
+   - O script `worktree-manager.sh rebase-sync` verifica a integridade desses arquivos e barra tentativas de fraude com Exit Code 3.
+3. **Fail-Safe em Esgotamento**:
+   - Se as 2 tentativas se esgotarem sem sucesso (ou em caso de fraude), a issue é marcada imediatamente com o status `FAILED_RECONCILIATION`.
+   - O mecanismo de fail-safe isola a falha sem quebrar a branch intermediária, mantém a worktree correspondente intacta para auditoria humana e permite que a Merge Queue continue processando as demais issues da fila normalmente.
+
+### 📍 M8. Gatekeeper Final & PR Consolidado
+Ao finalizar todas as ondas de execução:
+1. O Maestro aciona o subagente `gatekeeper` com `--base origin/main` na branch intermediária:
+   - Valida a suíte global completa (`tests/core/` + `tests/features/`).
+   - Audita a ausência de alterações em `tests/core/`.
+   - Sincroniza o contexto estável via `./scripts/sync-project-context.py .`.
+   - Coleta métricas consolidadas de tokens de todos os subagentes envolvidos.
+2. Abre um **Pull Request consolidado** (PR consolidado / PR único) da branch intermediária diretamente para a branch `main`:
+   ```bash
+   gh pr create --base main --head <branch_intermediaria> \
+     --title "feat(epic): batch integration of issues #A, #B, #C" \
+     --body-file walkthrough.md
+   ```
