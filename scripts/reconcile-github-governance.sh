@@ -75,12 +75,18 @@ fi
 
 extract_context_val() {
   local key="$1"
-  grep -E "^\s*-\s*\*\*$key\*\*:" "$CONTEXT_FILE" 2>/dev/null | head -n 1 | sed -E 's/.*:\s*"?([^"#]*)"?.*/\1/' | tr -d '\r' | xargs || true
+  grep -E "^\s*-\s*\*\*$key\*\*:" "$CONTEXT_FILE" 2>/dev/null | head -n 1 | sed -E 's/^\s*-\s*\*\*[^*]+\*\*:\s*"?([^"#]*)"?.*/\1/' | tr -d '\r' | xargs || true
 }
 
-ACTIVE_MILESTONE=$(extract_context_val "Active Milestone")
+ACTIVE_EPIC=$(extract_context_val "Active Epic \(Milestone\)")
+if [ -z "$ACTIVE_EPIC" ]; then
+  ACTIVE_EPIC=$(extract_context_val "Active Milestone")
+fi
+ACTIVE_MILESTONE="$ACTIVE_EPIC"
 OWNER=$(extract_context_val "Owner")
 PROJECT_NUM=$(extract_context_val "Project Number")
+RELEASE_FIELD=$(extract_context_val "Release Field")
+DEFAULT_RELEASE=$(extract_context_val "Default Release")
 
 # Normalização de valores None ou vazios
 if [ "$ACTIVE_MILESTONE" = "None" ] || [ "$ACTIVE_MILESTONE" = "none" ] || [ "$ACTIVE_MILESTONE" = "null" ]; then
@@ -93,6 +99,14 @@ fi
 
 if [ "$PROJECT_NUM" = "None" ] || [ "$PROJECT_NUM" = "none" ] || [ "$PROJECT_NUM" = "null" ]; then
   PROJECT_NUM=""
+fi
+
+if [ "$RELEASE_FIELD" = "None" ] || [ "$RELEASE_FIELD" = "none" ] || [ "$RELEASE_FIELD" = "null" ]; then
+  RELEASE_FIELD=""
+fi
+
+if [ "$DEFAULT_RELEASE" = "None" ] || [ "$DEFAULT_RELEASE" = "none" ] || [ "$DEFAULT_RELEASE" = "null" ]; then
+  DEFAULT_RELEASE=""
 fi
 
 GH_REPO_ARGS=()
@@ -165,8 +179,28 @@ while IFS=$'\x1f' read -r NUM MILESTONE_TITLE URL TITLE; do
 
     if [ "$DRY_RUN" = "true" ]; then
       echo "[DRY-RUN] Adicionando issue #$NUM ao Project v2 $PROJECT_NUM ($OWNER) via URL: $TARGET_URL"
+      if [ -n "$RELEASE_FIELD" ] && [ -n "$DEFAULT_RELEASE" ]; then
+        echo "[DRY-RUN] Atribuindo campo $RELEASE_FIELD '$DEFAULT_RELEASE' à issue #$NUM no Project v2 $PROJECT_NUM"
+      fi
     else
-      gh project item-add "$PROJECT_NUM" --owner "$OWNER" --url "$TARGET_URL" >/dev/null 2>&1 && echo "[OK] Issue #$NUM adicionada ao Project v2 ($PROJECT_NUM)." || echo "⚠️ [WARN] Falha não-bloqueante ao adicionar issue #$NUM ao Project v2 ($PROJECT_NUM)."
+      if ADD_OUT=$(gh project item-add "$PROJECT_NUM" --owner "$OWNER" --url "$TARGET_URL" 2>&1); then
+        echo "[OK] Issue #$NUM adicionada ao Project v2 ($PROJECT_NUM)."
+        if [ -n "$RELEASE_FIELD" ] && [ -n "$DEFAULT_RELEASE" ]; then
+          ITEM_ID=$(echo "$ADD_OUT" | sed -nE 's/.*"id":\s*"([^"]+)".*/\1/p')
+          if [ -z "$ITEM_ID" ]; then
+            ITEM_ID=$(echo "$ADD_OUT" | grep -oE 'item_[a-zA-Z0-9_-]+' || true)
+          fi
+          if [ -n "$ITEM_ID" ]; then
+            if gh project item-edit --project-id "$PROJECT_NUM" --id "$ITEM_ID" --field "$RELEASE_FIELD" --value "$DEFAULT_RELEASE" >/dev/null 2>&1; then
+              echo "[OK] Campo $RELEASE_FIELD configurado como '$DEFAULT_RELEASE' para issue #$NUM no Project v2."
+            else
+              echo "⚠️ [WARN] Falha não-bloqueante ao atualizar campo $RELEASE_FIELD para issue #$NUM no Project v2 ($PROJECT_NUM)."
+            fi
+          fi
+        fi
+      else
+        echo "⚠️ [WARN] Falha não-bloqueante ao adicionar issue #$NUM ao Project v2 ($PROJECT_NUM)."
+      fi
     fi
   else
     echo "[INFO] GitHub Project v2 não configurado ou inativo em PROJECT_CONTEXT.md. Pulando adição ao Project v2."

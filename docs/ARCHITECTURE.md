@@ -264,3 +264,36 @@ Para equilibrar a velocidade e economia de tokens da IA com a visibilidade de ge
      - Máquina de estados de 5 fases (Pre-flight ➔ Deep Audit ➔ Human Gate ➔ PR Review ➔ Issue Generation & Governance).
      - Gate de Validação Humana mandatório antes de qualquer ação com efeitos colaterais externos no GitHub.
      - Documentação atualizada no catálogo canônico da Wiki (`docs/Skills-Catalog.md`).
+
+---
+
+### Decisão 0012 (2026-11-06): Telemetria Resiliente de Quotas na Statusline do Antigravity CLI, Isolamento Multiterminal e Portabilidade Universal
+* **Status**: Aprovada
+* **Contexto**: O extrator de telemetria da statusline modular (`scripts/statusline-quota.sh`) apresentava fragilidades no ambiente de produção do Antigravity CLI:
+  1. **Contaminação Cruzada de Schemas**: O schema JSON do Antigravity CLI provê quotas sob a chave `"quota"` com identificadores nominais e disponibilidade expressa em `"remaining_fraction"` (float $0.0 \dots 1.0$). O parser anterior tentava casar `"5h"` e `"used_percentage"`; ao falhar, caía em um fallback desprovido de escopo que capturava o `used_percentage` de `context_window` (atribuindo a ocupação de contexto à quota de 5h) e deixava a quota semanal estática em `[ok]`.
+  2. **Interferência Multissessão / Multiterminal**: Dois ou mais terminais operando simultaneamente (ex.: um com `gemini-3.8-flash` e outro com `gemini-4-argon`) arriscavam sobrescrever ou misturar seus estados voláteis caso compartilhassem arquivos transitórios sem indexação por sessão.
+  3. **Diversidade de Provedores e Modelos Especializados**: Falta de seletor inteligente para modelos Argon (que utilizam quotas dedicadas como `gemini-argon-wtu-weekly`) e modelos de terceiros 3P (Claude, GPT via `3p-5h`), além dos modelos Gemini padrão (`gemini-5h`).
+  4. **Experiência Visual de Telemetria**: A exibição de telemetria necessitava de uma transição intuitiva entre a execução ativa de uma tarefa (`🚀 Feito: X%`, com incremento monotônico contínuo baseado em passos e sem saltos de 0 para 100) e o estado idle final (`🧠 Context: X%`).
+  5. **Latência Sub-50ms e Cache com Fallback Assíncrono**: Em eventuais invocações onde o payload STDIN venha temporariamente sem o bloco `"quota"`, chamadas diretas de recuperação (`agy -p /usage`) poderiam bloquear a renderização síncrona do prompt, violando o teto mandatório de 50ms.
+  6. **Acoplamento a Caminhos Locais**: O arquivo `README.md` continha referências fixas à máquina de desenvolvimento do autor (`/home/vitor/Projetos/03-pessoal/my-agents`), gerando atritos para novos usuários e esteiras externas.
+
+* **Solução Adotada**:
+  1. **Isolamento Estrito por Sessão / Terminal via STDIN**:
+     - Cada invocação da statusline é desacoplada e consome o payload JSON via STDIN específico daquele terminal.
+     - As métricas voláteis (modelo ativo, progresso de execução e ocupação de contexto) são extraídas exclusivamente do payload recebido (indexado por `session_id`), garantindo isolamento total entre múltiplos terminais abertos simultaneamente.
+  2. **Seletor Inteligente de Quota Polimórfico por Modelo**:
+     - **Modelos Argon** (ex.: `gemini-4-argon`): Exibição de `⚡ Argon: [XX%]`, priorizando o bucket de cota Argon correspondente (ex.: `gemini-argon-wtu-weekly`).
+     - **Modelos 3P** (`claude`, `gpt`): Exibição de `⚡ 3P 5h: [XX%]`, extraindo de `3p-5h`.
+     - **Modelos Gemini Regulares** (`gemini-3.8-flash`, `gemini-3.8-pro`): Exibição de `⚡ Quota 5h: [XX%]`, extraindo de `gemini-5h`.
+     - **Indicador Semanal Global**: Exibição complementar de `📅 Semanal: [XX%]`, extraindo de `gemini-weekly` ou `3p-weekly`.
+     - **Normalização Numérica e Semáforo ANSI**: Isolamento de locale (`LC_ALL=C LC_NUMERIC=C`) e mapeamento semântico de quota restante: $\ge 50\%$ Verde, $20-49\%$ Amarelo, e $< 20\%$ Vermelho.
+  3. **Transição de Telemetria Volátil ('Feito: X%' vs 'Context: X%')**:
+     - Durante a execução de uma tarefa (quando o estado do agente for `working`, `busy`, `running`, `in_progress` ou houver tasks ativas `[/]`): exibição de `🚀 Feito: X%`, iniciando em 0% e progredindo monotonicamente ao longo da execução.
+     - Ao concluir a tarefa (100% ou retorno ao estado `idle`/entrega da resposta final): alternância imediata e automática para o modo de contexto: `🧠 Context: X%`.
+  4. **Cache Resiliente de Quotas e Fallback Assíncrono (`/usage`)**:
+     - O bloco de quotas recebido via STDIN atualiza atomicamente o cache local em `/tmp/antigravity_quota_cache.json` com lockfile seguro (`flock` / `mkdir.lock`) e timestamp.
+     - Caso o payload venha desprovido de quotas e o cache local esteja expirado ou ausente, a statusline exibe graciosamente o estado em cache ou `[ok]` e dispara uma atualização em segundo plano (background assíncrono desacoplado via `agy -p /usage`), preservando incondicionalmente a latência média da statusline abaixo de 50ms.
+  5. **Portabilidade Universal da Documentação e Prévia Visual**:
+     - Elevação da instalação remota oficial via GitHub (`agy plugin install https://github.com/VitorJacom/my-agents.git`) a método principal recomendado na Opção 1 do `README.md`.
+     - Padronização de comandos portáveis de invocação dos scripts utilitários (`install-statusline.sh`, `sync-project-context.py`, `statusline-quota.sh`) com caminhos canônicos no home do usuário (`~/.gemini/config/plugins/my-agents/scripts/...`) e relativos de workspace.
+     - Inclusão de prévia visual estilizada em arte ASCII/ANSI no `README.md` demonstrando a ergonomia e estados da statusline.

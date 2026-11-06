@@ -25,10 +25,12 @@
 2. **Duplo Gate**: Nenhuma alteração é comitada sem passar pela auditoria de conformidade do Gatekeeper.
 
 ## 🎯 Rastreamento & GitHub Governance
-- **Active Milestone**: "v1.1.0" # Defina o nome da Milestone ativa no repositório ou 'None'
+- **Active Epic (Milestone)**: "Epic: AIDD Core & Engineering Governance" # Active Milestone / Épico padrão ou 'None'
 - **GitHub Project v2**:
   - **Owner**: "VitorJacom"
   - **Project Number**: 1 # Defina o número do projeto ou 'None'
   - **Status Field**: "Status"
+  - **Release Field**: "Release" # Campo customizado de versão (v1.0.0, v1.1.0, v1.2.0, Backlog / Future)
+  - **Default Release**: "v1.1.0"
 
 

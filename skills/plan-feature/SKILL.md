@@ -39,6 +39,8 @@ flowchart TD %% Decisão condicional por interface visual (UI_UX_REQUIRED)
 1. Invoque o subagente `product-owner` via `invoke_subagent`:
    - Envie a descrição do requisito ou o número da Issue (#XX).
    - O PO analisa a dor do negócio, define personas e redige os critérios de aceite em formato Gherkin (`Dado / Quando / Então`) ou checklist verificável.
+   - **Refinamento In-Place ou Criação Nova**: Se a demanda referir-se a uma issue preexistente no backlog, o PO estrutura o refinamento in-place (preparando alterações para `gh issue edit`), evitando duplicação.
+   - **Enquadramento em Épico & Release**: Identifica o Épico temático correspondente (`Active Epic (Milestone)`) e a release prevista no GitHub Project v2 (`Release Field`, ex.: `v1.1.0`, `v1.2.0`, `Backlog / Future`).
    - **Classificação Obrigatória de Impacto Visual**: O PO classifica explicitamente a demanda:
      - `UI_UX_REQUIRED: YES` (quando a funcionalidade envolver interface visual, tela gráfica, Web App, componente UI, HUD de jogo ou terminal interativo).
      - `UI_UX_REQUIRED: NO` (quando for puramente backend, CLI estrutural, script de infraestrutura ou automação de dados sem interface visual).
@@ -67,6 +69,7 @@ flowchart TD %% Decisão condicional por interface visual (UI_UX_REQUIRED)
    - O Arquiteto mapeia quais módulos em `src/` serão alterados ou criados.
    - Caso haja escolha de design ou arquitetura, registra as decisões em `docs/ARCHITECTURE.md`.
    - **Regra de Atomicidade AIDD**: Cada issue gerada DEVE ter no máximo **3 passos concretos** para execução posterior em TDD.
+   - **Refinamento e Reorganização de Backlog**: Para issues já abertas no backlog que estão sendo reestruturadas ou refinadas, documenta as atualizações de corpo, critérios e labels a serem aplicadas com `gh issue edit`.
    - **Mapeamento de Blast Radius & Precedências**: Cada issue fatiada deve conter explicitamente a seção `## Target Files & Dependencies` com os campos `Target Files:` e `Depends On:`.
    - **Heurística de Execution Waves**: O Arquiteto organiza as issues fatiadas em ondas sequenciais (`## Execution Waves`) para viabilizar execução concorrente em Git Worktrees. Cada onda suporta até no máximo 3 issues simultâneas por wave, com a garantia mandatória de conjuntos de arquivos 100% disjuntos (interseção nula) entre as issues da mesma onda. Issues com colisão em `Target Files` ou com relações de dependência são alocadas em ondas subsequentes.
    - Acolhe e embute a seção `## Visual & UI/UX Contract` e os links para a living spec `docs/mockups/<slug>.md` e asset `docs/assets/mockups/<slug>.png` no `planning_proposal.md` e nas issues fatiadas correspondentes.
@@ -80,32 +83,48 @@ flowchart TD %% Decisão condicional por interface visual (UI_UX_REQUIRED)
    - Se aprovar: avance para o **ESTADO 4**.
 
 ### 📍 ESTADO 4: CRIAÇÃO DETERMINÍSTICA NO GITHUB
-1. Verifique a configuração de **Active Milestone** em `PROJECT_CONTEXT.md` (sob `## 🎯 Rastreamento & GitHub Governance`):
-   - Se definida e diferente de `None` (ex.: `"v1.1.0"`), anexe `--milestone "<milestone>"` ao comando `gh issue create`.
+1. Verifique a configuração de **Active Epic (Milestone)** ou **Active Milestone** em `PROJECT_CONTEXT.md` (sob `## 🎯 Rastreamento & GitHub Governance`):
+   - Se definida e diferente de `None` (ex.: `"Epic: AIDD Core & Engineering Governance"` ou `"v1.1.0"`), anexe `--milestone "<milestone>"` ao comando `gh issue create` ou `gh issue edit`.
    - Se ausente ou `None`, omita a flag `--milestone`.
 2. Para cada issue fatiada no plano aprovado, execute o comando CLI do GitHub utilizando a taxonomia oficial de labels (`type:*`, `status:planned`, e opcionalmente `aidd:wave-*`), incluindo a seção `## Target Files & Dependencies`, a seção `## 🎨 Mockup & Living Visual Spec` (para issues com interface visual) e a flag `--milestone` (quando ativa):
-   ```bash
-   gh issue create \
-     --title "feat(<escopo>): <título da task atômica>" \
-     --label "type:feat,status:planned" \
-     [--milestone "<milestone>"] \
-     --body "<descrição_completa_com_critérios_de_aceite_e_referência_ao_triângulo_AIDD>
+   - **Criação de Sub-issues Nativas com `--parent`**:
+     Para vincular a sub-issue diretamente à issue mãe ou Épico, anexe a flag `--parent "<parent_id>"`:
+     ```bash
+     gh issue create \
+       --title "feat(<escopo>): <título da task atômica>" \
+       --label "type:feat,status:planned" \
+       [--milestone "<milestone>"] \
+       [--parent "<parent_issue_id>"] \
+       --body "<descrição_completa_com_critérios_de_aceite_e_referência_ao_triângulo_AIDD>
 
-   ## 🎨 Mockup & Living Visual Spec
-   ![Mockup Preview](docs/assets/mockups/<slug>.png)
+     ## 🎨 Mockup & Living Visual Spec
+     ![Mockup Preview](docs/assets/mockups/<slug>.png)
 
-   - **Living Spec**: [docs/mockups/<slug>.md](docs/mockups/<slug>.md)
+     - **Living Spec**: [docs/mockups/<slug>.md](docs/mockups/<slug>.md)
 
-   ## Target Files & Dependencies
-   - Target Files: <caminhos_dos_arquivos>
-   - Depends On: <dependencias_ou_none>"
-   ```
+     ## Target Files & Dependencies
+     - Target Files: <caminhos_dos_arquivos>
+     - Depends On: <dependencias_ou_none>"
+     ```
+   - **Tratamento de Fallback para Parent**: Caso a issue mãe informada não exista (--parent inexistente ou falha na API), realize o fallback gracioso registrando uma checklist de links para as sub-issues (checklist com sub-issues) no corpo da issue pai assim que disponível.
+   - **Refinamento In-Place de Issues Existentes (`gh issue edit`)**:
+     Para tarefas que refinam ou reorganizam issues preexistentes no backlog, utilize `gh issue edit` em vez de criar duplicatas:
+     ```bash
+     gh issue edit "<issue_number>" \
+       --title "<novo_titulo>" \
+       --body "<novo_corpo_com_contratos_atomicos>" \
+       [--milestone "<milestone>"]
+     ```
    > [!NOTE]
    > Adapte a label `type:*` para a natureza da issue fatiada (`type:feat`, `type:fix`, `type:docs`, `type:refactor`, `type:chore`, `type:test`).
-3. **Vinculação a GitHub Projects v2 (Degradação Graciosa)**:
+3. **Vinculação a GitHub Projects v2 e Atribuição de Release (Degradação Graciosa)**:
    - Se `GitHub Project v2` estiver configurado em `PROJECT_CONTEXT.md` com `Owner` e `Project Number` válidos (diferentes de `None`), adicione cada issue criada ao quadro do projeto:
      ```bash
      gh project item-add "<project_number>" --owner "<owner>" --url "<issue_url>" || echo "⚠️ [WARN] Falha não-bloqueante ao adicionar issue ao GitHub Project v2 (<project_number>). Prosseguindo esteira."
+     ```
+   - **Atribuição do Campo Release no GitHub Project v2**: Se `Release Field` estiver configurado em `PROJECT_CONTEXT.md` (ex.: `"Release"`), atribua a versão planejada utilizando `gh project item-edit`:
+     ```bash
+     gh project item-edit --project-id "<project_number>" --id "<item_id>" --field "Release" --value "<release>" || echo "⚠️ [WARN] Falha não-bloqueante ao atualizar campo Release no GitHub Project v2. Prosseguindo esteira."
      ```
    - Em caso de erro (ex.: 403, permissões insuficientes ou projeto inexistente), o pipeline emite a mensagem `⚠️ [WARN]` e conclui sem bloquear a esteira (Princípio da Degradação Graciosa).
 4. **Inclusão Obrigatória de UI/UX Contract e Living Mockup**: Para tarefas com interface visual, inclua obrigatoriamente a seção `## Visual & UI/UX Contract` (Spatial Blueprint ASCII, Design Tokens & Luminance Contract) e a seção `## 🎨 Mockup & Living Visual Spec` (contendo o preview visual embedado `![Mockup Preview](docs/assets/mockups/<slug>.png)` e o link para a especificação viva `[docs/mockups/<slug>.md](docs/mockups/<slug>.md)`) diretamente no corpo (`--body`) do comando `gh issue create`.

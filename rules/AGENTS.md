@@ -171,3 +171,22 @@ Para certificar que novos plugins, esteiras, skills e regras funcionem de forma 
   - O Antigravity CLI descobre o workspace e a árvore de configurações a partir do diretório de trabalho atual (CWD). Ao dar `cd sandbox`, o `agy` descobre exclusivamente o `.agents/` e o `PROJECT_CONTEXT.md` do sandbox, impedindo que qualquer contexto do repositório pai vaze para a sessão.
   - A execução desacoplada via `-p` garante uma sessão efêmera e estéril, comprovando que qualquer desenvolvedor externo que clonar o projeto consumidor terá o mesmo comportamento determinístico.
 
+---
+
+## 9. Governança do Ciclo de Vida de Issues e Rastreamento no GitHub
+
+Para repositórios governados pelo ecossistema AIDD e integrados ao GitHub Projects v2:
+
+### 9.1. Épicos Temáticos via Milestones
+- **Épicos (Epics) representados por Milestone**: Milestones não representam sprints temporais com datas de encerramento rígidas, mas sim grandes temas/épicos canônicos (ex.: `"Epic: AIDD Core & Engineering Governance"`, `"Epic: UI/UX Design System & Living Mockups"`). Toda issue criada ou refinada deve ser associada ao seu Épico (Milestone) correspondente.
+
+### 9.2. Gestão de Versões e Entregas via Campo Release no GitHub Project v2
+- **Campo Release no GitHub Project / Project v2**: O ciclo de versão e entrega é desacoplado do Épico e gerenciado pelo campo Single Select `Release` no GitHub Project v2 (valores típicos: `v1.0.0`, `v1.1.0`, `v1.2.0`, `Backlog / Future`). Ao adicionar ou triar itens no projeto, o campo `Release` deve ser preenchido via CLI ou automação de reconciliação.
+
+### 9.3. Sub-issues Nativas e Fatiamento Hierárquico
+- **Vinculação Hierárquica com `--parent`**: Quando uma issue for desdobrada em sub-tarefas atômicas ou vinculada a uma issue mãe/épico, deve ser utilizada a flag nativa do GitHub CLI `--parent <id>` (`gh issue create --parent <id>`).
+
+### 9.4. Refinamento In-place e Reorganização de Backlog
+- **Atualização sem Duplicação**: Durante o planejamento ou reavaliação de prioridades, deve-se priorizar o refinamento in-place e reorganização de issues já existentes no backlog via `gh issue edit` (ajustando títulos, corpos, milestones ou campos de projeto), evitando a criação de issues redundantes ou duplicadas.
+
+
