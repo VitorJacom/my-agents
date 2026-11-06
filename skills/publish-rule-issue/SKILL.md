@@ -79,7 +79,7 @@ Esta Skill permite registrar um aprendizado, regra comportamental ou melhoria de
    ```
    - **Atribuição do Campo Release no GitHub Project v2**: Se `Release Field` estiver configurado em `PROJECT_CONTEXT.md` (ex.: `"Release"`), atribua a versão correspondente utilizando `gh project item-edit`:
    ```bash
-   gh project item-edit --project-id "<project_number>" --id "<item_id>" --field "Release" --value "<release>" || echo "⚠️ [WARN] Falha não-bloqueante ao atualizar campo Release no GitHub Project v2. Prosseguindo esteira."
+   gh project item-edit "<project_number>" --owner "<owner>" --url "<issue_url>" --field "Release" --value "<release>" || echo "⚠️ [WARN] Falha não-bloqueante ao atualizar campo Release no GitHub Project v2. Prosseguindo esteira."
    ```
 
 5. **Retorno ao Desenvolvedor**:

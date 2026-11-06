@@ -297,3 +297,24 @@ Para equilibrar a velocidade e economia de tokens da IA com a visibilidade de ge
      - Elevação da instalação remota oficial via GitHub (`agy plugin install https://github.com/VitorJacom/my-agents.git`) a método principal recomendado na Opção 1 do `README.md`.
      - Padronização de comandos portáveis de invocação dos scripts utilitários (`install-statusline.sh`, `sync-project-context.py`, `statusline-quota.sh`) com caminhos canônicos no home do usuário (`~/.gemini/config/plugins/my-agents/scripts/...`) e relativos de workspace.
      - Inclusão de prévia visual estilizada em arte ASCII/ANSI no `README.md` demonstrando a ergonomia e estados da statusline.
+
+---
+
+### Decisão 0013 (2026-11-06): Modernização do Ciclo de Vida de Issues: Épicos Temáticos via Milestones, Releases no Project v2 e Sub-issues Hierárquicas
+* **Status**: Aprovada
+* **Contexto**: A governança anterior associava Milestones do GitHub diretamente a versões semânticas com datas rígidas (`v1.0.0`, `v1.1.0`), gerando rigidez no planejamento de longo prazo, dificultando o agrupamento temático de grandes frentes arquiteturais e impedindo uma taxonomia hierárquica nativa entre épicos e tarefas fatiadas. Além disso, o refinamento de tarefas preexistentes frequentemente duplicava issues em vez de reorganizar o backlog existente.
+* **Solução Adotada**:
+  1. **Milestones como Épicos Temáticos Canônicos**:
+     - Milestones passam a representar grandes Épicos (ex.: `"Epic: AIDD Core & Engineering Governance"`, `"Epic: UI/UX Design System & Living Mockups"`, `"Epic: Wiki & Living Documentation"`) em vez de janelas de release temporal fixas.
+     - Suporte canônico em `PROJECT_CONTEXT.md` sob a chave `Active Epic (Milestone)` com retrocompatibilidade resiliente para a chave legada `Active Milestone`.
+  2. **Ciclo de Versões Desacoplado via Campo Release no GitHub Project v2**:
+     - Versionamento semântico (`v1.0.0`, `v1.1.0`, `v1.2.0`, `Backlog / Future`) gerenciado pelo campo customizado Single-Select `Release` no GitHub Project v2 (`Project Number: 1`).
+     - Integração determinística e não-bloqueante via CLI oficial (`gh project item-edit <number> --owner <owner> --url <issue_url> --field "Release" --value "<release>"`).
+  3. **Sub-issues Nativas com `--parent`**:
+     - Suporte nativo nas skills `/plan-feature` para vinculação hierárquica de sub-tarefas a issues mãe ou Épicos via `gh issue create --parent <parent_id>`.
+     - Degradação graciosa com checklist de rastreamento no corpo do épico caso a flag não seja aplicável.
+  4. **Refinamento In-place e Reorganização do Backlog**:
+     - Diretriz e automação em `/plan-feature` e `rules/AGENTS.md` para priorizar a atualização in-place de issues existentes via `gh issue edit`, eliminando a criação de tickets redundantes ou duplicatas.
+  5. **Scripts Utilitários de Migração e Reconciliação**:
+     - Scripts de apoio `scripts/reclassify-epics-and-releases.py` e `scripts/migrate-issues-to-project.sh` para classificação retrospectiva e integridade do backlog.
+     - Atualização do `scripts/reconcile-github-governance.sh` para manter coerência contínua entre issues abertas, épicos e releases.

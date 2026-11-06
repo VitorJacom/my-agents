@@ -124,7 +124,7 @@ flowchart TD %% Decisão condicional por interface visual (UI_UX_REQUIRED)
      ```
    - **Atribuição do Campo Release no GitHub Project v2**: Se `Release Field` estiver configurado em `PROJECT_CONTEXT.md` (ex.: `"Release"`), atribua a versão planejada utilizando `gh project item-edit`:
      ```bash
-     gh project item-edit --project-id "<project_number>" --id "<item_id>" --field "Release" --value "<release>" || echo "⚠️ [WARN] Falha não-bloqueante ao atualizar campo Release no GitHub Project v2. Prosseguindo esteira."
+     gh project item-edit "<project_number>" --owner "<owner>" --url "<issue_url>" --field "Release" --value "<release>" || echo "⚠️ [WARN] Falha não-bloqueante ao atualizar campo Release no GitHub Project v2. Prosseguindo esteira."
      ```
    - Em caso de erro (ex.: 403, permissões insuficientes ou projeto inexistente), o pipeline emite a mensagem `⚠️ [WARN]` e conclui sem bloquear a esteira (Princípio da Degradação Graciosa).
 4. **Inclusão Obrigatória de UI/UX Contract e Living Mockup**: Para tarefas com interface visual, inclua obrigatoriamente a seção `## Visual & UI/UX Contract` (Spatial Blueprint ASCII, Design Tokens & Luminance Contract) e a seção `## 🎨 Mockup & Living Visual Spec` (contendo o preview visual embedado `![Mockup Preview](docs/assets/mockups/<slug>.png)` e o link para a especificação viva `[docs/mockups/<slug>.md](docs/mockups/<slug>.md)`) diretamente no corpo (`--body`) do comando `gh issue create`.

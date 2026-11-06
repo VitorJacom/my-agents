@@ -183,23 +183,18 @@ while IFS=$'\x1f' read -r NUM MILESTONE_TITLE URL TITLE; do
         echo "[DRY-RUN] Atribuindo campo $RELEASE_FIELD '$DEFAULT_RELEASE' à issue #$NUM no Project v2 $PROJECT_NUM"
       fi
     else
-      if ADD_OUT=$(gh project item-add "$PROJECT_NUM" --owner "$OWNER" --url "$TARGET_URL" 2>&1); then
+      if gh project item-add "$PROJECT_NUM" --owner "$OWNER" --url "$TARGET_URL" >/dev/null 2>&1; then
         echo "[OK] Issue #$NUM adicionada ao Project v2 ($PROJECT_NUM)."
-        if [ -n "$RELEASE_FIELD" ] && [ -n "$DEFAULT_RELEASE" ]; then
-          ITEM_ID=$(echo "$ADD_OUT" | sed -nE 's/.*"id":\s*"([^"]+)".*/\1/p')
-          if [ -z "$ITEM_ID" ]; then
-            ITEM_ID=$(echo "$ADD_OUT" | grep -oE 'item_[a-zA-Z0-9_-]+' || true)
-          fi
-          if [ -n "$ITEM_ID" ]; then
-            if gh project item-edit --project-id "$PROJECT_NUM" --id "$ITEM_ID" --field "$RELEASE_FIELD" --value "$DEFAULT_RELEASE" >/dev/null 2>&1; then
-              echo "[OK] Campo $RELEASE_FIELD configurado como '$DEFAULT_RELEASE' para issue #$NUM no Project v2."
-            else
-              echo "⚠️ [WARN] Falha não-bloqueante ao atualizar campo $RELEASE_FIELD para issue #$NUM no Project v2 ($PROJECT_NUM)."
-            fi
-          fi
-        fi
       else
         echo "⚠️ [WARN] Falha não-bloqueante ao adicionar issue #$NUM ao Project v2 ($PROJECT_NUM)."
+      fi
+
+      if [ -n "$RELEASE_FIELD" ] && [ -n "$DEFAULT_RELEASE" ]; then
+        if gh project item-edit "$PROJECT_NUM" --owner "$OWNER" --url "$TARGET_URL" --field "$RELEASE_FIELD" --value "$DEFAULT_RELEASE" >/dev/null 2>&1; then
+          echo "[OK] Campo $RELEASE_FIELD configurado como '$DEFAULT_RELEASE' para issue #$NUM no Project v2."
+        else
+          echo "⚠️ [WARN] Falha não-bloqueante ao atualizar campo $RELEASE_FIELD para issue #$NUM no Project v2 ($PROJECT_NUM)."
+        fi
       fi
     fi
   else

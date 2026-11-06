@@ -102,8 +102,9 @@ fi
 
 # 3. Listagem de todas as issues (abertas e fechadas)
 echo "[3/4] Coletando todas as issues de $REPO..."
-ISSUES_JSON=$(gh issue list --repo "$REPO" --state all --limit 200 --json number,title,state,milestone,url)
-echo "$ISSUES_JSON" > issues_tmp.json
+TMP_ISSUES=$(mktemp)
+trap 'rm -f "$TMP_ISSUES"' EXIT
+gh issue list --repo "$REPO" --state all --limit 200 --json number,title,state,milestone,url > "$TMP_ISSUES"
 
 # 4. Migração e reconciliação item a item
 echo "[4/4] Executando migração determinística de issues..."
@@ -127,8 +128,9 @@ repo = sys.argv[2]
 project_num = sys.argv[3]
 owner = sys.argv[4]
 existing_urls = set(sys.argv[5].splitlines())
+issues_file = sys.argv[6]
 
-with open("issues_tmp.json") as f:
+with open(issues_file) as f:
     issues = json.load(f)
 
 print(f"Total de issues para processar: {len(issues)}")
@@ -203,9 +205,7 @@ for issue in sorted(issues, key=lambda x: x["number"]):
             print(f"  ⚠️ Falha ao definir status no Project v2 para #{num}: {res.stderr.strip()}")
 
 print("\n✨ Processamento de issues finalizado.")
-' "$DRY_RUN" "$REPO" "$PROJECT_NUM" "$OWNER" "$EXISTING_PROJECT_URLS"
-
-rm -f issues_tmp.json 2>/dev/null || true
+' "$DRY_RUN" "$REPO" "$PROJECT_NUM" "$OWNER" "$EXISTING_PROJECT_URLS" "$TMP_ISSUES"
 
 echo "====================================================================="
 echo " ✅ Migração concluída com sucesso!"
