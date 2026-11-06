@@ -143,6 +143,13 @@ Toda alteração comitada deve seguir o padrão: `<tipo>(<escopo opcional>): <de
 ### 7.3. Protocolo Pós-Learn (Globalização de Regras)
 - Ao concluir um ciclo de `/learn`, o agente deve perguntar se deseja registrar a melhoria no repositório central `VitorJacom/my-agents` via skill `publish-rule-issue`.
 
+### 7.4. Mandato de Delegação no Modo Maestro (Batch Execution)
+- **Segregação Estrita de Planos (Control Plane vs Execution Plane)**: No processamento concorrente ou em lote de múltiplas issues (`/run-issue #A #B ...` ou `--epic`), a sessão principal opera estritamente como Maestro / Control Plane.
+- **Delegação Mandatória via `invoke_subagent`**: Todas as issues pertencentes a uma onda de execução (Execution Wave / batch) DEVEM ser despachadas para instâncias desacopladas de subagentes workers via `invoke_subagent`.
+- **Isolamento Físico e Confinamento em Worktree**: Cada worker opera confinado exclusivamente no diretório estéril de sua worktree `.worktrees/issue-<id>`, garantindo isolamento estrito sem interferir no workspace raiz ou em outras worktrees simultâneas.
+- **Proibição Expressa de Execução Inline**: É expressamente proibido ao Maestro codificar ou executar TDD diretamente, rodar testes diretamente, inspecionar árvores de código detalhadas ou editar arquivos na raiz durante execuções em lote.
+- **Circunscrição de Responsabilidades do Maestro**: A atuação do Maestro no Control Plane resume-se a: (a) Análise pre-flight e partição de ondas; (b) Criação da branch intermediária e provisionamento de worktrees; (c) Despacho dos subagentes workers; (d) Gestão da Merge Queue sequencial e auto-reconciliação; (e) Acionamento do Gatekeeper final para PR consolidado.
+
 ---
 
 ## 8. Protocolo de Validação Isolada em Sandbox (Clean Room Testing)
