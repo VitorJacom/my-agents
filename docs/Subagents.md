@@ -31,7 +31,7 @@ O Manifesto AIDD estabelece que nenhum agente generalista deve executar tarefas 
 ## 🤖 3. Detalhamento das Personas
 
 ### 3.1. `product-owner` (O Gestor de Requisitos)
-- **Definição**: [agents/product-owner/agent.md](../agents/product-owner/agent.md)
+- **Definição**: [agents/product-owner/agent.md](https://github.com/VitorJacom/my-agents/blob/main/agents/product-owner/agent.md)
 - **Missão**: Guardião do valor de negócio e da clareza funcional antes de qualquer detalhamento técnico.
 - **Ferramentas**: `read_file`, `search_web`.
 - **Regras Operacionais**:
@@ -49,7 +49,7 @@ O Manifesto AIDD estabelece que nenhum agente generalista deve executar tarefas 
 ---
 
 ### 3.2. `system-architect` (O Arquiteto de Sistemas)
-- **Definição**: [agents/system-architect/agent.md](../agents/system-architect/agent.md)
+- **Definição**: [agents/system-architect/agent.md](https://github.com/VitorJacom/my-agents/blob/main/agents/system-architect/agent.md)
 - **Missão**: Transformar a especificação funcional em arquitetura técnica robusta, atômica e segura contra conflitos.
 - **Ferramentas**: `read_file`, `search_web`, `write_file`, `edit_file`.
 - **Regras Operacionais**:
@@ -68,7 +68,7 @@ O Manifesto AIDD estabelece que nenhum agente generalista deve executar tarefas 
 ---
 
 ### 3.3. `uiux-designer` (O Especialista Visual & Interação)
-- **Definição**: [agents/uiux-designer/agent.md](../agents/uiux-designer/agent.md)
+- **Definição**: [agents/uiux-designer/agent.md](https://github.com/VitorJacom/my-agents/blob/main/agents/uiux-designer/agent.md)
 - **Missão**: Guardião da usabilidade, acessibilidade (WCAG), contraste de luminância monocromático e ergonomia visual em UIs web, mobile e jogos 2D.
 - **Ferramentas**: `read_file`, `write_file`, `edit_file`, `search_web`, `run_command`.
 - **Pilares Técnicos**:
@@ -86,7 +86,7 @@ O Manifesto AIDD estabelece que nenhum agente generalista deve executar tarefas 
 ---
 
 ### 3.4. `planner` (O Arquiteto de Triagem Atômica)
-- **Definição**: [agents/planner/agent.md](../agents/planner/agent.md)
+- **Definição**: [agents/planner/agent.md](https://github.com/VitorJacom/my-agents/blob/main/agents/planner/agent.md)
 - **Missão**: Analisar a issue ativa no GitHub, mapear dependências e gerar o plano atômico de execução TDD.
 - **Ferramentas**: `read_file`, `search_web`.
 - **Regras Operacionais**:
@@ -103,7 +103,7 @@ O Manifesto AIDD estabelece que nenhum agente generalista deve executar tarefas 
 ---
 
 ### 3.5. `qa-engineer` (O Engenheiro de Testes TDD - RED)
-- **Definição**: [agents/qa-engineer/agent.md](../agents/qa-engineer/agent.md)
+- **Definição**: [agents/qa-engineer/agent.md](https://github.com/VitorJacom/my-agents/blob/main/agents/qa-engineer/agent.md)
 - **Missão**: Materializar os critérios de aceite da issue em testes automatizados, comprovando que falham antes da implementação (**RED**).
 - **Ferramentas**: `read_file`, `write_file`, `edit_file`, `run_command`.
 - **Confinamento de Escopo**:
@@ -121,7 +121,7 @@ O Manifesto AIDD estabelece que nenhum agente generalista deve executar tarefas 
 ---
 
 ### 3.6. `coder` (O Construtor de Software - GREEN)
-- **Definição**: [agents/coder/agent.md](../agents/coder/agent.md)
+- **Definição**: [agents/coder/agent.md](https://github.com/VitorJacom/my-agents/blob/main/agents/coder/agent.md)
 - **Missão**: Implementar a funcionalidade em `src/` até que todos os testes fiquem verdes (**GREEN**) com alta qualidade.
 - **Ferramentas**: `read_file`, `write_file`, `edit_file`, `run_command`.
 - **Confinamento de Escopo**:
@@ -137,7 +137,7 @@ O Manifesto AIDD estabelece que nenhum agente generalista deve executar tarefas 
 ---
 
 ### 3.7. `gatekeeper` (O Auditor Anti-Fraude & Finalizador AIDD)
-- **Definição**: [agents/gatekeeper/agent.md](../agents/gatekeeper/agent.md)
+- **Definição**: [agents/gatekeeper/agent.md](https://github.com/VitorJacom/my-agents/blob/main/agents/gatekeeper/agent.md)
 - **Missão**: Auditoria final de conformidade, validação anti-fraude, consolidação de evidências e submissão do Pull Request.
 - **Ferramentas**: `read_file`, `write_file`, `edit_file`, `run_command`.
 - **Regras Operacionais**:
@@ -190,4 +190,4 @@ flowchart LR
 
 - [Guia de Introdução (`docs/Getting-Started.md`)](./Getting-Started.md): Setup de ambiente e execução com Antigravity CLI.
 - [Catálogo de Skills (`docs/Skills-Catalog.md`)](./Skills-Catalog.md): As 9 skills sob demanda do ecossistema.
-- [Arquitetura e Decisões Técnicas (`docs/ARCHITECTURE.md`)](./ARCHITECTURE.md): Detalhamento dos padrões de engenharia.
+- [Arquitetura e Decisões Técnicas (`docs/ARCHITECTURE.md`)](https://github.com/VitorJacom/my-agents/blob/main/docs/ARCHITECTURE.md): Detalhamento dos padrões de engenharia.

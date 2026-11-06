@@ -46,7 +46,7 @@ jobs:
             echo "Nenhuma alteração de documentação detectada na Wiki. Nada a commitar."
           else
             git commit -m "docs(wiki): sync documentation from docs/ [skip ci]"
-            if ! git push origin master && ! git push origin main; then
+            if ! git push origin HEAD; then
               echo "::error::Falha ao enviar commits para o repositório da Wiki."
               exit 1
             fi

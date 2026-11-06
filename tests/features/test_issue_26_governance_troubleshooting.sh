@@ -8,13 +8,13 @@ set -euo pipefail
 # mandatórias, diagramas Mermaid e referências consolidadas aos ADRs (0001 a 0009)
 # nos novos documentos modulares da Wiki:
 #   - docs/AIDD-Manifesto.md
-#   - docs/Architecture.md
+#   - docs/System-Architecture.md
 #   - docs/Troubleshooting.md
 # -----------------------------------------------------------------------------
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 AIDD_MD="$REPO_ROOT/docs/AIDD-Manifesto.md"
-ARCH_MD="$REPO_ROOT/docs/Architecture.md"
+ARCH_MD="$REPO_ROOT/docs/System-Architecture.md"
 TROUBLE_MD="$REPO_ROOT/docs/Troubleshooting.md"
 
 FAILED=0
@@ -42,7 +42,7 @@ check() {
 echo ""
 echo "--- 1. [HAPPY PATH] Existência física dos documentos ---"
 check "docs/AIDD-Manifesto.md existe" test -f "$AIDD_MD"
-check "docs/Architecture.md existe" test -f "$ARCH_MD"
+check "docs/System-Architecture.md existe" test -f "$ARCH_MD"
 check "docs/Troubleshooting.md existe" test -f "$TROUBLE_MD"
 
 # =============================================================================
@@ -92,20 +92,20 @@ check "AIDD-Manifesto: Contém diagramas visuais em Mermaid" \
   grep -q '```mermaid' "$AIDD_MD"
 
 # =============================================================================
-# SEÇÃO 3: HAPPY PATH - VALIDAÇÃO DE CONTEÚDO DO ARCHITECTURE.MD
+# SEÇÃO 3: HAPPY PATH - VALIDAÇÃO DE CONTEÚDO DO SYSTEM-ARCHITECTURE.MD
 # =============================================================================
 echo ""
-echo "--- 3. [HAPPY PATH] Visão Sistêmica no docs/Architecture.md ---"
-check "Architecture: Contém visão estrutural em camadas e taxonomia de componentes" \
+echo "--- 3. [HAPPY PATH] Visão Sistêmica no docs/System-Architecture.md ---"
+check "System-Architecture: Contém visão estrutural em camadas e taxonomia de componentes" \
   bash -c "grep -qi 'Camadas' '$ARCH_MD' && grep -qi 'Taxonomia de Componentes' '$ARCH_MD'"
 
-check "Architecture: Diagramas Mermaid de arquitetura e orquestração do Maestro" \
+check "System-Architecture: Diagramas Mermaid de arquitetura e orquestração do Maestro" \
   bash -c "grep -q 'sequenceDiagram' '$ARCH_MD' && grep -qi 'Maestro' '$ARCH_MD'"
 
-check "Architecture: Ciclo de vida ponta a ponta de issues mapeado (/plan-feature -> /run-issue)" \
+check "System-Architecture: Ciclo de vida ponta a ponta de issues mapeado (/plan-feature -> /run-issue)" \
   bash -c "grep -qi '/plan-feature' '$ARCH_MD' && grep -qi '/run-issue' '$ARCH_MD'"
 
-check "Architecture: Consolidação de ADRs contendo Decisões de 0001 a 0009" \
+check "System-Architecture: Consolidação de ADRs contendo Decisões de 0001 a 0009" \
   bash -c "grep -q '0001' '$ARCH_MD' && \
            grep -q '0002' '$ARCH_MD' && \
            grep -q '0003' '$ARCH_MD' && \
@@ -116,7 +116,7 @@ check "Architecture: Consolidação de ADRs contendo Decisões de 0001 a 0009" \
            grep -q '0008' '$ARCH_MD' && \
            grep -q '0009' '$ARCH_MD'"
 
-check "Architecture: Referência ao documento canônico interno docs/ARCHITECTURE.md" \
+check "System-Architecture: Referência ao documento canônico interno docs/ARCHITECTURE.md" \
   grep -q "docs/ARCHITECTURE\.md" "$ARCH_MD"
 
 # =============================================================================
@@ -204,7 +204,7 @@ test_mermaid_fences() {
 check "Integridade de sintaxe Mermaid em AIDD-Manifesto.md" \
   test_mermaid_fences "$AIDD_MD"
 
-check "Integridade de sintaxe Mermaid em Architecture.md" \
+check "Integridade de sintaxe Mermaid em System-Architecture.md" \
   test_mermaid_fences "$ARCH_MD"
 
 # =============================================================================

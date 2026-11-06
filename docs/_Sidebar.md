@@ -10,7 +10,7 @@
 
 - **Arquitetura & Governança**
   - [Manifesto AIDD](AIDD-Manifesto)
-  - [Arquitetura do Sistema](Architecture)
+  - [Arquitetura do Sistema](System-Architecture)
 
 - **Catálogo de Recursos**
   - [Subagentes Especializados](Subagents)

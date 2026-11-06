@@ -3,7 +3,7 @@
 [![Antigravity CLI](https://img.shields.io/badge/Antigravity-CLI_Plugin-blue.svg)](https://github.com/VitorJacom/my-agents)
 [![AIDD Manifesto](https://img.shields.io/badge/Methodology-AIDD_Manifesto-success.svg)](AIDD-Manifesto)
 [![Governance](https://img.shields.io/badge/Governance-Dual_Gate_&_Anti--Fraud-orange.svg)](AIDD-Manifesto)
-[![Wiki Sync](https://img.shields.io/badge/Docs-Wiki_Automated_Sync-blueviolet.svg)](.github/workflows/wiki-sync.yml)
+[![Wiki Sync](https://img.shields.io/badge/Docs-Wiki_Automated_Sync-blueviolet.svg)](https://github.com/VitorJacom/my-agents/blob/main/.github/workflows/wiki-sync.yml)
 
 Repositório central de padrões de engenharia, governança determinística, guardrails de segurança e automações para agentes de inteligência artificial (**Antigravity CLI / Gemini CLI**).
 
@@ -42,7 +42,7 @@ Explore os módulos e documentações completas do ecossistema:
 
 - 🏁 **[Primeiros Passos](Getting-Started)**: Guia completo de instalação do plugin, configuração no Antigravity CLI e verificação de ambiente.
 - 📜 **[Manifesto AIDD](AIDD-Manifesto)**: Princípios fundamentais, ciclo de arquivos efêmeros (`task.md`, `implementation_plan.md`, `walkthrough.md`) e Trava Dupla Anti-Fraude.
-- 🏛️ **[Arquitetura do Sistema](Architecture)**: Visão estrutural de alto nível, ciclo de vida híbrido (Local vs Nuvem), Worktrees, Ondas de Execução e Merge Queue.
+- 🏛️ **[Arquitetura do Sistema](System-Architecture)**: Visão estrutural de alto nível, ciclo de vida híbrido (Local vs Nuvem), Worktrees, Ondas de Execução e Merge Queue.
 - 🤖 **[Catálogo de Subagentes](Subagents)**: Detalhamento de cada persona, fluxos de trabalho, permissões de tools e interfaces.
 - 🧰 **[Catálogo de Skills](Skills-Catalog)**: Guia das habilidades sob demanda (*Progressive Disclosure*), incluindo `/plan-feature`, `/run-issue`, `game-dev-patterns` e mais.
 - 🛠️ **[Troubleshooting e FAQ](Troubleshooting)**: Diagnóstico e resolução de problemas comuns de permissão, worktrees, hooks e execução de testes.

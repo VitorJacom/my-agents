@@ -15,7 +15,7 @@
   - `Subagents.md`: Catálogo dos 7 subagentes especializados e matriz RACI.
   - `Skills-Catalog.md`: Catálogo das 9 skills ativadas por Progressive Disclosure.
   - `AIDD-Manifesto.md`: Manifesto AI-Driven Development e 4 valores fundamentais.
-  - `Architecture.md`: Visão arquitetural em 5 camadas concêntricas e índice de ADRs.
+  - `System-Architecture.md`: Visão arquitetural em 5 camadas concêntricas e índice de ADRs.
   - `Troubleshooting.md`: Diagnóstico de problemas, locks, tokens e circuit breakers.
   - `ARCHITECTURE.md`: Especificação técnica canônica viva e decisões consolidadas.
   - *Validação de Integridade*: Suíte determinística em `tests/features/test_wiki_structure_and_links.sh`.

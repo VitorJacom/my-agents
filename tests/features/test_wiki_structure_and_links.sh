@@ -49,7 +49,7 @@ MANDATORY_DOCS=(
   "Subagents.md"
   "Skills-Catalog.md"
   "AIDD-Manifesto.md"
-  "Architecture.md"
+  "System-Architecture.md"
   "Troubleshooting.md"
 )
 

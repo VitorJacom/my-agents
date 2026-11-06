@@ -224,4 +224,4 @@ bash scripts/test-statusline.sh
 
 - [Catálogo de Subagentes (`docs/Subagents.md`)](./Subagents.md): Detalhamento das 7 personas, ferramentas concedidas e contratos de entrada/saída.
 - [Catálogo de Skills (`docs/Skills-Catalog.md`)](./Skills-Catalog.md): Documentação completa de todas as habilidades sob demanda e gatilhos de *Progressive Disclosure*.
-- [Arquitetura e Decisões Técnicas (`docs/ARCHITECTURE.md`)](./ARCHITECTURE.md): Fonte única da verdade das decisões de engenharia do repositório.
+- [Arquitetura e Decisões Técnicas (`docs/ARCHITECTURE.md`)](https://github.com/VitorJacom/my-agents/blob/main/docs/ARCHITECTURE.md): Fonte única da verdade das decisões de engenharia do repositório.

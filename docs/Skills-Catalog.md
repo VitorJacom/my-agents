@@ -34,7 +34,7 @@ O Antigravity CLI impõe limites de contexto para regras globais para preservar 
 ## 🛠️ 3. Detalhamento Exaustivo das Skills
 
 ### 3.1. `plan-feature` (Esteira de Planejamento e Design)
-- **Definição**: [skills/plan-feature/SKILL.md](../skills/plan-feature/SKILL.md)
+- **Definição**: [skills/plan-feature/SKILL.md](https://github.com/VitorJacom/my-agents/blob/main/skills/plan-feature/SKILL.md)
 - **Objetivo**: Conduzir o ciclo completo de planejamento e refinamento arquitetural antes de qualquer linha de código de produção ser escrita. Orquestra a colaboração entre `product-owner`, `uiux-designer` (quando houver interface) e `system-architect`.
 - **Gatilho de Progressive Disclosure**:
   - Quando o usuário deseja desenhar uma nova funcionalidade do zero.
@@ -52,7 +52,7 @@ O Antigravity CLI impõe limites de contexto para regras globais para preservar 
 ---
 
 ### 3.2. `issue-pipeline` (Esteira TDD Unitária e Maestro)
-- **Definição**: [skills/issue-pipeline/SKILL.md](../skills/issue-pipeline/SKILL.md)
+- **Definição**: [skills/issue-pipeline/SKILL.md](https://github.com/VitorJacom/my-agents/blob/main/skills/issue-pipeline/SKILL.md)
 - **Objetivo**: Executar a máquina de estados determinística AIDD para implementar issues do GitHub garantindo integridade de testes, TDD rigoroso e proteção anti-fraude.
 - **Dois Modos de Trabalho**:
   1. **Modo Unitário**: Execução atômica de uma única issue via subagentes (`planner` ➔ `qa-engineer` ➔ `coder` ➔ `gatekeeper`).
@@ -79,7 +79,7 @@ O Antigravity CLI impõe limites de contexto para regras globais para preservar 
 ---
 
 ### 3.3. `code-review` (Auditoria de Qualidade e Segurança)
-- **Definição**: [skills/code-review/SKILL.md](../skills/code-review/SKILL.md)
+- **Definição**: [skills/code-review/SKILL.md](https://github.com/VitorJacom/my-agents/blob/main/skills/code-review/SKILL.md)
 - **Objetivo**: Auditoria aprofundada de código-fonte antes de merges ou submissões de PR, avaliando 4 dimensões críticas:
   1. **Segurança (OWASP)**: Injeção de SQL/Shell, exposição de dados sensíveis e sanitização de inputs.
   2. **Arquitetura & Clean Code**: Aderência ao SOLID, injeção de dependências e complexidade ciclomática.
@@ -98,7 +98,7 @@ O Antigravity CLI impõe limites de contexto para regras globais para preservar 
 ---
 
 ### 3.4. `test-runner` (Diagnóstico e Reparo de Testes)
-- **Definição**: [skills/test-runner/SKILL.md](../skills/test-runner/SKILL.md)
+- **Definição**: [skills/test-runner/SKILL.md](https://github.com/VitorJacom/my-agents/blob/main/skills/test-runner/SKILL.md)
 - **Objetivo**: Diagnóstico inteligente de falhas em suítes de testes automatizados e reparo cirúrgico de código quebrado em múltiplos ecossistemas (Node/TS, Python, Go, Rust).
 - **Gatilho de Progressive Disclosure**:
   - Falha na execução de testes, pipelines de CI vermelhos ou quebras de regressão.
@@ -113,7 +113,7 @@ O Antigravity CLI impõe limites de contexto para regras globais para preservar 
 ---
 
 ### 3.5. `git-workflow` (Branches Semânticas e Commits)
-- **Definição**: [skills/git-workflow/SKILL.md](../skills/git-workflow/SKILL.md)
+- **Definição**: [skills/git-workflow/SKILL.md](https://github.com/VitorJacom/my-agents/blob/main/skills/git-workflow/SKILL.md)
 - **Objetivo**: Padronização da criação de branches semânticas (`feature/`, `fix/`, `refactor/`), elaboração de mensagens de commit seguindo a especificação de **Conventional Commits** e preparação de Pull Requests.
 - **Gatilho de Progressive Disclosure**:
   - Sempre que o agente for realizar operações de versionamento no Git ou preparar commits e PRs.
@@ -128,7 +128,7 @@ O Antigravity CLI impõe limites de contexto para regras globais para preservar 
 ---
 
 ### 3.6. `architecture-decision` (Registros de ADR)
-- **Definição**: [skills/architecture-decision/SKILL.md](../skills/architecture-decision/SKILL.md)
+- **Definição**: [skills/architecture-decision/SKILL.md](https://github.com/VitorJacom/my-agents/blob/main/skills/architecture-decision/SKILL.md)
 - **Objetivo**: Registro formal e padronizado de decisões de arquitetura e design de software (ADRs), preservando o contexto histórico, opções consideradas e trade-offs assumidos.
 - **Gatilho de Progressive Disclosure**:
   - Escolhas de banco de dados, adoção de protocolos de comunicação, introdução de novos frameworks ou consolidação estrutural.
@@ -143,7 +143,7 @@ O Antigravity CLI impõe limites de contexto para regras globais para preservar 
 ---
 
 ### 3.7. `docker-dev` (Diagnóstico e Containers)
-- **Definição**: [skills/docker-dev/SKILL.md](../skills/docker-dev/SKILL.md)
+- **Definição**: [skills/docker-dev/SKILL.md](https://github.com/VitorJacom/my-agents/blob/main/skills/docker-dev/SKILL.md)
 - **Objetivo**: Diagnóstico, validação e manutenção de ambientes locais baseados em Docker e Docker Compose, tratando portas ocupadas, montagens de volume incorretas e containers falhando.
 - **Gatilho de Progressive Disclosure**:
   - Erros de inicialização de containers locais, falha de comunicação entre serviços ou diagnóstico de logs.
@@ -158,7 +158,7 @@ O Antigravity CLI impõe limites de contexto para regras globais para preservar 
 ---
 
 ### 3.8. `game-dev-patterns` (Padrões e Física para Jogos 2D)
-- **Definição**: [skills/game-dev-patterns/SKILL.md](../skills/game-dev-patterns/SKILL.md)
+- **Definição**: [skills/game-dev-patterns/SKILL.md](https://github.com/VitorJacom/my-agents/blob/main/skills/game-dev-patterns/SKILL.md)
 - **Objetivo**: Garantir boas práticas de engenharia e física cinemática em jogos 2D (HTML5, Phaser 3, PixiJS, Canvas API), eliminando armadilhas de renderização dependente de taxa de atualização.
 - **Principais Padrões Abordados**:
   1. **Independência de Taxa de Quadros (FPS Independence & Timestep)**:
@@ -180,7 +180,7 @@ O Antigravity CLI impõe limites de contexto para regras globais para preservar 
 ---
 
 ### 3.9. `publish-rule-issue` (Publicação Global de Regras)
-- **Definição**: [skills/publish-rule-issue/SKILL.md](../skills/publish-rule-issue/SKILL.md)
+- **Definição**: [skills/publish-rule-issue/SKILL.md](https://github.com/VitorJacom/my-agents/blob/main/skills/publish-rule-issue/SKILL.md)
 - **Objetivo**: Publicar uma issue estruturada no repositório canônico central `VitorJacom/my-agents` contendo o contexto, causa-raiz e proposta de nova regra aprendida via comando `/learn` em qualquer workspace do desenvolvedor.
 - **Gatilho de Progressive Disclosure**:
   - Execução pós-ciclo de `/learn`, quando o agente identifica uma regra reutilizável e pergunta ao desenvolvedor se deseja registrá-la centralmente.
@@ -198,4 +198,4 @@ O Antigravity CLI impõe limites de contexto para regras globais para preservar 
 
 - [Guia de Introdução (`docs/Getting-Started.md`)](./Getting-Started.md): Setup de plugins e primeiro comando.
 - [Catálogo de Subagentes (`docs/Subagents.md`)](./Subagents.md): Detalhamento das personas executoras.
-- [Arquitetura Geral (`docs/ARCHITECTURE.md`)](./ARCHITECTURE.md): Visão de sistema e histórico de decisões técnicas.
+- [Arquitetura Geral (`docs/ARCHITECTURE.md`)](https://github.com/VitorJacom/my-agents/blob/main/docs/ARCHITECTURE.md): Visão de sistema e histórico de decisões técnicas.
