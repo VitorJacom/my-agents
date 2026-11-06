@@ -27,7 +27,7 @@ fi
 # Extração de configurações de GitHub Projects v2
 extract_context_val() {
   local key="$1"
-  grep -E "^\s*-\s*\*\*$key\*\*:" "$CONTEXT_FILE" 2>/dev/null | head -n 1 | sed -E 's/.*:\s*"?([^"]*)"?/\1/' | tr -d '\r' | xargs || true
+  grep -E "^\s*-\s*\*\*$key\*\*:" "$CONTEXT_FILE" 2>/dev/null | head -n 1 | sed -E 's/.*:\s*"?([^"#]*)"?.*/\1/' | tr -d '\r' | xargs || true
 }
 
 OWNER=$(extract_context_val "Owner")
