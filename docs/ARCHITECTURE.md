@@ -36,7 +36,8 @@ my-agents/
 │   ├── statusline-quota.sh   # Renderizador modular da statusline
 │   ├── install-statusline.sh # Automação de setup plug-and-play
 │   ├── test-statusline.sh    # Benchmark sub-50ms e suite de integridade
-│   └── worktree-manager.sh   # Gestor de ciclo de vida de worktrees isolados
+│   ├── worktree-manager.sh   # Gestor de ciclo de vida de worktrees isolados
+│   └── reconcile-github-governance.sh # Reconciliação idempotente de governança e backlog
 ├── hooks.json                # Guardrails de execução e injeção de contexto
 └── docs/                     # Documentação viva e modular do sistema (espelhada na Wiki)
     ├── ARCHITECTURE.md       # Fonte única da verdade arquitetural (ADRs e Decisões Técnicas)
@@ -45,7 +46,7 @@ my-agents/
     ├── _Footer.md            # Rodapé institucional padronizado da GitHub Wiki
     ├── Getting-Started.md    # Guia de onboarding e setup para desenvolvedores e agentes
     ├── AIDD-Manifesto.md     # Valores e governança do Manifesto AI-Driven Development
-    ├── Architecture.md       # Visão estrutural de alto nível para a Wiki
+    ├── System-Architecture.md # Visão estrutural de alto nível para a Wiki
     ├── Subagents.md          # Catálogo canônico das 7 personas de subagentes
     ├── Skills-Catalog.md     # Catálogo de skills sob demanda (Progressive Disclosure)
     └── Troubleshooting.md    # Resolução de problemas e procedimentos operacionais
@@ -194,8 +195,8 @@ Para equilibrar a velocidade e economia de tokens da IA com a visibilidade de ge
 * **Contexto**: A documentação pública na GitHub Wiki dependia de um espelhamento monolítico de `docs/ARCHITECTURE.md` sobrescrito como `Home.md` em `.github/workflows/wiki-sync.yml`. Esse comportamento resultava em uma página única de texto corrido com mais de 150 linhas e centenas de tópicos misturados, ausência de barra de navegação lateral (`_Sidebar.md`), ausência de rodapé institucional (`_Footer.md`), e falta de guias dedicados de onboarding, catálogo de subagentes e catálogo de skills. Além disso, não existia verificação automatizada de integridade sintática e de links internos, arriscando dead links na Wiki do repositório.
 * **Solução Adotada**:
   1. **Taxonomia Modular de Arquitetura da Informação**:
-     - Decomposição funcional de `docs/` em 9 artefatos temáticos coesos: `Home.md`, `_Sidebar.md`, `_Footer.md`, `Getting-Started.md`, `Subagents.md`, `Skills-Catalog.md`, `AIDD-Manifesto.md`, `Architecture.md` e `Troubleshooting.md`.
-     - `ARCHITECTURE.md` (em maiúsculas) permanece como a fonte canônica interna de decisões arquiteturais do repositório, enquanto `Architecture.md` atua como a página de visão geral voltada para o leitor da Wiki.
+     - Decomposição funcional de `docs/` em 9 artefatos temáticos coesos: `Home.md`, `_Sidebar.md`, `_Footer.md`, `Getting-Started.md`, `Subagents.md`, `Skills-Catalog.md`, `AIDD-Manifesto.md`, `System-Architecture.md` e `Troubleshooting.md`.
+     - `ARCHITECTURE.md` (em maiúsculas) permanece como a fonte canônica interna de decisões arquiteturais do repositório, enquanto `System-Architecture.md` atua como a página de visão geral voltada para o leitor da Wiki, eliminando colisões de casing em sistemas de arquivos case-insensitive.
   2. **Navegação Canônica da Wiki (`_Sidebar.md` e `_Footer.md`)**:
      - Adoção dos recursos nativos do GitHub Wiki para barra lateral fixa e rodapé comum, permitindo que o leitor navegue rapidamente entre Manuais, Governança AIDD e Catálogo de Recursos sem perder o contexto.
   3. **Refatoração do Pipeline de Sincronização (`.github/workflows/wiki-sync.yml`)**:
@@ -203,3 +204,63 @@ Para equilibrar a velocidade e economia de tokens da IA com a visibilidade de ge
      - Preservação da integridade estrutural: cópia de todos os arquivos de `docs/` diretamente para o clone da Wiki, mantendo cada documento em seu escopo de URL nativo do GitHub (`https://github.com/<owner>/<repo>/wiki/<slug>`).
   4. **Garantia Determinística de Integridade via Testes TDD (`tests/features/test_wiki_structure_and_links.sh`)**:
      - Implementação de suíte de testes de conformidade que valida a presença física de todos os artefatos de documentação, verifica a resolução de todos os links internos de navegação (anti-dead link) e audita o pipeline do GitHub Actions contra regressões no script de sincronização.
+
+---
+
+### Decisão 0009 (2026-11-06): Reconciliação Idempotente de Governança no GitHub e Backfill de Backlog
+* **Status**: Implementada
+* **Contexto**: Com o suporte nativo a Milestones e GitHub Projects v2 (Decisão 0007), issues existentes, épicos desmembrados ou itens criados fora do pipeline AIDD sofrem deriva de governança (ausência de milestone ativa ou não vinculação ao quadro do Project v2). Além disso, falhas transitórias de conectividade ou execuções legadas necessitavam de um mecanismo determinístico de auditoria e reconciliação em lote.
+* **Solução Adotada**:
+  1. **Script Utilitário de Reconciliação (`scripts/reconcile-github-governance.sh`)**:
+     - Varredura determinística de issues abertas via GitHub CLI (`gh issue list`).
+     - Extração canônica de `Active Milestone`, `Owner` e `Project Number` a partir de `PROJECT_CONTEXT.md` (ou caminho alternativo via `--context-file`).
+     - Atribuição idempotente da Milestone ativa às issues desprovidas de marco (`gh issue edit --milestone`), preservando milestones distintas pré-existentes.
+     - Vinculação resiliente ao GitHub Projects v2 (`gh project item-add`) operando sob o princípio da degradação graciosa (não bloqueante em falhas de API/permissões).
+     - Suporte mandatório a execução simulada (`--dry-run`) e especificação de repositório remoto (`--repo` / `-R`).
+  2. **Integração Operacional com o Pipeline de Planejamento (`skills/plan-feature/SKILL.md`)**:
+     - Inclusão do procedimento de reconciliação de governança no ciclo operacional de fatiamento de backlog, garantindo que o breakdown de épicos e sub-issues reflita imediatamente nas Views canônicas (Kanban Board, Milestone Roadmap e Backlog Table) do GitHub Projects v2.
+
+---
+
+### Decisão 0010 (2026-11-06): Telemetria de Concorrência e Eficiência no Modo Maestro (Wall-Clock Time e Speedup)
+* **Status**: Proposta
+* **Contexto**: No Modo Maestro (`issue-pipeline`), tarefas e issues são particionadas e despachadas em ondas concorrentes (*Execution Waves*) de até 3 workers simultâneos em worktrees isoladas. Contudo, o coletor de telemetria legado (`scripts/metrics-collector.py`) realizava apenas o somatório linear das durações dos agentes (`tot_time += duration_seconds`). Essa abordagem distorcia a telemetria em execuções concorrentes, apresentando um "tempo total" irreal que somava tempos de tarefas executadas em paralelo e ocultava os ganhos reais de velocidade (*speedup*), além de não identificar o worker gargalo de cada onda.
+* **Solução Adotada**:
+  1. **Modelo Hierárquico de Ondas de Execução**:
+     - Suporte nativo ao argumento `--waves` recebendo estruturas mapeadas por onda: `{"Wave 1": {"Worker #1": "cid1", ...}, "Wave 2": {...}}`.
+     - Preservação estrita de retrocompatibilidade com `--agents` para chamadas planas unitárias da esteira `/run-issue`.
+  2. **Cálculo Determinístico de Wall-Clock Time e Eficiência**:
+     - **Duração da Onda (Wall-Clock)**: Computada como o maior tempo decorrido entre os workers da onda: $T_{\text{wave}} = \max(T_{\text{worker}})$.
+     - **Tempo Total do Batch**: Soma dos tempos de relógio de cada onda sequencial: $T_{\text{batch}} = \sum T_{\text{wave}_i}$.
+     - **Esforço Cumulativo dos Agentes**: Somatório linear do tempo de computação de todos os subagentes: $T_{\text{cumulativo}} = \sum T_{\text{worker}}$.
+     - **Métricas de Ganho**: Cálculo de Speedup ($S = \frac{T_{\text{cumulativo}}}{T_{\text{batch}}}$) e Tempo Economizado ($T_{\text{saved}} = T_{\text{cumulativo}} - T_{\text{batch}}$).
+     - **Identificação do Worker Crítico**: Marcação explícita do worker de maior duração em cada onda como o caminho crítico (*critical path / bottleneck*).
+  3. **Renderização Transparente (Terminal & Markdown)**:
+     - Exibição tabular agrupada por ondas, com subtotais de Wall-Clock e destaque visual do gargalo de cada onda.
+     - Resumo consolidado destacando o tempo real decorrido (*Wall-Clock*), esforço total cumulativo e fator de aceleração (*Speedup*) para publicação transparente no `walkthrough.md` e PR consolidado.
+
+
+---
+
+### Decisão 0011 (2026-11-06): Esteira Automatizada de Code Review de Pull Requests com Geração de Issues e Governança (/review-pr)
+* **Status**: Proposta
+* **Contexto**: A revisão de código no ciclo AIDD era realizada apenas sob demanda manual via `skills/code-review/SKILL.md`, sem integração nativa com o GitHub CLI para submissão oficial de revisões (`gh pr review`), sem validação determinística contra quebra de invariantes do ecossistema (como a Golden Rule em `tests/core/` em PRs abertos) e sem capacidade de converter automaticamente apontamentos de qualidade/segurança em issues rastreáveis no backlog com herança de Milestone e Project v2.
+* **Solução Adotada**:
+  1. **Motor Determinístico de Inspeção e Auditoria de PR (`scripts/pr-reviewer.sh`)**:
+     - Subcomando `fetch-diff`: Extração de metadados de PR (`gh pr view`) e diff unificado (`gh pr diff`) com validação de status (`state: OPEN`) e parsing resiliente via Python3/jq.
+     - Subcomando `audit-integrity`: Execução automatizada e fail-fast da Golden Rule Anti-Fraude (bloqueio imediato se `tests/core/` for adulterado na PR) e checagem de Anti-Triviality em novos testes incluídos no diff.
+  2. **Interação Determinística com a PR no GitHub**:
+     - Subcomando `submit-review`: Submissão de parecer formal com suporte a `--approve`, `--request-changes` e `--comment`, mapeados com base na severidade dos achados:
+       - `REQUEST_CHANGES`: Presença de apontamentos classificados como `🚨 Crítico` ou violação da Golden Rule.
+       - `COMMENT`: Presença de apontamentos `⚠️ Importante` ou `💡 Sugestão`.
+       - `APPROVE`: Nenhuma não-conformidade identificada.
+     - Suporte nativo a `--dry-run` para pre-flights seguros e execução em ambientes de teste.
+  3. **Gerador Automático de Issues Rastreadas com Governança**:
+     - Subcomando `create-issues`: Extração estruturada de apontamentos `🚨 Crítico` e `⚠️ Importante` para criação em lote de issues no GitHub via `gh issue create`.
+     - Taxonomia Semântica AIDD: Injeção de labels `type:fix` / `type:refactor`, `status:planned` e `source:code-review`.
+     - Cross-Reference Bidirecional: A issue gerada contém o link direto e commit SHA do PR de origem, e o parecer do PR referencia as issues criadas para rastreamento.
+     - Reconciliação Imediata de Governança: Acionamento determinístico de `scripts/reconcile-github-governance.sh` garantindo atribuição da `Active Milestone` e vinculação ao `GitHub Project v2` conforme configurado em `PROJECT_CONTEXT.md`.
+  4. **Orquestrador de Alto Nível (`/review-pr` & `skills/review-pr/SKILL.md`)**:
+     - Máquina de estados de 5 fases (Pre-flight ➔ Deep Audit ➔ Human Gate ➔ PR Review ➔ Issue Generation & Governance).
+     - Gate de Validação Humana mandatório antes de qualquer ação com efeitos colaterais externos no GitHub.
+     - Documentação atualizada no catálogo canônico da Wiki (`docs/Skills-Catalog.md`).

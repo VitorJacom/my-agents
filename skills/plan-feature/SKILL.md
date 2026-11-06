@@ -27,7 +27,8 @@ flowchart TD %% Decisão condicional por interface visual (UI_UX_REQUIRED)
     UIUX --> Arch
     Arch --> Gate["3. Gate de Aprovação<br/>(Validação Humana + .mockup-preview.png)"]
     Gate --> GH["4. Criação no GitHub<br/>(gh issue create + Visual & UI/UX Contract)"]
-    GH --> Done["[ Handoff Final ]"]
+    GH --> Reconcile["5. Reconciliação de Governança<br/>(reconcile-github-governance.sh)"]
+    Reconcile --> Done["[ Handoff Final ]"]
 ```
 
 ---
@@ -104,3 +105,52 @@ flowchart TD %% Decisão condicional por interface visual (UI_UX_REQUIRED)
 4. **Inclusão Obrigatória de UI/UX Contract**: Para tarefas com interface visual, inclua obrigatoriamente a seção `## Visual & UI/UX Contract` (Spatial Blueprint ASCII, Design Tokens & Luminance Contract) diretamente no corpo (`--body`) do comando `gh issue create`.
 5. Caso seja um Épico, vincule as sub-issues criadas à issue principal utilizando a flag `--parent <numero_do_epico>` (se suportado pelo repositório) ou adicione a checklist de links na descrição do Épico.
 6. Apresente ao desenvolvedor o sumário com os links de todas as Issues criadas no GitHub e a matriz consolidada de **Execution Waves**, prontas para serem executadas com `/run-issue #<numero>`.
+7. **Reconciliação e Auditoria de Backlog**: Execute o utilitário determinístico `scripts/reconcile-github-governance.sh` para reconciliar as issues recém-criadas com a Milestone ativa e o GitHub Project v2, garantindo que o fatiamento reflita nas Views Kanban e de Roadmap sem deriva de governança:
+   ```bash
+   ./scripts/reconcile-github-governance.sh
+   ```
+
+---
+
+## 🛠️ Procedimento Operacional: Reconciliação de Backlog e Governança
+
+Para manter o backlog do repositório e o GitHub Projects v2 íntegros, organizados e sem deriva de governança, o ecossistema AIDD disponibiliza o utilitário determinístico `scripts/reconcile-github-governance.sh`.
+
+### 🎯 Casos de Uso
+1. **Pós-Planejamento em Lote**: Após o fatiamento de épicos ou criação de múltiplas issues via `/plan-feature`, garantindo que todas as sub-issues do breakdown sejam inseridas no Project v2 e na Active Milestone.
+2. **Backfill de Backlog Legado**: Inclusão retroativa de issues preexistentes criadas antes da configuração de Milestones ou Projects v2 em `PROJECT_CONTEXT.md`.
+3. **Auditoria e Sincronização Periódica**: Execução idempotente para certificar que nenhuma issue aberta esteja desalinhada das políticas do repositório, mantendo views, labels e status sincronizados.
+
+### ⚙️ Execução do Utilitário
+
+- **Simulação Prévia (Dry-Run)**:
+  Inspeciona as issues abertas e imprime as mutações que seriam realizadas sem executar chamadas destrutivas ou de escrita na API:
+  ```bash
+  ./scripts/reconcile-github-governance.sh --dry-run
+  ```
+
+- **Reconciliação Efetiva (Idempotente)**:
+  Lê a `Active Milestone` e os metadados do `GitHub Project v2` em `PROJECT_CONTEXT.md` e aplica as atualizações necessárias:
+  ```bash
+  ./scripts/reconcile-github-governance.sh
+  ```
+
+- **Execução com Repositório Remoto Específico**:
+  ```bash
+  ./scripts/reconcile-github-governance.sh --repo "owner/repo"
+  ```
+
+- **Uso de Arquivo de Contexto Alternativo**:
+  ```bash
+  ./scripts/reconcile-github-governance.sh --context-file /caminho/para/PROJECT_CONTEXT.md
+  ```
+
+### 🛡️ Princípios Operacionais e Garantias
+
+1. **Idempotência Estrita**:
+   - Issues que já possuem a milestone ativa correspondente não sofrem alterações nem geram chamadas desnecessárias à API.
+   - Issues com outras milestones explicitamente definidas são respeitadas e mantidas.
+2. **Degradação Graciosa (Non-Blocking)**:
+   - Caso a vinculação ao GitHub Projects v2 falhe (por exemplo, ausência de escopo `project` no `GITHUB_TOKEN` ou projeto inacessível), o utilitário emite um aviso (`⚠️ [WARN]`) e conclui com status `0`, prevenindo que bloqueios de infraestrutura quebrem o pipeline do desenvolvedor.
+3. **Consistência de Views & Taxonomia**:
+   - Assegura visibilidade instantânea nas 3 Views essenciais do GitHub Projects v2 (Kanban Board, Milestone Roadmap e Backlog Table) e consistência com a taxonomia oficial de labels (`type:*`, `status:planned`, `aidd:wave-*`).
