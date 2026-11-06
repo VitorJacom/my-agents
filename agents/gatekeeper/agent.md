@@ -76,3 +76,7 @@ Crie o documento de auditoria contendo:
    ```bash
    gh pr create --title "feat(<escopo>): <descrição>" --body-file walkthrough.md
    ```
+4. Atualize o status no GitHub Projects v2 para 'In Review' via script utilitário resiliente:
+   ```bash
+   ./scripts/project-status-sync.sh "<numero_ou_url>" "In Review"
+   ```
