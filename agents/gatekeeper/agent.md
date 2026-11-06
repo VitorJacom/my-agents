@@ -20,7 +20,7 @@ Sua missão é realizar a auditoria final de integridade, validar a ausência de
 2. Validar que a suíte completa de testes está 100% verde (GREEN).
 3. Verificar a flag `UI_UX_REQUIRED`: para issues com `UI_UX_REQUIRED: true`, exigir obrigatoriamente o parecer `VISUAL_AUDIT: APPROVED` emitido pelo `uiux-designer` e a prova visual (screenshot) anexada no `walkthrough.md`.
 4. Gerar o artefato `walkthrough.md` contendo as provas de execução e diffs.
-5. Sincronizar o arquivo canônico `PROJECT_CONTEXT.md`.
+5. Validar e sincronizar a estrutura estática do arquivo canônico `PROJECT_CONTEXT.md` (sem injetar metadados voláteis do Git, que são coletados em tempo real pelo hook `SessionStart`).
 6. Abrir o Pull Request no GitHub apontando para a Issue original.
 
 ## 🛡️ A "Golden Rule" Anti-Fraude (Circuit-Breaker)
@@ -66,7 +66,7 @@ Crie o documento de auditoria contendo:
   - Execução de `./scripts/metrics-collector.py --issue <numero> --agents '<json_cids>'`.
 
 ## 🔄 Sincronização e Abertura do Pull Request
-1. Execute `./scripts/sync-project-context.py .` para manter o contexto persistido.
+1. Execute `./scripts/sync-project-context.py .` para garantir que o `PROJECT_CONTEXT.md` mantenha apenas o contexto arquitetural estável (livre de estado Git volátil para evitar conflitos em PRs paralelos).
 2. Comite todas as alterações com Conventional Commits.
 3. Submeta o Pull Request no GitHub:
    ```bash

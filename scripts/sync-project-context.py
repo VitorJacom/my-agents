@@ -1,46 +1,14 @@
 #!/usr/bin/env python3
 """
-sync-project-context.py: Sincroniza e atualiza o PROJECT_CONTEXT.md com o estado recente
-do repositório Git (último commit, branch e arquivos afetados), garantindo persistência
-entre sessões sem esforço manual.
+sync-project-context.py: Valida e mantém a estrutura estática e invariantes canônicas
+do PROJECT_CONTEXT.md sem injetar estado volátil do Git (branch, commit, timestamp),
+garantindo idempotência pura e zero conflitos em Pull Requests ou Worktrees paralelos.
 """
 
 import os
 import sys
-import subprocess
-from datetime import datetime
 
-def run_cmd(cmd, cwd=None):
-    try:
-        res = subprocess.run(cmd, cwd=cwd, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        return res.stdout.strip()
-    except subprocess.CalledProcessError:
-        return ""
-
-def sync_context(workspace_dir):
-    context_path = os.path.join(workspace_dir, "PROJECT_CONTEXT.md")
-    
-    branch = run_cmd("git branch --show-current", cwd=workspace_dir) or "main"
-    last_commit = run_cmd("git log -1 --pretty=format:'%h - %s (%an)'", cwd=workspace_dir) or "Sem commits registrados"
-    diff_stat = run_cmd("git diff --stat HEAD~1 HEAD 2>/dev/null", cwd=workspace_dir)
-    if not diff_stat:
-        diff_stat = run_cmd("git status --short", cwd=workspace_dir) or "Working tree limpa"
-        
-    date_str = datetime.now().strftime("%Y-%m-%d %H:%M")
-
-    state_block = f"""## 📍 Estado Atual da Arquitetura & Entregas (Auto-Sync)
-- **Última Atualização**: {date_str}
-- **Branch Ativa**: `{branch}`
-- **Último Commit**: `{last_commit}`
-- **Resumo de Alterações Recentes**:
-```text
-{diff_stat[:400]}
-```
-"""
-
-    if not os.path.exists(context_path):
-        # Cria arquivo canônico inicial caso não exista
-        initial_content = f"""# Contexto Canônico do Projeto (`PROJECT_CONTEXT.md`)
+INITIAL_TEMPLATE = """# Contexto Canônico do Projeto (`PROJECT_CONTEXT.md`)
 
 ## 🛠️ Stack Tecnológica & Dependências
 - Definida no manifesto do projeto (consulte `package.json` / `pyproject.toml`).
@@ -49,43 +17,60 @@ def sync_context(workspace_dir):
 ## 📂 Estrutura Canônica de Diretórios
 - `src/`: Código-fonte de produção.
 - `tests/`: Suíte de testes automatizados (`tests/core/` para testes de base e `tests/features/` para novas features TDD).
-- `docs/`: Documentação técnica e ADRs (`docs/adr/`).
+- `docs/`: Documentação técnica viva e decisões consolidadas (`docs/ARCHITECTURE.md`).
 
-{state_block}
 ## 🛑 Regras e Invariantes Estritas (Anti-Alucinação)
 1. **Grounding Mandatório**: Não invente diretórios ou convenções de nomenclatura fora do padrão declarado acima.
 2. **Duplo Gate**: Nenhuma alteração é comitada sem passar pela auditoria de conformidade do Gatekeeper.
 """
+
+LEGACY_VOLATILE_MARKER = "## 📍 Estado Atual da Arquitetura & Entregas"
+
+
+def strip_legacy_volatile_section(content: str) -> str:
+    """Remove o bloco volátil legado de Auto-Sync caso exista, preservando o restante."""
+    if LEGACY_VOLATILE_MARKER not in content:
+        return content
+
+    parts = content.split(LEGACY_VOLATILE_MARKER, 1)
+    before = parts[0].rstrip()
+    rest = parts[1]
+    next_h2_idx = rest.find("\n## ")
+    if next_h2_idx != -1:
+        after = rest[next_h2_idx + 1 :].lstrip()
+        return f"{before}\n\n{after}"
+    return f"{before}\n"
+
+
+def sync_context(workspace_dir: str) -> None:
+    if not os.path.isdir(workspace_dir):
+        print(f"[ERRO] Diretório de workspace inexistente: {workspace_dir}", file=sys.stderr)
+        sys.exit(1)
+
+    context_path = os.path.join(workspace_dir, "PROJECT_CONTEXT.md")
+
+    if not os.path.exists(context_path):
         with open(context_path, "w", encoding="utf-8") as f:
-            f.write(initial_content)
-        print(f"[OK] {context_path} inicializado com sucesso.")
+            f.write(INITIAL_TEMPLATE)
+        print(f"[OK] {context_path} inicializado com contexto estático canônico.")
         return
 
-    # Atualiza bloco de estado existente sem destruir o restante
     with open(context_path, "r", encoding="utf-8") as f:
         content = f.read()
 
-    marker = "## 📍 Estado Atual da Arquitetura & Entregas"
-    if marker in content:
-        parts = content.split(marker)
-        # Encontra o próximo cabeçalho h2 após o marker, se houver
-        rest = parts[1]
-        next_h2_idx = rest.find("\n## ")
-        if next_h2_idx != -1:
-            remaining_content = rest[next_h2_idx:]
-        else:
-            remaining_content = ""
-        new_content = parts[0].rstrip() + "\n\n" + state_block.rstrip() + "\n\n" + remaining_content.lstrip()
+    cleaned_content = strip_legacy_volatile_section(content)
+    if cleaned_content != content:
+        with open(context_path, "w", encoding="utf-8") as f:
+            f.write(cleaned_content)
+        print(f"[OK] {context_path} higienizado (bloco volátil legado removido).")
     else:
-        new_content = content.rstrip() + "\n\n" + state_block
+        print(f"[OK] {context_path} já está sincronizado e livre de estado volátil (no-op).")
 
-    with open(context_path, "w", encoding="utf-8") as f:
-        f.write(new_content)
-    print(f"[OK] {context_path} sincronizado com o commit `{last_commit}`.")
 
-def main():
+def main() -> None:
     target_dir = sys.argv[1] if len(sys.argv) > 1 else os.getcwd()
     sync_context(target_dir)
+
 
 if __name__ == "__main__":
     main()
