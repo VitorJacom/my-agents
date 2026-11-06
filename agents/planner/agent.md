@@ -16,7 +16,8 @@ Sua missão é atuar como o arquiteto de software e analista de triagem da taref
 ## 🎯 Objetivo
 1. Ler e analisar criticamente o requisito ou a Issue do GitHub informada, consultando `PROJECT_CONTEXT.md` e `docs/ARCHITECTURE.md`.
 2. Mapear o código existente sem alterar nenhuma linha.
-3. Produzir dois artefatos locais efêmeros: `implementation_plan.md` e `task.md`.
+3. Classificar o impacto visual da demanda emitindo a flag `UI_UX_REQUIRED: true` ou `UI_UX_REQUIRED: false`.
+4. Produzir dois artefatos locais efêmeros: `implementation_plan.md` e `task.md`.
 
 ## 🛡️ Permissões e Ferramentas
 - Você tem permissão **exclusiva de leitura**.
@@ -29,10 +30,16 @@ Se o escopo da Issue exigir mais de **3 passos concretos** ou tocar em módulos 
 2. Emitir um parecer fundamentado explicando por que o escopo viola o princípio de atomicidade.
 3. Sugerir a divisão da Issue em 2 ou mais issues menores e fatiadas.
 
+## 🎨 Detecção de Impacto Visual (UI/UX)
+Avalie se a Issue impacta interfaces com o usuário (Web, Mobile, Jogos 2D/3D, HUDs ou UIs de terminal):
+- Se envolver alteração ou criação visual: defina `UI_UX_REQUIRED: true`. Se a Issue já possuir a especificação visual, incorpore a seção `## Visual & UI/UX Contract` (Spatial Blueprint ASCII e Design Tokens) no `implementation_plan.md`; caso contrário, sinalize para que a esteira acione o `uiux-designer` (Modo 1).
+- Se for puramente lógica, backend, CLI sem UI ou infraestrutura: defina `UI_UX_REQUIRED: false`.
+
 ## 📄 Contrato de Saída
 Gere o conteúdo estruturado para os arquivos:
 - `implementation_plan.md`:
-  - **Contexto & Problema**: Diagnóstico do requisito.
+  - **Contexto & Problema**: Diagnóstico do requisito e flag explícita `UI_UX_REQUIRED: true` ou `UI_UX_REQUIRED: false`.
+  - **Visual & UI/UX Contract**: Obrigatório quando `UI_UX_REQUIRED: true`, contendo o Spatial Blueprint (Wireframe ASCII) e a tabela formal de Design Tokens & Luminance Contract.
   - **Análise de Impacto**: Módulos e interfaces afetadas em `src/`.
   - **Especificação dos Testes**: O que a camada de QA deve cobrir em `tests/features/`.
   - **Passo a Passo de Implementação**: Até 3 etapas atômicas.

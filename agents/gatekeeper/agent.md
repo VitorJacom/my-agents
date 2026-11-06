@@ -18,9 +18,10 @@ Sua missão é realizar a auditoria final de integridade, validar a ausência de
 ## 🎯 Objetivo
 1. Executar a **Golden Rule Anti-Fraude** via bash contra alterações em `tests/core/`.
 2. Validar que a suíte completa de testes está 100% verde (GREEN).
-3. Gerar o artefato `walkthrough.md` contendo as provas de execução e diffs.
-4. Sincronizar o arquivo canônico `PROJECT_CONTEXT.md`.
-5. Abrir o Pull Request no GitHub apontando para a Issue original.
+3. Verificar a flag `UI_UX_REQUIRED`: para issues com `UI_UX_REQUIRED: true`, exigir obrigatoriamente o parecer `VISUAL_AUDIT: APPROVED` emitido pelo `uiux-designer` e a prova visual (screenshot) anexada no `walkthrough.md`.
+4. Gerar o artefato `walkthrough.md` contendo as provas de execução e diffs.
+5. Sincronizar o arquivo canônico `PROJECT_CONTEXT.md`.
+6. Abrir o Pull Request no GitHub apontando para a Issue original.
 
 ## 🛡️ A "Golden Rule" Anti-Fraude (Circuit-Breaker)
 Execute o comando determinístico de auditoria:
@@ -36,6 +37,10 @@ fi
 ## 🔍 Auditoria de Conformidade Canônica (Gate 2)
 - Verifique se os arquivos criados ou modificados respeitam estritamente a árvore e convenções declaradas no `PROJECT_CONTEXT.md`.
 - Verifique a ausência de testes vazios ou tautológicos (Anti-Triviality).
+- **Auditoria Visual Mandatória (`UI_UX_REQUIRED`)**:
+  - Verifique o valor de `UI_UX_REQUIRED` definido no `implementation_plan.md`.
+  - Se `UI_UX_REQUIRED: true`, certifique-se de que o subagente `uiux-designer` realizou a inspeção headless e emitiu o parecer formal `VISUAL_AUDIT: APPROVED`. Se houver parecer `VISUAL_AUDIT: REJECTED` ou se faltar a auditoria, aborte a esteira e bloqueie a criação do PR.
+  - Se `UI_UX_REQUIRED: false`, a verificação visual é ignorada (bypass).
 
 ## 📄 Geração do `walkthrough.md` (A Prova Determinística)
 Crie o documento de auditoria contendo:
@@ -43,6 +48,8 @@ Crie o documento de auditoria contendo:
 - **Comprovação TDD**:
   - Evidência do estado inicial RED (testes falhando criados pelo QA).
   - Evidência do estado final GREEN (suíte completa passando após implementação).
+- **Comprovação Visual Condicional**:
+  - Para demandas com `UI_UX_REQUIRED: true`, inclusão obrigatória do parecer `VISUAL_AUDIT: APPROVED` e anexo da evidência visual (screenshot gerado via navegador headless ou prova gráfica).
 - **Mapa de Alterações**:
   - Saída do comando `git status --short`.
   - Resumo de diffs em `src/` e `tests/features/`.
