@@ -94,7 +94,11 @@ O agente orquestrador guia a execução estado por estado, chamando os subagente
 
 ### 📍 ESTADO 1: PLANNING
 1. Identifique o número da Issue e seu contexto.
-2. Invoque o subagente `planner`:
+2. Atualize o status da Issue no GitHub Projects v2 para 'In Progress' via script utilitário desacoplado:
+   ```bash
+   ./scripts/project-status-sync.sh "<numero_ou_url>" "In Progress"
+   ```
+3. Invoque o subagente `planner`:
    - Envie a tarefa para ler a Issue e inspecionar a arquitetura existente.
    - Solicite a classificação explícita de impacto visual (`UI_UX_REQUIRED: true` ou `UI_UX_REQUIRED: false`).
    - Solicite a geração de `implementation_plan.md` e `task.md`.

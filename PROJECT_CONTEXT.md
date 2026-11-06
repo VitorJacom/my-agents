@@ -12,3 +12,12 @@
 ## 🛑 Regras e Invariantes Estritas (Anti-Alucinação)
 1. **Grounding Mandatório**: Não invente diretórios ou convenções de nomenclatura fora do padrão declarado acima.
 2. **Duplo Gate**: Nenhuma alteração é comitada sem passar pela auditoria de conformidade do Gatekeeper.
+
+## 🎯 Rastreamento & GitHub Governance
+- **Active Milestone**: "v1.1.0" # Defina o nome da Milestone ativa no repositório ou 'None'
+- **GitHub Project v2**:
+  - **Owner**: "VitorJacom"
+  - **Project Number**: 1 # Defina o número do projeto ou 'None'
+  - **Status Field**: "Status"
+
+

@@ -78,17 +78,27 @@ flowchart TD %% Decisão condicional por interface visual (UI_UX_REQUIRED)
    - Se aprovar: avance para o **ESTADO 4**.
 
 ### 📍 ESTADO 4: CRIAÇÃO DETERMINÍSTICA NO GITHUB
-1. Para cada issue fatiada no plano aprovado, execute o comando CLI do GitHub incluindo a seção `## Target Files & Dependencies`:
+1. Verifique a configuração de **Active Milestone** em `PROJECT_CONTEXT.md` (sob `## 🎯 Rastreamento & GitHub Governance`):
+   - Se definida e diferente de `None` (ex.: `"v1.1.0"`), anexe `--milestone "<milestone>"` ao comando `gh issue create`.
+   - Se ausente ou `None`, omita a flag `--milestone`.
+2. Para cada issue fatiada no plano aprovado, execute o comando CLI do GitHub incluindo a seção `## Target Files & Dependencies` e a flag `--milestone` (quando ativa):
    ```bash
    gh issue create \
      --title "feat(<escopo>): <título da task atômica>" \
      --label "enhancement,planned" \
+     [--milestone "<milestone>"] \
      --body "<descrição_completa_com_critérios_de_aceite_e_referência_ao_triângulo_AIDD>
 
    ## Target Files & Dependencies
    - Target Files: <caminhos_dos_arquivos>
    - Depends On: <dependencias_ou_none>"
    ```
-2. **Inclusão Obrigatória de UI/UX Contract**: Para tarefas com interface visual, inclua obrigatoriamente a seção `## Visual & UI/UX Contract` (Spatial Blueprint ASCII, Design Tokens & Luminance Contract) diretamente no corpo (`--body`) do comando `gh issue create`.
-3. Caso seja um Épico, vincule as sub-issues criadas à issue principal utilizando a flag `--parent <numero_do_epico>` (se suportado pelo repositório) ou adicione a checklist de links na descrição do Épico.
-4. Apresente ao desenvolvedor o sumário com os links de todas as Issues criadas no GitHub e a matriz consolidada de **Execution Waves**, prontas para serem executadas com `/run-issue #<numero>`.
+3. **Vinculação a GitHub Projects v2 (Degradação Graciosa)**:
+   - Se `GitHub Project v2` estiver configurado em `PROJECT_CONTEXT.md` com `Owner` e `Project Number` válidos (diferentes de `None`), adicione cada issue criada ao quadro do projeto:
+     ```bash
+     gh project item-add "<project_number>" --owner "<owner>" --url "<issue_url>" || echo "⚠️ [WARN] Falha não-bloqueante ao adicionar issue ao GitHub Project v2 (<project_number>). Prosseguindo esteira."
+     ```
+   - Em caso de erro (ex.: 403, permissões insuficientes ou projeto inexistente), o pipeline emite a mensagem `⚠️ [WARN]` e conclui sem bloquear a esteira (Princípio da Degradação Graciosa).
+4. **Inclusão Obrigatória de UI/UX Contract**: Para tarefas com interface visual, inclua obrigatoriamente a seção `## Visual & UI/UX Contract` (Spatial Blueprint ASCII, Design Tokens & Luminance Contract) diretamente no corpo (`--body`) do comando `gh issue create`.
+5. Caso seja um Épico, vincule as sub-issues criadas à issue principal utilizando a flag `--parent <numero_do_epico>` (se suportado pelo repositório) ou adicione a checklist de links na descrição do Épico.
+6. Apresente ao desenvolvedor o sumário com os links de todas as Issues criadas no GitHub e a matriz consolidada de **Execution Waves**, prontas para serem executadas com `/run-issue #<numero>`.
