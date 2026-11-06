@@ -93,6 +93,12 @@ flowchart TD %% Decisão condicional por interface visual (UI_UX_REQUIRED)
    - Target Files: <caminhos_dos_arquivos>
    - Depends On: <dependencias_ou_none>"
    ```
-3. **Inclusão Obrigatória de UI/UX Contract**: Para tarefas com interface visual, inclua obrigatoriamente a seção `## Visual & UI/UX Contract` (Spatial Blueprint ASCII, Design Tokens & Luminance Contract) diretamente no corpo (`--body`) do comando `gh issue create`.
-4. Caso seja um Épico, vincule as sub-issues criadas à issue principal utilizando a flag `--parent <numero_do_epico>` (se suportado pelo repositório) ou adicione a checklist de links na descrição do Épico.
-5. Apresente ao desenvolvedor o sumário com os links de todas as Issues criadas no GitHub e a matriz consolidada de **Execution Waves**, prontas para serem executadas com `/run-issue #<numero>`.
+3. **Vinculação a GitHub Projects v2 (Degradação Graciosa)**:
+   - Se `GitHub Project v2` estiver configurado em `PROJECT_CONTEXT.md` com `Owner` e `Project Number` válidos (diferentes de `None`), adicione cada issue criada ao quadro do projeto:
+     ```bash
+     gh project item-add "<project_number>" --owner "<owner>" --url "<issue_url>" || echo "⚠️ [WARN] Falha não-bloqueante ao adicionar issue ao GitHub Project v2 (<project_number>). Prosseguindo esteira."
+     ```
+   - Em caso de erro (ex.: 403, permissões insuficientes ou projeto inexistente), o pipeline emite a mensagem `⚠️ [WARN]` e conclui sem bloquear a esteira (Princípio da Degradação Graciosa).
+4. **Inclusão Obrigatória de UI/UX Contract**: Para tarefas com interface visual, inclua obrigatoriamente a seção `## Visual & UI/UX Contract` (Spatial Blueprint ASCII, Design Tokens & Luminance Contract) diretamente no corpo (`--body`) do comando `gh issue create`.
+5. Caso seja um Épico, vincule as sub-issues criadas à issue principal utilizando a flag `--parent <numero_do_epico>` (se suportado pelo repositório) ou adicione a checklist de links na descrição do Épico.
+6. Apresente ao desenvolvedor o sumário com os links de todas as Issues criadas no GitHub e a matriz consolidada de **Execution Waves**, prontas para serem executadas com `/run-issue #<numero>`.

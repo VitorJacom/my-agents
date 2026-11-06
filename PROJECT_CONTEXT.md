@@ -15,4 +15,9 @@
 
 ## 🎯 Rastreamento & GitHub Governance
 - **Active Milestone**: "v1.1.0" # Defina o nome da Milestone ativa no repositório ou 'None'
+- **GitHub Project v2**:
+  - **Owner**: "VitorJacom"
+  - **Project Number**: 1 # Defina o número do projeto ou 'None'
+  - **Status Field**: "Status"
+
 
