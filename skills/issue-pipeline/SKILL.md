@@ -72,11 +72,12 @@ O agente orquestrador deve guiar a execução estado por estado, chamando os sub
    ```
 2. Invoque o subagente `qa-engineer`:
    - Instrua-o a ler `implementation_plan.md` e criar os testes de aceite estritamente em `tests/features/`.
+   - Instrua-o a categorizar e cobrir explicitamente cenários de **Happy Path** e cenários de **Edge Cases** / borda e falha.
    - Instrua-o a rodar o test runner e capturar a prova de falha (**RED**).
 3. **Validação do Portão de QA**:
-   - Os testes novos falharam conforme esperado e cobrem regras reais?
+   - Os testes novos falharam conforme esperado e cobrem regras reais e cenários de borda?
    - **Se SIM (Aprovado)**: Registre a prova do RED e avance para o **ESTADO 3**.
-   - **Se NÃO (Falso Positivo ou Teste Trivial)**: Interrompa a esteira e exija correção dos testes.
+   - **Se NÃO (Falso Positivo, Teste Trivial ou Ausência de Casos de Borda)**: Interrompa a esteira e exija correção dos testes.
 
 ---
 
@@ -84,11 +85,12 @@ O agente orquestrador deve guiar a execução estado por estado, chamando os sub
 1. Invoque o subagente `coder`:
    - Instrua-o a implementar a solução estritamente dentro da pasta `src/`.
    - Para tarefas visuais, obrigue o consumo rigoroso dos Design Tokens e Wireframe ASCII da seção `## Visual & UI/UX Contract`.
+   - Instrua-o a garantir e comprovar cobertura mínima de código $\ge 85\%$. Se a cobertura for inferior a 85% (< 85%), interrompa e bloqueie a esteira exigindo complementação.
    - Lembre-o da **Trava Anti-Fraude**: é proibido tocar em arquivos da pasta `tests/`.
    - Execute o loop de até 3 iterações (editar código ➔ rodar testes).
 2. **Validação do Portão de Implementação**:
-   - Todos os testes passaram (**GREEN**)?
-   - **Se NÃO (Estourou 3 tentativas sem passar)**: Interrompa a esteira imediatamente com status de falha e apresente o log de erro ao usuário.
+   - Todos os testes passaram (**GREEN**) e a cobertura é $\ge 85\%$?
+   - **Se NÃO (Estourou 3 tentativas sem passar ou cobertura < 85%)**: Interrompa a esteira imediatamente com status de falha e apresente o log de erro ao usuário.
    - **Se SIM (Sucesso)**:
      - Se `UI_UX_REQUIRED: true`: avance para o **ESTADO 3.5**.
      - Se `UI_UX_REQUIRED: false`: faça bypass direto para o **ESTADO 4** (Zero Token Waste).
@@ -117,7 +119,9 @@ O agente orquestrador deve guiar a execução estado por estado, chamando os sub
    - Executar auditoria de integridade com `git diff --stat origin/main` (ou branch base).
    - Validar que nenhum teste fora da nova feature foi modificado ou relaxado (Golden Rule).
    - **Auditoria do Duplo Gate**: Comprovar conformidade estrutural contra o `PROJECT_CONTEXT.md` (zero alucinação de padrões).
+   - **Auditoria de Cobertura e Casos**: Auditar que a cobertura de código é $\ge 85\%$ e que a suíte contempla separadamente cenários de Happy Path e Edge Cases / cenários de borda. Se a cobertura for inferior a 85% (< 85%), aborte e bloqueie a finalização.
    - **Auditoria Visual Mandatória**: Para issues com `UI_UX_REQUIRED: true`, exigir obrigatoriamente a auditoria visual aprovada com `VISUAL_AUDIT: APPROVED` e anexar a prova visual irrefutável (screenshot headless) no `walkthrough.md`.
+   - **Provas Demonstrativas Universais**: Exigir provas demonstrativas no `walkthrough.md` para todos os domínios (screenshots para UI; saídas reais formatadas de terminal, logs estruturados ou CLI para backend/infra).
    - Executar `./scripts/sync-project-context.py .` para persistir o novo estado arquitetural da entrega.
    - Executar `./scripts/metrics-collector.py` para calcular o consumo de tokens da esteira.
    - Gerar o artefato consolidado `walkthrough.md`.

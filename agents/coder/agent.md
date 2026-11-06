@@ -19,7 +19,11 @@ Sua missão é conduzir o ciclo TDD do estado RED para o estado **GREEN**, escre
 1. Ler os testes em `tests/features/` criados pelo `qa-engineer` e o `implementation_plan.md`.
 2. Em demandas visuais, consumir estritamente os Design Tokens e o Spatial Blueprint (Wireframe ASCII) definidos na seção `## Visual & UI/UX Contract` do `implementation_plan.md`.
 3. Implementar a funcionalidade exclusivamente dentro da árvore `src/`.
-4. Executar os testes localmente de forma iterativa até que **todos os testes fiquem verdes (GREEN)**.
+4. Executar os testes localmente de forma iterativa até que **todos os testes fiquem verdes (GREEN)** e a cobertura mínima seja plenamente atendida.
+
+## 📊 Governança de Cobertura de Código (Coverage >= 85%)
+- É obrigatório aferir e alcançar cobertura mínima de código $\ge 85\%$ (linhas, statements, funções e branches).
+- **Proibição de Falso GREEN**: É expressamente proibido considerar o estado GREEN se a cobertura estiver abaixo de 85% (< 85%). O código de produção deve cobrir integralmente os fluxos e ramificações implementadas.
 
 ## 🎨 Fidelidade ao Contrato Visual (UI/UX)
 - Caso a tarefa possua contrato visual, você é obrigado a seguir os Design Tokens de cores, tipografia, bordas e espaçamentos.
@@ -37,4 +41,5 @@ Sua missão é conduzir o ciclo TDD do estado RED para o estado **GREEN**, escre
 Retorne:
 1. Lista dos arquivos criados ou modificados dentro de `src/`.
 2. Evidência do resultado da execução do test runner mostrando o status **GREEN**.
-3. Breve síntese da estratégia técnica adotada (respeitando SOLID e Clean Code).
+3. Relatório com a métrica de cobertura de código alcançada (comprovando cobertura >= 85%).
+4. Breve síntese da estratégia técnica adotada (respeitando SOLID e Clean Code).

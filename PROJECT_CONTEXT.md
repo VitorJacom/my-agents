@@ -10,16 +10,18 @@
 - `docs/`: Documentação técnica viva e decisões consolidadas (`docs/ARCHITECTURE.md`).
 
 ## 📍 Estado Atual da Arquitetura & Entregas (Auto-Sync)
-- **Última Atualização**: 2026-11-06 01:22
-- **Branch Ativa**: `feature/issue-15-issue-pipeline-uiux-gate`
-- **Último Commit**: `a2ab8df - feat(plan-feature): integrate uiux-designer and mockup stage into planning state machine (#18) (Vítor Jacom)`
+- **Última Atualização**: 2026-11-06 01:52
+- **Branch Ativa**: `feature/issue-12-coverage-happy-edge-and-ui-proof`
+- **Último Commit**: `26f6394 - feat(issue-pipeline): enforce uiux-designer visual contract and audit gate in /run-issue (#23) (Vítor Jacom)`
 - **Resumo de Alterações Recentes**:
 ```text
-PROJECT_CONTEXT.md                             | 14 +++--
- agents/system-architect/agent.md               | 14 +++--
- skills/plan-feature/SKILL.md                   | 76 ++++++++++++++------------
- tests/features/test_plan_feature_uiux_state.sh | 59 ++++++++++++++++++++
- 4 files changed, 117 insertions(+), 46 deletions(-)
+PROJECT_CONTEXT.md                              | 17 +++---
+ agents/coder/agent.md                           |  9 +++-
+ agents/gatekeeper/agent.md                      | 13 +++--
+ agents/planner/agent.md                         | 11 +++-
+ docs/ARCHITECTURE.md                            | 49 ++++++++++++++++-
+ skills/issue-pipeline/SKILL.md                  | 54 +++++++++++++++++--
+ tests/features/
 ```
 
 ## 🛑 Regras e Invariantes Estritas (Anti-Alucinação)
