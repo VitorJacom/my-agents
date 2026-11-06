@@ -81,11 +81,11 @@ flowchart TD %% Decisão condicional por interface visual (UI_UX_REQUIRED)
 1. Verifique a configuração de **Active Milestone** em `PROJECT_CONTEXT.md` (sob `## 🎯 Rastreamento & GitHub Governance`):
    - Se definida e diferente de `None` (ex.: `"v1.1.0"`), anexe `--milestone "<milestone>"` ao comando `gh issue create`.
    - Se ausente ou `None`, omita a flag `--milestone`.
-2. Para cada issue fatiada no plano aprovado, execute o comando CLI do GitHub incluindo a seção `## Target Files & Dependencies` e a flag `--milestone` (quando ativa):
+2. Para cada issue fatiada no plano aprovado, execute o comando CLI do GitHub utilizando a taxonomia oficial de labels (`type:*`, `status:planned`, e opcionalmente `aidd:wave-*`), incluindo a seção `## Target Files & Dependencies` e a flag `--milestone` (quando ativa):
    ```bash
    gh issue create \
      --title "feat(<escopo>): <título da task atômica>" \
-     --label "enhancement,planned" \
+     --label "type:feat,status:planned" \
      [--milestone "<milestone>"] \
      --body "<descrição_completa_com_critérios_de_aceite_e_referência_ao_triângulo_AIDD>
 
@@ -93,6 +93,8 @@ flowchart TD %% Decisão condicional por interface visual (UI_UX_REQUIRED)
    - Target Files: <caminhos_dos_arquivos>
    - Depends On: <dependencias_ou_none>"
    ```
+   > [!NOTE]
+   > Adapte a label `type:*` para a natureza da issue fatiada (`type:feat`, `type:fix`, `type:docs`, `type:refactor`, `type:chore`, `type:test`).
 3. **Vinculação a GitHub Projects v2 (Degradação Graciosa)**:
    - Se `GitHub Project v2` estiver configurado em `PROJECT_CONTEXT.md` com `Owner` e `Project Number` válidos (diferentes de `None`), adicione cada issue criada ao quadro do projeto:
      ```bash

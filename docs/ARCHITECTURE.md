@@ -159,9 +159,33 @@ Para equilibrar a velocidade e economia de tokens da IA com a visibilidade de ge
      - Em `/run-issue` (`issue-pipeline`): No início da execução (Estado 1/2), o status do item é atualizado para `In Progress`; na fase final (Estado 4 / Gatekeeper), o status transita para `In Review` com o PR aberto.
   4. **Princípio da Degradação Graciosa (Non-Blocking)**:
      - Todas as chamadas ao `gh project` são executadas com fallback resiliente e alertas informativos. Falhas por ausência de permissões no token (ex: falta de escopo `project`), projetos não configurados ou erros de rede NUNCA quebram a esteira de desenvolvimento AIDD.
-  5. **Taxonomia Padronizada de Labels e Views AIDD**:
-     - Padronização de labels para consistência entre boards e automações (`type:*`, `status:*`, `aidd:*`).
-     - Definição canônica de Views recomendadas no GitHub Projects v2 (Board Kanban, Sprint/Milestone View e Roadmap).
+  5. **Taxonomia Padronizada de Labels e Guia Canônico de Views no GitHub Projects v2**:
+     - **Views Essenciais no GitHub Projects v2**:
+       1. **Kanban Board** (Layout: Board):
+          - Agrupamento principal por colunas no campo `Status` (`Planned`, `In Progress`, `In Review`, `Done`).
+          - Visibilidade direta do fluxo contínuo de trabalho e gargalos de execução ativa.
+       2. **Milestone Roadmap** (Layout: Roadmap / Timeline):
+          - Agrupamento e ordenação por `Milestone` e data/iteração.
+          - Visualização macro de entregas de versões, sprints e épicos planejados.
+       3. **Backlog View** (Layout: Table / List):
+          - Visão em tabela com filtros para triagem e priorização (ex: itens sem milestone ou em estado `status:planned`).
+          - Campos visíveis: Title, Status, Milestone, Labels e Assignees.
+     - **Taxonomia Oficial de Labels AIDD**:
+       | Categoria | Label | Descrição / Uso |
+       | :--- | :--- | :--- |
+       | **`type:*`** | `type:feat` | Nova funcionalidade para o sistema ou usuário |
+       | | `type:fix` | Correção de defeito / bug |
+       | | `type:docs` | Documentação técnica, arquitetura ou guias |
+       | | `type:refactor` | Refatoração de código sem alteração funcional ou testes |
+       | | `type:chore` | Dependências, build, infraestrutura e manutenção |
+       | | `type:test` | Adição ou reestruturação de testes automatizados |
+       | **`status:*`** | `status:planned` | Issue decomposta e pronta para execução no backlog |
+       | | `status:in-progress` | Issue em desenvolvimento ativo pelo subagente ou desenvolvedor |
+       | | `status:blocked` | Trabalho impedido por dependência externa ou bloqueio técnico |
+       | | `status:ready-for-review` | Código e testes verdes concluídos, aguardando revisão do PR |
+       | **`aidd:*`** | `aidd:wave-*` | Escalonamento em ondas concorrentes do Maestro (ex: `aidd:wave-1`, `aidd:wave-2`) |
+       | | `aidd:clean-room` | Validação isolada em ambiente estéril / sandbox desacoplado |
+       | | `aidd:reconciled` | Marcador de merge queue indicando resolução automatizada de divergência |
 
 ---
 
