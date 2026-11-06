@@ -10,14 +10,13 @@
 - `docs/`: Documentação técnica viva e decisões consolidadas (`docs/ARCHITECTURE.md`).
 
 ## 📍 Estado Atual da Arquitetura & Entregas (Auto-Sync)
-- **Última Atualização**: 2026-11-04 16:06
-- **Branch Ativa**: `feature/lifecycle-governance-and-wiki-sync`
-- **Último Commit**: `9c1c85a - feat(statusline): add custom statusline renderer for Antigravity CLI with quota display (vitor jacom)`
+- **Última Atualização**: 2026-11-06 00:59
+- **Branch Ativa**: `feature/issue-13-uiux-mockup-protocol`
+- **Último Commit**: `bc397f7 - docs(architecture): record ADRs 0003, 0004 and 0005 for upcoming sprint (vitor jacom)`
 - **Resumo de Alterações Recentes**:
 ```text
-rules/AGENTS.md             | 19 +++++++++++--
- scripts/statusline-quota.sh | 68 +++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 85 insertions(+), 2 deletions(-)
+docs/ARCHITECTURE.md | 43 +++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 39 insertions(+), 4 deletions(-)
 ```
 
 ## 🛑 Regras e Invariantes Estritas (Anti-Alucinação)

@@ -109,3 +109,18 @@ Para equilibrar a velocidade e economia de tokens da IA com a visibilidade de ge
   1. **Interface Contract Inviolável**: O `implementation_plan.md` passa a conter obrigatoriamente a seção `## Interface Contract`, com tipagens, assinaturas de funções e contratos de dados 100% congelados na etapa de Planejamento.
   2. **Fork Concorrente**: QA Engineer (em `tests/features/`) e Coder (em `src/`) são disparados simultaneamente, ambos trabalhando de forma independente orientados exclusivamente pelo contrato.
   3. **Portão de Sincronização (Join Point)**: O orquestrador executa a suíte ao término de ambas as entregas. Se os testes passarem imediatamente, segue para o Gatekeeper; se houver desalinhamento, inicia-se um loop curto de refinamento (máx 2 iterações) para convergência.
+
+---
+
+### Decisão 0006 (2026-11-06): Orquestração Condicional do `uiux-designer` e Protocolo de Mockup-as-Code (Figma-less)
+* **Status**: Proposta
+* **Contexto**: Embora o subagente `agents/uiux-designer/agent.md` tenha sido criado na Decisão 0001, ele permanecia órfão (nunca invocado nas máquinas de estado de `skills/plan-feature/SKILL.md` nem de `skills/issue-pipeline/SKILL.md`). Como consequência, em tarefas visuais o `coder` improvisava layouts, paletas e estilos sem contrato visual prévio e sem auditoria estética pós-implementação. Além disso, o fluxo carecia de um substituto determinístico e versionável para a etapa tradicional de telas no Figma.
+* **Solução Adotada**:
+  1. **Protocolo Mockup-as-Code em 3 Camadas (Figma-less)**:
+     - **Camada 1 (Wireframe Estrutural ASCII / Spatial Blueprint)**: Diagrama Box-drawing em Markdown definindo zonas, hierarquia, proporções, grid de 4px/8px e estados interativos.
+     - **Camada 2 (Design Tokens & Luminance Contract)**: Tabela determinística de tokens congelados (Hex + conversão monocromática comprovando Value Contrast $\ge$ 2:1 para superfícies/elementos e WCAG AA $\ge$ 4.5:1 para textos, tipografia modular, bordas, sombras de oclusão e curvas de easing).
+     - **Camada 3 (Protótipo Estático Autocontido + Screenshot Headless)**: Geração de protótipo efêmero `.mockup-preview.html` (HTML/CSS/SVG inline) renderizado em `.mockup-preview.png` via `chromium --headless --screenshot` para aprovação humana no Gate do `/plan-feature` e referência para o `coder`.
+  2. **Orquestração Condicional Zero-Overhead**:
+     - Em `/plan-feature`: Estado condicional **UI/UX & Mockup Design** acionado entre o `product-owner` e o `system-architect` exclusivamente quando a demanda possuir impacto visual (`[UI/UX Required: YES]`), injetando o `## Visual & UI/UX Contract` no `planning_proposal.md` e no corpo das Issues do GitHub.
+     - Em `/run-issue`: No Estado de Planejamento, se a Issue for visual mas não possuir contrato prévio, o `uiux-designer` é acionado em Modo 1 para estabelecer o contrato; durante a codificação, o `coder` implementa estritamente os Design Tokens; antes do PR, o `uiux-designer` opera em Modo 2 (Auditoria Visual Headless) validando a tela real contra o mockup aprovado antes da liberação pelo `gatekeeper`.
+  3. **Efemeridade de Artefatos de Preview**: Arquivos temporários `.mockup-preview.html` e `.mockup-preview.png` são adicionados ao `.gitignore` para não poluir a árvore Git de produção.
