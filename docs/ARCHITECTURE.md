@@ -101,13 +101,23 @@ Para equilibrar a velocidade e economia de tokens da IA com a visibilidade de ge
 
 ---
 
-### Decisão 0004 (2026-11-04): Isolamento de Ambientes de Agentes Concorrentes via Git Worktree
+### Decisão 0004 (2026-11-06): Orquestração Multi-Task Concorrente (Maestro), Git Worktrees, Ondas de Execução e Merge Queue em Branch Intermediária
 * **Status**: Proposta
-* **Contexto**: A execução simultânea de múltiplas issues por agentes geraria colisões de estado e arquivos efêmeros sobrepostos no mesmo repositório local de trabalho.
+* **Contexto**: A execução simultânea de múltiplas issues por agentes exige mais do que o isolamento local de diretórios: é necessário evitar a contaminação de contexto na sessão principal, prevenir colisões de escopo antes da codificação, eliminar falsos conflitos sistêmicos no `PROJECT_CONTEXT.md` e garantir que a integração sequencial das entregas não quebre a branch `main` (conflitos textuais ou semânticos).
 * **Solução Adotada**:
-  1. **Worktrees Efêmeros**: Cada tarefa em execução recebe um diretório estéril e dedicado em `.worktrees/issue-<id>`, criado a partir da branch base atualizada (`origin/main`), mantendo a raiz limpa.
-  2. **Mecanismo Anti-Colisão (Locks)**: Arquivos de trava atômica `.worktrees/.lock-<id>` asseguram que nenhuma issue seja processada em duplicidade.
-  3. **Ciclo de Vida Determinístico**: Script utilitário (`scripts/worktree-manager.sh`) gerencia `create`, `list`, `check-sync` e `remove`, garantindo a remoção do worktree após a abertura do PR pelo Gatekeeper.
+  1. **Arquitetura Maestro + Subagentes Worker Isolados (`invoke_subagent 'self'` + Worktree)**:
+     - Quando `/run-issue` é invocado para múltiplas issues (`/run-issue #24 #25 #26`) ou um épico (`/run-issue --epic #20`), a sessão principal atua exclusivamente como **Maestro (Control Plane)**, sem ler código de produção diretamente.
+     - Cada issue é delegada a um subagente Worker dedicado (`invoke_subagent` com `TypeName: 'self'`, `ConversationID` isolado e teto máximo de **3 Workers simultâneos** por onda), operando em um diretório estéril `.worktrees/issue-<id>` protegido por lock atômico (`.worktrees/.lock-<id>`).
+  2. **Prevenção de Conflitos na Origem (`Target Files` & `Execution Waves`)**:
+     - O `system-architect` (em `/plan-feature`) e o `planner` declaram formalmente os `Target Files` (blast radius) e `Depends On` de cada issue.
+     - O Maestro realiza checagem pre-flight de interseção de `Target Files`: issues que tocam no mesmo arquivo nunca rodam simultaneamente, sendo escalonadas automaticamente em Ondas de Execução (*Execution Waves*) sequenciais.
+  3. **Desacoplamento de Estado Volátil do `PROJECT_CONTEXT.md`**:
+     - Para eliminar 100% dos falsos conflitos em PRs paralelos, o bloco volátil (`Última Atualização`, `Branch Ativa`, `Último Commit`, `Resumo de Alterações Recentes`) deixa de ser comitado no `PROJECT_CONTEXT.md` pelas branches de feature e passa a ser extraído e injetado dinamicamente em tempo real pelo hook `scripts/session-start-context.sh`.
+  4. **Branch Intermediária de Integração, Merge Queue e Auto-Reconciliação**:
+     - Em execuções multi-issue, o Maestro cria uma branch intermediária (`integration/batch-<id>` ou `epic/issue-<id>`) a partir de `origin/main`, da qual derivam as worktrees das issues.
+     - Conforme cada Worker conclui seu ciclo TDD e passa pelo Gatekeeper, o Maestro executa o **Rebase Train (`worktree-manager.sh rebase-sync`)**: faz rebase da branch da issue sobre a branch intermediária atualizada, roda 100% da suíte acumulada (`tests/core/` + todos os `tests/features/` já integrados) e realiza o auto-merge na branch intermediária.
+     - Em caso de conflito textual ou falha de teste pós-rebase (conflito semântico), o Maestro aciona até **2 iterações de Auto-Reconciliação** com o `coder` na worktree da issue, sob Trava Anti-Fraude estrita (proibido modificar `tests/core/` ou arquivos de `tests/features/` pertencentes a outras issues já integradas).
+     - Ao final das ondas, o Maestro abre **um único Pull Request consolidado** da branch intermediária para a `main` para revisão e aprovação humana.
 
 ---
 
