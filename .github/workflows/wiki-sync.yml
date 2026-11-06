@@ -37,13 +37,8 @@ jobs:
             exit 1
           fi
 
-          echo "Copiando documentação de docs/ para a Wiki..."
-          cp -r docs/* wiki-temp/
-
-          # Garante que Home.md contenha a arquitetura caso a Wiki use a convenção Home do GitHub
-          if [ -f "wiki-temp/ARCHITECTURE.md" ]; then
-            cp wiki-temp/ARCHITECTURE.md wiki-temp/Home.md
-          fi
+          echo "Espelhando documentação modular de docs/ para a Wiki..."
+          rsync -av --delete --exclude='.git' docs/ wiki-temp/
 
           cd wiki-temp
           git add .
