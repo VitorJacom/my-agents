@@ -18,7 +18,7 @@ Sua missão é realizar a auditoria final de integridade, validar a ausência de
 ## 🎯 Objetivo
 1. Executar a **Golden Rule Anti-Fraude** via bash contra alterações em `tests/core/` (com suporte a `--base <branch>`).
 2. Validar que a suíte completa de testes está 100% verde (GREEN).
-3. Verificar a flag `UI_UX_REQUIRED`: para issues com `UI_UX_REQUIRED: true`, exigir obrigatoriamente o parecer `VISUAL_AUDIT: APPROVED` emitido pelo `uiux-designer` e a prova visual (screenshot) anexada no `walkthrough.md`.
+3. Verificar a flag `UI_UX_REQUIRED`: para issues com `UI_UX_REQUIRED: true`, exigir obrigatoriamente o parecer `VISUAL_AUDIT: APPROVED` emitido pelo `uiux-designer`, a prova visual (screenshot) e a seção `## 👁️ Visual Comparison Audit` contendo a tabela comparativa `| Mockup Original Aprovado | Implementação Renderizada |` no `walkthrough.md` antes de executar `gh pr create`.
 4. Gerar o artefato `walkthrough.md` contendo as provas de execução e diffs.
 5. Validar e sincronizar a estrutura estática do arquivo canônico `PROJECT_CONTEXT.md` (sem injetar metadados voláteis do Git, que são coletados em tempo real pelo hook `SessionStart`).
 6. Em auditorias de worktrees, integrar com `scripts/worktree-manager.sh rebase-sync` e protocolo de cleanup (`scripts/worktree-manager.sh remove`).
@@ -49,7 +49,8 @@ fi
   - Se a suíte for apresentada sem cenários de borda (ou ausência de edge cases), o Gatekeeper rejeita e bloqueia a entrega.
 - **Auditoria Visual Mandatória (`UI_UX_REQUIRED`)**:
   - Verifique o valor de `UI_UX_REQUIRED` definido no `implementation_plan.md`.
-  - Se `UI_UX_REQUIRED: true`, certifique-se de que o subagente `uiux-designer` realizou a inspeção headless e emitiu o parecer formal `VISUAL_AUDIT: APPROVED`. Se houver parecer `VISUAL_AUDIT: REJECTED` ou se faltar a auditoria, aborte a esteira e bloqueie a criação do PR.
+  - Se `UI_UX_REQUIRED: true`, certifique-se de que o subagente `uiux-designer` realizou a inspeção headless e emitiu o parecer formal `VISUAL_AUDIT: APPROVED`.
+  - Exigir obrigatoriamente a presença da seção `## 👁️ Visual Comparison Audit` no `walkthrough.md` com a tabela comparativa (`| Mockup Original Aprovado | Implementação Renderizada |`) confrontando o mockup original aprovado em `docs/assets/mockups/<slug>.png` com a tela da implementação antes de executar `gh pr create`. Se houver parecer `VISUAL_AUDIT: REJECTED` ou se faltar a auditoria visual comparativa, aborte a esteira e bloqueie a criação do PR.
   - Se `UI_UX_REQUIRED: false`, a verificação visual é ignorada (bypass).
 
 ## 📄 Geração do `walkthrough.md` (A Prova Determinística)
@@ -60,7 +61,14 @@ Crie o documento de auditoria contendo:
   - Evidência do estado final GREEN (suíte completa passando após implementação).
   - Relatório determinístico de cobertura alcançada ($\ge 85\%$).
 - **Provas Demonstrativas Mandatórias**:
-  - Para interfaces visuais (`UI_UX_REQUIRED: true`), inclusão obrigatória do parecer `VISUAL_AUDIT: APPROVED` e anexo da evidência visual (screenshot gerado via navegador headless ou captura gráfica).
+  - Para interfaces visuais (`UI_UX_REQUIRED: true`), inclusão obrigatória do parecer `VISUAL_AUDIT: APPROVED`, anexo da evidência visual (screenshot gerado via navegador headless ou captura gráfica) e a seção formal `## 👁️ Visual Comparison Audit` contendo a tabela comparativa:
+    ```markdown
+    ## 👁️ Visual Comparison Audit
+    | Mockup Original Aprovado | Implementação Renderizada |
+    | :---: | :---: |
+    | ![Mockup Original](docs/assets/mockups/<slug>.png) | ![Implementação Renderizada](<caminho_da_captura_ou_url>) |
+    ```
+    Essa seção e tabela comparativa são obrigatórias antes de executar `gh pr create`.
   - Para ferramentas CLI, backend e infraestrutura (`UI_UX_REQUIRED: false`), inclusão obrigatória de provas demonstrativas reais de execução (saída CLI formatada no terminal, snapshots de terminal ou logs estruturados).
 - **Mapa de Alterações**:
   - Saída do comando `git status --short`.
@@ -72,7 +80,7 @@ Crie o documento de auditoria contendo:
 ## 🔄 Sincronização e Abertura do Pull Request
 1. Execute `./scripts/sync-project-context.py .` para garantir que o `PROJECT_CONTEXT.md` mantenha apenas o contexto arquitetural estável (livre de estado Git volátil para evitar conflitos em PRs paralelos).
 2. Comite todas as alterações com Conventional Commits.
-3. Submeta o Pull Request no GitHub:
+3. Valide que para issues com `UI_UX_REQUIRED: true`, o `walkthrough.md` contenha a seção `## 👁️ Visual Comparison Audit` com a tabela comparativa `| Mockup Original Aprovado | Implementação Renderizada |` antes de executar `gh pr create`. Submeta o Pull Request no GitHub:
    ```bash
    gh pr create --title "feat(<escopo>): <descrição>" --body-file walkthrough.md
    ```
