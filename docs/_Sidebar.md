@@ -15,6 +15,7 @@
 - **Catálogo de Recursos**
   - [Subagentes Especializados](Subagents)
   - [Skills sob Demanda](Skills-Catalog)
+  - [🎨 Catálogo de Telas (Mockups)](mockups/README)
 
 - **Troubleshooting**
   - [Diagnóstico & FAQ](Troubleshooting)
