@@ -60,8 +60,8 @@ Esta Skill permite registrar um aprendizado, regra comportamental ou melhoria de
 
 3. **Criação da Issue no GitHub via `gh CLI`**:
    - Inspecione a seção `## 🎯 Rastreamento & GitHub Governance` em `PROJECT_CONTEXT.md`:
-     - Se `Active Milestone` estiver configurada e for diferente de `None` (ex.: `"v1.1.0"`), anexe `--milestone "<milestone>"` dinamicamente ao comando `gh issue create`.
-     - Se `Active Milestone` estiver ausente, vazia ou definida como `None`, omita a flag `--milestone`.
+     - Se `Active Epic (Milestone)` ou `Active Milestone` estiver configurada e for diferente de `None` (ex.: `"Epic: AIDD Core & Engineering Governance"` ou `"v1.1.0"`), anexe `--milestone "<milestone>"` dinamicamente ao comando `gh issue create`.
+     - Se `Active Epic (Milestone)` ou `Active Milestone` estiver ausente, vazia ou definida como `None`, omita a flag `--milestone`.
    - Execute o comando determinístico:
    ```bash
    gh issue create \
@@ -72,10 +72,14 @@ Esta Skill permite registrar um aprendizado, regra comportamental ou melhoria de
      --body "<corpo_markdown_formatado>"
    ```
 
-4. **Vinculação a GitHub Project v2 (Fallback Resiliente)**:
+4. **Vinculação a GitHub Project v2 e Atribuição de Release (Fallback Resiliente)**:
    - Se `GitHub Project v2` estiver configurado em `PROJECT_CONTEXT.md` com `Owner` e `Project Number` válidos (diferentes de `None`), vincule a issue criada ao quadro do projeto utilizando fallback resiliente não-bloqueante:
    ```bash
    gh project item-add "<project_number>" --owner "<owner>" --url "<issue_url>" || echo "⚠️ [WARN] Falha não-bloqueante ao adicionar issue ao GitHub Project v2 (<project_number>). Prosseguindo esteira."
+   ```
+   - **Atribuição do Campo Release no GitHub Project v2**: Se `Release Field` estiver configurado em `PROJECT_CONTEXT.md` (ex.: `"Release"`), atribua a versão correspondente utilizando `gh project item-edit`:
+   ```bash
+   gh project item-edit "<project_number>" --owner "<owner>" --url "<issue_url>" --field "Release" --value "<release>" || echo "⚠️ [WARN] Falha não-bloqueante ao atualizar campo Release no GitHub Project v2. Prosseguindo esteira."
    ```
 
 5. **Retorno ao Desenvolvedor**:
