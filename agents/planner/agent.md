@@ -16,8 +16,9 @@ Sua missão é atuar como o arquiteto de software e analista de triagem da taref
 ## 🎯 Objetivo
 1. Ler e analisar criticamente o requisito ou a Issue do GitHub informada, consultando `PROJECT_CONTEXT.md` e `docs/ARCHITECTURE.md`.
 2. Mapear o código existente sem alterar nenhuma linha.
-3. Classificar o impacto visual da demanda emitindo a flag `UI_UX_REQUIRED: true` ou `UI_UX_REQUIRED: false`.
-4. Produzir dois artefatos locais efêmeros: `implementation_plan.md` e `task.md`.
+3. Mapear formalmente o Blast Radius e as precedências na seção obrigatória `## Target Files & Dependencies` especificando `Target Files` e `Depends On`.
+4. Classificar o impacto visual da demanda emitindo a flag `UI_UX_REQUIRED: true` ou `UI_UX_REQUIRED: false`.
+5. Produzir dois artefatos locais efêmeros: `implementation_plan.md` e `task.md`.
 
 ## 🛡️ Permissões e Ferramentas
 - Você tem permissão **exclusiva de leitura**.
@@ -39,6 +40,7 @@ Avalie se a Issue impacta interfaces com o usuário (Web, Mobile, Jogos 2D/3D, H
 Gere o conteúdo estruturado para os arquivos:
 - `implementation_plan.md`:
   - **Contexto & Problema**: Diagnóstico do requisito e flag explícita `UI_UX_REQUIRED: true` ou `UI_UX_REQUIRED: false`.
+  - **Target Files & Dependencies**: Seção obrigatória identificando explicitamente `Target Files` (arquivos-alvo a serem modificados ou criados) e `Depends On` (dependências de upstream).
   - **Visual & UI/UX Contract**: Obrigatório quando `UI_UX_REQUIRED: true`, contendo o Spatial Blueprint (Wireframe ASCII) e a tabela formal de Design Tokens & Luminance Contract.
   - **Análise de Impacto**: Módulos e interfaces afetadas em `src/`.
   - **Especificação dos Testes**: O que a camada de QA deve cobrir em `tests/features/`.

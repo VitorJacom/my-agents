@@ -65,6 +65,8 @@ flowchart TD %% Decisão condicional por interface visual (UI_UX_REQUIRED)
    - O Arquiteto mapeia quais módulos em `src/` serão alterados ou criados.
    - Caso haja escolha de design ou arquitetura, registra as decisões em `docs/ARCHITECTURE.md`.
    - **Regra de Atomicidade AIDD**: Cada issue gerada DEVE ter no máximo **3 passos concretos** para execução posterior em TDD.
+   - **Mapeamento de Blast Radius & Precedências**: Cada issue fatiada deve conter explicitamente a seção `## Target Files & Dependencies` com os campos `Target Files:` e `Depends On:`.
+   - **Heurística de Execution Waves**: O Arquiteto organiza as issues fatiadas em ondas sequenciais (`## Execution Waves`) para viabilizar execução concorrente em Git Worktrees. Cada onda suporta até no máximo 3 issues simultâneas por wave, com a garantia mandatória de conjuntos de arquivos 100% disjuntos (interseção nula) entre as issues da mesma onda. Issues com colisão em `Target Files` ou com relações de dependência são alocadas em ondas subsequentes.
    - Acolhe e embute a seção `## Visual & UI/UX Contract` no `planning_proposal.md` e nas issues fatiadas correspondentes.
 2. Aguarde o retorno com o plano consolidado.
 
@@ -76,13 +78,17 @@ flowchart TD %% Decisão condicional por interface visual (UI_UX_REQUIRED)
    - Se aprovar: avance para o **ESTADO 4**.
 
 ### 📍 ESTADO 4: CRIAÇÃO DETERMINÍSTICA NO GITHUB
-1. Para cada issue fatiada no plano aprovado, execute o comando CLI do GitHub:
+1. Para cada issue fatiada no plano aprovado, execute o comando CLI do GitHub incluindo a seção `## Target Files & Dependencies`:
    ```bash
    gh issue create \
      --title "feat(<escopo>): <título da task atômica>" \
      --label "enhancement,planned" \
-     --body "<descrição_completa_com_critérios_de_aceite_e_referência_ao_triângulo_AIDD>"
+     --body "<descrição_completa_com_critérios_de_aceite_e_referência_ao_triângulo_AIDD>
+
+   ## Target Files & Dependencies
+   - Target Files: <caminhos_dos_arquivos>
+   - Depends On: <dependencias_ou_none>"
    ```
 2. **Inclusão Obrigatória de UI/UX Contract**: Para tarefas com interface visual, inclua obrigatoriamente a seção `## Visual & UI/UX Contract` (Spatial Blueprint ASCII, Design Tokens & Luminance Contract) diretamente no corpo (`--body`) do comando `gh issue create`.
 3. Caso seja um Épico, vincule as sub-issues criadas à issue principal utilizando a flag `--parent <numero_do_epico>` (se suportado pelo repositório) ou adicione a checklist de links na descrição do Épico.
-4. Apresente ao desenvolvedor o sumário com os links de todas as Issues criadas no GitHub, prontas para serem executadas com `/run-issue #<numero>`.
+4. Apresente ao desenvolvedor o sumário com os links de todas as Issues criadas no GitHub e a matriz consolidada de **Execution Waves**, prontas para serem executadas com `/run-issue #<numero>`.
