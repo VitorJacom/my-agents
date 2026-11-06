@@ -183,6 +183,10 @@ O agente orquestrador guia a execução estado por estado, chamando os subagente
 
 ## 🚀 Fluxo 2: Modo Maestro (Multi-Issue Orchestration)
 
+> [!IMPORTANT]
+> **Governança Multiagente e Segregação de Planos (Manifesto AIDD - Seção 7.4)**:
+> No Modo Maestro, a sessão principal atua estritamente como **Control Plane**. É expressamente proibido ao Maestro executar ciclos TDD, codificar na raiz ou editar arquivos na raiz. Todo o trabalho de código deve ser delegado a subagentes workers via `invoke_subagent` com isolamento estrito.
+
 O **Modo Maestro** coordena o ciclo de vida completo de batches de issues ou épicos inteiros, eliminando gargalos de concorrência e garantindo integridade estrita por isolamento físico de workspaces.
 
 ### 📍 M1. Pre-flight & Wave Partitioning
@@ -204,8 +208,8 @@ Para cada issue pertencente à onda ativa:
    ```bash
    ./scripts/worktree-manager.sh create <id> --base <branch_intermediaria>
    ```
-2. O Maestro despacha workers isolados disparando o pipeline via `invoke_subagent 'self'` (ou invocando subagentes workers dedicados para cada issue em sua worktree isolada `.worktrees/issue-<id>`).
-3. Cada worker opera com contexto limpo, executando seu planejamento, testes (RED), codificação (GREEN) e auditoria local sem colidir com as demais worktrees.
+2. O Maestro despacha workers isolados realizando delegação via `invoke_subagent 'self'` mandatória (cada issue da onda ativa deve ser despachada para um subagente worker desacoplado).
+3. Cada worker opera com contexto limpo em isolamento estrito, confinado à sua worktree estéril `.worktrees/issue-<id>`, executando seu planejamento, testes (RED), codificação (GREEN) e auditoria local sem interferir na raiz ou em worktrees simultâneas.
 
 ### 📍 M4 & M5. Merge Queue Sequencial & Validação da Suíte Acumulada
 À medida que os workers concluem suas tarefas, o Maestro gerencia a **Merge Queue** de forma estritamente sequencial:
