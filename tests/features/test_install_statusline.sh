@@ -210,13 +210,46 @@ assert data.get('statusLine', {}).get('command') == '$STATUSLINE_SCRIPT'
 "
 
 # =============================================================================
-# SEÇÃO 8: PERMISSÃO EXECUTÁVEL DO SCRIPT DE STATUSLINE
+# SEÇÃO 8: PERMISSÃO EXECUTÁVEL COM MOCK ISOLADO (SEM MUTAR ARQUIVO VERSIONADO)
 # =============================================================================
 echo ""
-echo "--- 8. [PERMISSÕES] statusline-quota.sh é Garantido como Executável ---"
-chmod -x "$STATUSLINE_SCRIPT" || true
-"$INSTALL_SCRIPT" --settings-path "$IDEMPOTENT_SETTINGS"
-check "statusline-quota.sh recupera permissão executável após install" test -x "$STATUSLINE_SCRIPT"
+echo "--- 8. [PERMISSÕES] Script Alvo é Garantido como Executável via Mock Isolado ---"
+MOCK_STATUSLINE="$TMP_DIR/mock-statusline.sh"
+echo '#!/bin/bash' > "$MOCK_STATUSLINE"
+echo 'echo "mock statusline"' >> "$MOCK_STATUSLINE"
+chmod -x "$MOCK_STATUSLINE"
+
+"$INSTALL_SCRIPT" --settings-path "$IDEMPOTENT_SETTINGS" --script-path "$MOCK_STATUSLINE"
+check "Script alvo recupera permissão executável após install sem mutar repositório" test -x "$MOCK_STATUSLINE"
+
+# =============================================================================
+# SEÇÃO 8.1: SIMULAÇÃO SEGURA COM FLAG --dry-run
+# =============================================================================
+echo ""
+echo "--- 8.1. [DRY-RUN] Simulação Sem Efeitos Colaterais no Disco ---"
+DRY_RUN_SETTINGS="$TMP_DIR/dry_run_settings.json"
+echo '{"before": "untouched"}' > "$DRY_RUN_SETTINGS"
+
+OUT_DRY=$("$INSTALL_SCRIPT" --settings-path "$DRY_RUN_SETTINGS" --dry-run)
+check "--dry-run não altera o arquivo de settings no disco" test "$(cat "$DRY_RUN_SETTINGS")" = '{"before": "untouched"}'
+check "--dry-run não gera arquivo de backup .bak" test ! -f "${DRY_RUN_SETTINGS}.bak"
+check "--dry-run imprime prévia das modificações" bash -c "echo '$OUT_DRY' | grep -qi 'DRY-RUN'"
+
+# =============================================================================
+# SEÇÃO 8.2: FAIL-FAST EM JSON INVÁLIDO OU CORROMPIDO (AGENTS.md 1.4)
+# =============================================================================
+echo ""
+echo "--- 8.2. [FAIL-FAST] Falha Controlada em Settings com JSON Corrompido ---"
+CORRUPT_SETTINGS="$TMP_DIR/corrupt_settings.json"
+echo '{ "invalid_json": true, ' > "$CORRUPT_SETTINGS"
+STDERR_INSTALL="$TMP_DIR/stderr_install.log"
+
+check "Falha controlada (exit code 1) com settings.json corrompido" \
+  bash -c "! \"$INSTALL_SCRIPT\" --settings-path \"$CORRUPT_SETTINGS\" 2>\"$STDERR_INSTALL\""
+check "Emite mensagem explicativa em stderr com JSON corrompido" \
+  grep -qi 'Falha ao interpretar JSON' "$STDERR_INSTALL"
+check "Arquivo corrompido original é preservado sem modificação" \
+  grep -q 'invalid_json' "$CORRUPT_SETTINGS"
 
 # =============================================================================
 # SEÇÃO 9: RESUMO FINAL

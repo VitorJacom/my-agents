@@ -1,6 +1,6 @@
 # Catálogo Canônico de Skills (`Skills-Catalog.md`)
 
-Este documento apresenta a documentação exaustiva de todas as **9 skills sob demanda** integradas ao plugin `my-agents`, detalhando seus objetivos, gatilhos por *Progressive Disclosure*, exemplos práticos de invocação e os artefatos produzidos por cada uma.
+Este documento apresenta a documentação exaustiva de todas as **10 skills sob demanda** integradas ao plugin `my-agents`, detalhando seus objetivos, gatilhos por *Progressive Disclosure*, exemplos práticos de invocação e os artefatos produzidos por cada uma.
 
 ---
 
@@ -28,6 +28,7 @@ O Antigravity CLI impõe limites de contexto para regras globais para preservar 
 | [`docker-dev`](#37-docker-dev-diagnóstico-e-containers) | Gestão e troubleshooting de Docker e Compose | Containers falhando, portas ocupadas, montagens | "Diagnostique a falha do container Docker" |
 | [`game-dev-patterns`](#38-game-dev-patterns-padrões-e-física-para-jogos-2d) | Física 2D, FPS independence e cinemática | Jogos em Phaser, HTML5 Canvas, bugs de taxa de quadros | "Corrija a velocidade do pulo em 120Hz" |
 | [`publish-rule-issue`](#39-publish-rule-issue-publicação-global-de-regras) | Registro de regras aprendidas no repo central | Pós-ciclo de `/learn` ou solicitação explícita | `/publish-rule-issue` |
+| [`ui-ux-design`](#310-ui-ux-design-design-de-interface-motion-e-anti-slop) | Engenharia de interface, física de animação, ergonomia mobile e combate a clichês de IA | Tarefas com telas, interfaces web/mobile, motion, auditoria visual ou clichês de IA | "Audite esta UI com a skill ui-ux-design" |
 
 ---
 
@@ -191,6 +192,23 @@ O Antigravity CLI impõe limites de contexto para regras globais para preservar 
   ```
 - **Artefatos Produzidos**:
   - Issue aberta via GitHub CLI (`gh issue create --repo VitorJacom/my-agents`) com labels `rule-proposal`, `enhancement` e corpo padronizado.
+
+---
+
+### 3.10. `ui-ux-design` (Design de Interface, Motion e Anti-Slop)
+- **Definição**: [skills/ui-ux-design/SKILL.md](https://github.com/VitorJacom/my-agents/blob/main/skills/ui-ux-design/SKILL.md)
+- **Objetivo**: Fornecer um ecossistema completo de engenharia de interface, física de movimento (motion) baseada nas fórmulas da Apple (WWDC Fluid Interfaces), ergonomia mobile e combate ativo a clichês visuais de IA (AI-Slop).
+- **Gatilho de Progressive Disclosure**:
+  - Ativada automaticamente pelo subagente `uiux-designer` na concepção ou auditoria de telas.
+  - Convocada expressamente quando o desenvolvedor solicita refatoração de UI, refinamento de animações ou purga de templates genéricos.
+- **Formas de Invocação**:
+  ```text
+  Audite o arquivo src/components/Hero.tsx contra clichês visuais de IA
+  Aplique as curvas de mola e easing canônicas no menu lateral
+  ```
+- **Artefatos Produzidos**:
+  - Especificações vivas de telas (Living Specs) em `docs/mockups/` e blueprints espaciais ASCII.
+  - Checklists determinísticos de pré-entrega e auditoria automatizada via `python3 skills/ui-ux-design/scripts/skill_assistant.py audit`.
 
 ---
 

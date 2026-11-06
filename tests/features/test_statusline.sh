@@ -104,6 +104,39 @@ check "Renderiza Quota Semanal com valor calculado (22%)" bash -c "echo '$OUT_FU
 check "Renderiza telemetria de tokens (42k tok ou 42000 tok)" bash -c "echo '$OUT_FULL' | grep -E '42k|42000'"
 
 # =============================================================================
+# SEÇÃO 3.1: ROBUSTEZ A LOCALE (LC_NUMERIC) E DESACOPLAMENTO DE ORDEM DOS BUCKETS
+# =============================================================================
+echo ""
+echo "--- 3.1. [ROBUSTEZ] Sensibilidade a Locale (pt_BR) e Ordem de Buckets ---"
+
+# Payload com buckets invertidos (weekly antes de 5h) e números decimais com ponto
+INVERTED_PAYLOAD='{
+  "buckets": [
+    { "name": "weekly", "used_percentage": 22.8 },
+    { "name": "5h", "used_percentage": 65.4 }
+  ]
+}'
+
+OUT_LOCALE=$(echo "$INVERTED_PAYLOAD" | LC_ALL=pt_BR.UTF-8 LC_NUMERIC=pt_BR.UTF-8 "$STATUSLINE_SCRIPT" 2>"$STDERR_OUT")
+check "Execução com LC_NUMERIC=pt_BR.UTF-8 não emite erro em stderr" test ! -s "$STDERR_OUT"
+check "Arredondamento correto com LC_NUMERIC=pt_BR (5h -> 65%)" bash -c "echo '$OUT_LOCALE' | grep -q '65%'"
+check "Arredondamento correto com LC_NUMERIC=pt_BR (Semanal -> 23%)" bash -c "echo '$OUT_LOCALE' | grep -q '23%'"
+
+# Teste das chamadas individuais via --widget
+echo ""
+echo "--- 3.2. [DISPATCHER] Consistência de Escape ANSI no Modo Individual ---"
+OUT_W_GIT=$(echo '{"branch": "feature-issue-6"}' | "$STATUSLINE_SCRIPT" --widget git)
+OUT_W_MODEL=$(echo "$FULL_PAYLOAD" | "$STATUSLINE_SCRIPT" --widget model)
+OUT_W_QUOTA=$(echo "$FULL_PAYLOAD" | "$STATUSLINE_SCRIPT" --widget quota)
+OUT_W_TELEMETRY=$(echo "$FULL_PAYLOAD" | "$STATUSLINE_SCRIPT" --widget telemetry)
+
+check "--widget git não emite sequência literal '\033'" bash -c "! echo \"$OUT_W_GIT\" | grep -F '\\033'"
+check "--widget git contém nome da branch informada no JSON" bash -c "echo \"$OUT_W_GIT\" | grep -q 'feature-issue-6'"
+check "--widget model contém modelo ativo" bash -c "echo \"$OUT_W_MODEL\" | grep -q 'Gemini 3.8 Pro'"
+check "--widget quota contém indicador de 5h e Semanal" bash -c "echo \"$OUT_W_QUOTA\" | grep -q 'Quota 5h:'"
+check "--widget telemetry contém contagem de tokens" bash -c "echo \"$OUT_W_TELEMETRY\" | grep -q '42k tok'"
+
+# =============================================================================
 # SEÇÃO 4: BENCHMARK AUTOMATIZADO SUB-50MS (10 ITERAÇÕES CONSECUTIVAS)
 # =============================================================================
 echo ""

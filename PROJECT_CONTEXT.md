@@ -13,7 +13,7 @@
   - `_Footer.md`: Rodapé padrão institucional e metadados de governança.
   - `Getting-Started.md`: Guia de introdução, onboarding e ciclo AIDD.
   - `Subagents.md`: Catálogo dos 7 subagentes especializados e matriz RACI.
-  - `Skills-Catalog.md`: Catálogo das 9 skills ativadas por Progressive Disclosure.
+  - `Skills-Catalog.md`: Catálogo das 10 skills ativadas por Progressive Disclosure.
   - `AIDD-Manifesto.md`: Manifesto AI-Driven Development e 4 valores fundamentais.
   - `System-Architecture.md`: Visão arquitetural em 5 camadas concêntricas e índice de ADRs.
   - `Troubleshooting.md`: Diagnóstico de problemas, locks, tokens e circuit breakers.

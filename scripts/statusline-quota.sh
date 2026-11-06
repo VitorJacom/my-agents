@@ -2,16 +2,16 @@
 # statusline-quota.sh: Renderizador modular de statusline para o Antigravity CLI
 set -euo pipefail
 
-# ANSI Colors
-CYAN="\033[36m"
-GREEN="\033[32m"
-YELLOW="\033[33m"
-RED="\033[31m"
-MAGENTA="\033[35m"
-BLUE="\033[34m"
-RESET="\033[0m"
-BOLD="\033[1m"
-DIM="\033[2m"
+# ANSI Colors (usando ANSI-C quoting para emissão segura tanto individual quanto agregada)
+CYAN=$'\033[36m'
+GREEN=$'\033[32m'
+YELLOW=$'\033[33m'
+RED=$'\033[31m'
+MAGENTA=$'\033[35m'
+BLUE=$'\033[34m'
+RESET=$'\033[0m'
+BOLD=$'\033[1m'
+DIM=$'\033[2m'
 
 # Variável global para armazenar o payload recebido do stdin
 INPUT_JSON="{}"
@@ -81,20 +81,34 @@ widget_quota() {
   local q_5h=""
   local q_week=""
 
-  # Extrai até duas ocorrências de used_percentage (5h e Semanal)
-  if [[ "$INPUT_JSON" =~ \"used_percentage\"[[:space:]]*:[[:space:]]*([0-9.]+) ]]; then
+  # Extração nominal de bucket 5h
+  if [[ "$INPUT_JSON" =~ \"5h\"[^{}]*\"used_percentage\"[[:space:]]*:[[:space:]]*([0-9.]+) ]]; then
+    q_5h="${BASH_REMATCH[1]}"
+  elif [[ "$INPUT_JSON" =~ \"used_percentage\"[[:space:]]*:[[:space:]]*([0-9.]+)[^{}]*\"5h\" ]]; then
+    q_5h="${BASH_REMATCH[1]}"
+  fi
+
+  # Extração nominal de bucket weekly/week
+  if [[ "$INPUT_JSON" =~ \"week(ly)?\"[^{}]*\"used_percentage\"[[:space:]]*:[[:space:]]*([0-9.]+) ]]; then
+    q_week="${BASH_REMATCH[2]}"
+  elif [[ "$INPUT_JSON" =~ \"used_percentage\"[[:space:]]*:[[:space:]]*([0-9.]+)[^{}]*\"week(ly)?\" ]]; then
+    q_week="${BASH_REMATCH[1]}"
+  fi
+
+  # Fallback sequencial caso não haja identificação explícita de nomes de buckets
+  if [ -z "$q_5h" ] && [[ "$INPUT_JSON" =~ \"used_percentage\"[[:space:]]*:[[:space:]]*([0-9.]+) ]]; then
     q_5h="${BASH_REMATCH[1]}"
     local rest="${INPUT_JSON#*${BASH_REMATCH[0]}}"
-    if [[ "$rest" =~ \"used_percentage\"[[:space:]]*:[[:space:]]*([0-9.]+) ]]; then
+    if [ -z "$q_week" ] && [[ "$rest" =~ \"used_percentage\"[[:space:]]*:[[:space:]]*([0-9.]+) ]]; then
       q_week="${BASH_REMATCH[1]}"
     fi
   fi
 
-  # Formatação da quota de 5 horas
+  # Formatação da quota de 5 horas com isolamento de locale (LC_ALL=C LC_NUMERIC=C)
   local text_5h
   if [ -n "$q_5h" ]; then
     local val_5h
-    val_5h=$(printf "%.0f" "$q_5h" 2>/dev/null || echo "")
+    val_5h=$(LC_ALL=C LC_NUMERIC=C printf "%.0f" "$q_5h" 2>/dev/null || echo "")
     if [ -n "$val_5h" ]; then
       local col_5h=$GREEN
       [ "$val_5h" -ge 50 ] 2>/dev/null && col_5h=$YELLOW
@@ -107,11 +121,11 @@ widget_quota() {
     text_5h="${CYAN}ok${RESET}"
   fi
 
-  # Formatação da quota semanal
+  # Formatação da quota semanal com isolamento de locale (LC_ALL=C LC_NUMERIC=C)
   local text_week
   if [ -n "$q_week" ]; then
     local val_week
-    val_week=$(printf "%.0f" "$q_week" 2>/dev/null || echo "")
+    val_week=$(LC_ALL=C LC_NUMERIC=C printf "%.0f" "$q_week" 2>/dev/null || echo "")
     if [ -n "$val_week" ]; then
       local col_week=$GREEN
       [ "$val_week" -ge 50 ] 2>/dev/null && col_week=$YELLOW
@@ -180,7 +194,7 @@ render_statusline() {
       result="${result} │ ${parts[$i]}"
     fi
   done
-  echo -e "$result"
+  printf "%s\n" "$result"
 }
 
 # -----------------------------------------------------------------------------

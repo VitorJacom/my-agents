@@ -73,13 +73,22 @@ check "Execução skill_assistant.py recipe button" python3 "$ASSISTANT_PY" reci
 check "Execução skill_assistant.py checklist --type pre-delivery" python3 "$ASSISTANT_PY" checklist --type pre-delivery
 
 echo ""
-echo "--- 5. Higienização e Desacoplamento de Paths Externos ---"
-check "Nenhum path absoluto legado a znapzap no SKILL.md" \
-  bash -c "! grep -q 'znapzap' '$SKILL_MD'"
-check "Nenhum path absoluto legado a znapzap nos módulos" \
-  bash -c "! grep -rq 'znapzap' '$MODULES_DIR'"
-check "Nenhum path absoluto legado a znapzap nas referências" \
-  bash -c "! grep -rq 'znapzap' '$REFERENCES_DIR'"
+echo "--- 5. Fail-Fast Mandatório em Erros de CLI (AGENTS.md Seção 1.4) ---"
+check "Falha controlada (exit code 1) ao solicitar módulo inválido" \
+  bash -c "! python3 '$ASSISTANT_PY' module 99 2>/dev/null"
+check "Emite erro em stderr ao solicitar módulo inválido" \
+  bash -c "python3 '$ASSISTANT_PY' module 99 2>&1 >/dev/null | grep -qi 'Erro:'"
+check "Falha controlada (exit code 1) ao auditar arquivo inexistente" \
+  bash -c "! python3 '$ASSISTANT_PY' audit /tmp/inexistente_$(date +%s).ts 2>/dev/null"
+check "Emite erro em stderr ao auditar arquivo inexistente" \
+  bash -c "python3 '$ASSISTANT_PY' audit /tmp/inexistente_$(date +%s).ts 2>&1 >/dev/null | grep -qi 'Erro:'"
+check "Falha controlada (exit code 1) ao solicitar receita inexistente" \
+  bash -c "! python3 '$ASSISTANT_PY' recipe receita_inexistente 2>/dev/null"
+
+echo ""
+echo "--- 6. Higienização e Desacoplamento de Paths e Nomes Externos ---"
+check "Nenhuma menção residual a znapzap (case-insensitive) em toda a pasta da skill" \
+  bash -c "! grep -ri 'znapzap' '$SKILL_DIR'"
 
 echo ""
 echo "========================================================================"

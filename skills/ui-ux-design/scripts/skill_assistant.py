@@ -259,7 +259,7 @@ element.animate(
 
 def cmd_list(args):
     print("=" * 70)
-    print("CATÁLOGO DE TÉCNICAS DE UI/UX (ZNAPZAP-SKILLS) — 48 TÉCNICAS")
+    print("CATÁLOGO DE TÉCNICAS DE UI/UX (MY-AGENTS) — 48 TÉCNICAS")
     print("=" * 70)
     for mod_id, mod in MODULE_MAP.items():
         print(f"\n[Módulo {mod_id:02d}] {mod['title']} ({len(mod['techs'])} técnicas)")
@@ -296,14 +296,15 @@ def cmd_search(args):
 def cmd_module(args):
     mod_id = args.id
     if mod_id not in MODULE_MAP:
-        print(f"Módulo inválido ({mod_id}). Escolha de 1 a 7.")
-        return
+        print(f"Erro: Módulo inválido ({mod_id}). Escolha de 1 a 7.", file=sys.stderr)
+        sys.exit(1)
     mod = MODULE_MAP[mod_id]
     mod_path = MODULES_DIR / mod["file"]
     if mod_path.exists():
         print(mod_path.read_text(encoding="utf-8"))
     else:
-        print(f"Arquivo do módulo não encontrado: {mod_path}")
+        print(f"Erro: Arquivo do módulo não encontrado: {mod_path}", file=sys.stderr)
+        sys.exit(1)
 
 def cmd_formulas(args):
     print("=" * 70)
@@ -357,15 +358,15 @@ def cmd_recipe(args):
         print("=" * 70)
         print(RECIPES[r_name])
     else:
-        print(f"Receita '{r_name}' não encontrada. Opções disponíveis:")
-        print(", ".join(RECIPES.keys()))
+        print(f"Erro: Receita '{r_name}' não encontrada. Opções disponíveis: {', '.join(RECIPES.keys())}", file=sys.stderr)
+        sys.exit(1)
 
 def cmd_vocab(args):
     query = " ".join(args.term).lower()
     vocab_file = REFERENCES_DIR / "animation-vocabulary.md"
     if not vocab_file.exists():
-        print(f"Glossário não encontrado: {vocab_file}")
-        return
+        print(f"Erro: Glossário não encontrado: {vocab_file}", file=sys.stderr)
+        sys.exit(1)
 
     text = vocab_file.read_text(encoding="utf-8")
     lines = text.splitlines()
@@ -393,8 +394,8 @@ def cmd_rules(args):
     cat_query = args.category.lower() if args.category else "all"
     rules_file = REFERENCES_DIR / "full-ruleset-10-categories.md"
     if not rules_file.exists():
-        print("Arquivo de regras não encontrado.")
-        return
+        print("Erro: Arquivo de regras não encontrado.", file=sys.stderr)
+        sys.exit(1)
 
     aliases = {
         "a11y": "acessibilidade",
@@ -517,8 +518,8 @@ def cmd_checklist(args):
 def cmd_audit(args):
     target = Path(args.file)
     if not target.exists():
-        print(f"Erro: Arquivo '{target}' não encontrado.")
-        return
+        print(f"Erro: Arquivo '{target}' não encontrado.", file=sys.stderr)
+        sys.exit(1)
 
     content = target.read_text(encoding="utf-8", errors="ignore")
     issues = []
