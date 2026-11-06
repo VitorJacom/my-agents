@@ -63,11 +63,16 @@ Elimina a dependência de ferramentas externas proprietárias (Figma/Sketch) est
 
 #### Camada 3: Protótipo Estático Autocontido & Captura Headless
 - Geração de protótipo HTML5 autocontido no arquivo `.mockup-preview.html` (CSS inline/incorporado, sem dependências externas não versionadas).
-- Execução de captura gráfica headless para gerar a imagem estática de preview `.mockup-preview.png`:
+- Execução de captura gráfica headless para gerar a imagem estática de preview `.mockup-preview.png` e persistir o asset oficial da tela em `docs/assets/mockups/<slug>.png`:
   ```bash
-  chromium --headless --screenshot=.mockup-preview.png --window-size=1280,720 .mockup-preview.html
+  chromium --headless --screenshot=docs/assets/mockups/<slug>.png --window-size=1280,720 .mockup-preview.html
   ```
 - O arquivo `.mockup-preview.png` gerado serve de base visual para inspeção pelo time e usuários no `walkthrough.md`.
+
+#### Persistência da Living Spec (Mockup-as-Code em docs/)
+- Criação e versionamento da especificação viva persistente em `docs/mockups/<slug>.md`, utilizando a estrutura canônica de [docs/mockups/TEMPLATE.md](docs/mockups/TEMPLATE.md).
+- Salvamento da imagem renderizada final em `docs/assets/mockups/<slug>.png`.
+- Registro da nova tela na tabela de índice do catálogo em `docs/mockups/README.md`.
 
 ---
 
@@ -95,5 +100,5 @@ Atua como o portão de controle visual antes da aprovação final pelo Gatekeepe
 
 ## 📄 Contrato de Entrega (Output)
 Sempre que acionado, forneça:
-1. **No Modo 1 (Concepção)**: Wireframe ASCII (Camada 1), Tabela de Design Tokens & Luminance Contract (Camada 2), e arquivos `.mockup-preview.html` e `.mockup-preview.png` (Camada 3).
+1. **No Modo 1 (Concepção)**: Wireframe ASCII (Camada 1), Tabela de Design Tokens & Luminance Contract (Camada 2), arquivos de protótipo (`.mockup-preview.html` e `.mockup-preview.png`), a especificação viva persistente em `docs/mockups/<slug>.md` e o asset renderizado salvo em `docs/assets/mockups/<slug>.png`.
 2. **No Modo 2 (Auditoria / Visual Gate)**: Parecer técnico detalhado comparativo e veredito explícito (`VISUAL_AUDIT: APPROVED` ou `VISUAL_AUDIT: REJECTED`).

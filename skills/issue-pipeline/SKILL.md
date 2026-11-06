@@ -106,11 +106,13 @@ O agente orquestrador guia a execução estado por estado, chamando os subagente
    - O plano possui mais de 3 passos ou atinge domínios desconexos?
    - **Se SIM (Rejeitado)**: Pare a execução imediatamente. Informe ao usuário os motivos do arquiteto e solicite o fatiamento da Issue.
    - **Se NÃO (Aprovado)**: Verifique se a demanda possui impacto visual (`UI_UX_REQUIRED: true`).
-4. **Fallback Condicional de Concepção UI/UX (Modo 1)**:
-   - Se `UI_UX_REQUIRED: true` e a Issue ainda **não possuir** um `## Visual & UI/UX Contract` consolidado:
-     - Invoque o subagente `uiux-designer` em **Modo 1 (Concepção & Mockup-as-Code)**.
-     - O designer gera o Spatial Blueprint (Wireframe ASCII), Design Tokens e protótipo efêmero com captura `.mockup-preview.png`.
-     - Injeta a seção `## Visual & UI/UX Contract` no `implementation_plan.md`.
+4. **Resolução de Contrato Visual e Living Spec UI/UX**:
+   - Se `UI_UX_REQUIRED: true`:
+     - **Carregamento de Living Spec Pré-existente**: Verifique se já existe a especificação viva em `docs/mockups/<slug>.md`. Caso exista, instrua o subagente a carregar a living spec em `docs/mockups/<slug>.md` e seu asset de mockup em `docs/assets/mockups/<slug>.png`, integrando os Design Tokens e o Spatial Blueprint aprovados diretamente no `implementation_plan.md`.
+     - **Fallback Condicional de Concepção UI/UX (Modo 1)**: Se a Issue ainda **não possuir** um `## Visual & UI/UX Contract` consolidado e a living spec em `docs/mockups/<slug>.md` não existir:
+       - Invoque o subagente `uiux-designer` em **Modo 1 (Concepção & Mockup-as-Code)**.
+       - O designer gera o Spatial Blueprint (Wireframe ASCII), Design Tokens e protótipo efêmero com captura `.mockup-preview.png`, persistindo a especificação em `docs/mockups/<slug>.md` e o asset em `docs/assets/mockups/<slug>.png`.
+       - Injeta a seção `## Visual & UI/UX Contract` no `implementation_plan.md`.
    - Se `UI_UX_REQUIRED: false` ou se o contrato visual já estiver presente: avance diretamente para o **ESTADO 2**.
 
 ---
@@ -153,7 +155,7 @@ O agente orquestrador guia a execução estado por estado, chamando os subagente
 
 1. Invoque o subagente `uiux-designer` operando em **Modo 2 (Auditoria Visual Headless)**:
    - Instrua o subagente a capturar a tela renderizada da UI/componente implementado via navegador headless (`chromium --headless` ou canvas/headless).
-   - O designer audita o resultado confrontando-o com o Spatial Blueprint e os Design Tokens acordados no `implementation_plan.md` (hierarquia tipográfica, contraste de luminância, affordance e espaçamentos).
+   - O designer audita o resultado confrontando a imagem da implementação contra o mockup aprovado em `docs/assets/mockups/<slug>.png` e com o Spatial Blueprint e os Design Tokens acordados no `implementation_plan.md` (hierarquia tipográfica, contraste de luminância, affordance e espaçamentos).
 2. **Avaliação do Veredito Visual**:
    - Se o parecer for `VISUAL_AUDIT: REJECTED`:
      - Retorne imediatamente ao **ESTADO 3 (Coder)** fornecendo o relatório detalhado de desvios visuais para correção no código em `src/`.
@@ -171,6 +173,13 @@ O agente orquestrador guia a execução estado por estado, chamando os subagente
    - **Auditoria do Duplo Gate**: Comprovar conformidade estrutural contra o `PROJECT_CONTEXT.md` (zero alucinação de padrões).
    - **Auditoria de Cobertura e Casos**: Auditar que a cobertura de código é $\ge 85\%$ e que a suíte contempla separadamente cenários de Happy Path e Edge Cases / cenários de borda. Se a cobertura for inferior a 85% (< 85%), aborte e bloqueie a finalização.
    - **Auditoria Visual Mandatória**: Para issues com `UI_UX_REQUIRED: true`, exigir obrigatoriamente a auditoria visual aprovada com `VISUAL_AUDIT: APPROVED` e anexar a prova visual irrefutável (screenshot headless) no `walkthrough.md`.
+   - **Auditoria Visual Comparativa (Living Mockup Side-by-Side)**: Para issues com `UI_UX_REQUIRED: true`, embutir obrigatoriamente a seção `## 👁️ Visual Comparison Audit` no `walkthrough.md` e corpo do PR contendo a tabela comparativa:
+     ```markdown
+     ## 👁️ Visual Comparison Audit
+     | Mockup Original Aprovado | Implementação Renderizada |
+     | :---: | :---: |
+     | ![Mockup Original](docs/assets/mockups/<slug>.png) | ![Implementação Renderizada](<caminho_ou_screenshot>) |
+     ```
    - **Provas Demonstrativas Universais**: Exigir provas demonstrativas no `walkthrough.md` para todos os domínios (screenshots para UI; saídas reais formatadas de terminal, logs estruturados ou CLI para backend/infra).
    - Executar `./scripts/sync-project-context.py .` para validar e manter o contexto arquitetural estável em `PROJECT_CONTEXT.md` (sem estado Git volátil, que é injetado dinamicamente pelo `session-start-context.sh`).
    - Executar `./scripts/metrics-collector.py` para calcular o consumo de tokens da esteira.
