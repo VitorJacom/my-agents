@@ -33,7 +33,9 @@ O agente **não conversa em texto corrido para gerenciar estado**; ele é obriga
 ### 1.3. `walkthrough.md` (O Relatório de Provas Determinísticas)
 - É a substituição da inspeção manual no VS Code e a descrição oficial do Pull Request.
 - Contém a prova irrefutável de cumprimento da tarefa: comando exato executado (ex.: `pytest`, `npx vitest run`), logs de 100% de sucesso, saída de `git status --short` e diff dos arquivos modificados. Se o relatório estiver verde e sem desvios, o merge pode ser feito com segurança.
-- **Prova Visual Condicional (Anti-Cegueira de Código em UIs)**: Sempre que a tarefa envolver componentes visuais (Front-end Web, Mobile, Jogos 2D/3D ou UIs ricas de terminal), testes unitários lógicos 100% verdes NÃO são suficientes. O relatório DEVE conter evidências visuais irrefutáveis (screenshot gerado via navegador headless como `chromium --headless`, logs de renderização do canvas ou prova gráfica visual), prevenindo interfaces quebradas, textos ilegíveis ou paletas sem contraste de luminância. Tarefas puramente backend, CLI ou de infraestrutura permanecem isentas de comprovação gráfica.
+- **Provas Demonstrativas Universais Mandatórias**: Nenhuma entrega é isenta de comprovação comprobatória real. O relatório DEVE conter evidências demonstrativas adequadas à natureza da tarefa:
+  - **UIs e Front-end (Web, Mobile, Jogos 2D/3D ou UIs ricas de terminal)**: Testes unitários lógicos 100% verdes NÃO são suficientes. O relatório DEVE conter evidências visuais irrefutáveis (screenshot gerado via navegador headless como `chromium --headless`, logs de renderização do canvas ou prova gráfica visual), prevenindo interfaces quebradas, textos ilegíveis ou paletas sem contraste de luminância.
+  - **Backend, CLI, Scripts e Infraestrutura**: Tarefas puramente backend, CLI ou de infraestrutura NÃO são isentas de provas demonstrativas; o relatório DEVE conter evidências demonstrativas reais de execução (saída CLI formatada, snapshots de terminal ou logs estruturados), comprovando a integridade dos fluxos e discriminando cenários de Happy Path e Edge Cases / Failure Modes.
 
 ### 1.4. Tolerância Zero a Falsos Positivos em Automações (Fail-Fast Mandatório)
 - Scripts de automação, workflows de CI/CD, hooks e steps em bash NUNCA devem mascarar falhas de operações dependentes com `exit 0` (ex.: capturar erro de clone, push ou rede e sair com sucesso informativo).
@@ -65,6 +67,17 @@ Se houver **1 caractere alterado** em `tests/core/`, a esteira é abortada imedi
 - Proibido testes vazios ou tautológicos (ex.: `expect(true).toBe(true)` ou `assert True`).
 - O teste deve conter asserções de negócio e falhar comprovadamente no estado inicial (**RED**).
 - Em auditorias estritas, ferramentas de mutação (ex: Stryker para JS/TS ou Mutmut para Python) invertem operadores; se o teste continuar passando com código mutado, o teste é considerado falso e rejeitado.
+
+### 2.4. Cobertura Mínima Mandatória (Code Coverage >= 85%)
+- O Code Coverage da aplicação e dos módulos sob teste deve ser estritamente superior ou igual a **85%** (linhas, statements, funções e branches).
+- A suíte de testes deve emitir relatório determinístico de cobertura aferida.
+- **Fail-Fast / Circuit-Breaker**: Se a cobertura for inferior a 85% (cobertura < 85%), a esteira falha imediatamente; o Gatekeeper e a automação de CI bloqueiam e rejeitam a entrega sem prosseguir para merge ou release.
+
+### 2.5. Discriminação Mandatória de Casos de Teste (Happy Path e Edge Cases / Failure Modes)
+- As suítes de testes em `tests/features/` devem categorizar e estruturar explicitamente seus testes em:
+  - **Happy Path**: Fluxos principais de sucesso e atendimento aos requisitos funcionais.
+  - **Edge Cases & Failure Modes**: Casos de borda, entradas inválidas, limites numéricos, timeouts, falhas de infraestrutura e comportamento resiliente do sistema.
+- Entregas desprovidas de cobertura de cenários de borda ou com testes exclusivamente tautológicos são sumariamente rejeitadas.
 
 ---
 

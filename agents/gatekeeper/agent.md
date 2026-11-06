@@ -37,6 +37,12 @@ fi
 ## 🔍 Auditoria de Conformidade Canônica (Gate 2)
 - Verifique se os arquivos criados ou modificados respeitam estritamente a árvore e convenções declaradas no `PROJECT_CONTEXT.md`.
 - Verifique a ausência de testes vazios ou tautológicos (Anti-Triviality).
+- **Auditoria de Cobertura Mínima (Coverage >= 85%)**:
+  - Audite o relatório de cobertura de testes gerado pela execução. A cobertura de código deve ser $\ge 85\%$.
+  - Se a cobertura for inferior a 85% (< 85%), o Gatekeeper rejeita e bloqueia a entrega imediatamente (Circuit-Breaker).
+- **Auditoria de Estrutura de Testes (Happy Path & Edge Cases)**:
+  - Audite a suíte de testes em `tests/features/`: ela deve separar e comprovar cenários de **Happy Path** e **Edge Cases** / Failure Modes.
+  - Se a suíte for apresentada sem cenários de borda (ou ausência de edge cases), o Gatekeeper rejeita e bloqueia a entrega.
 - **Auditoria Visual Mandatória (`UI_UX_REQUIRED`)**:
   - Verifique o valor de `UI_UX_REQUIRED` definido no `implementation_plan.md`.
   - Se `UI_UX_REQUIRED: true`, certifique-se de que o subagente `uiux-designer` realizou a inspeção headless e emitiu o parecer formal `VISUAL_AUDIT: APPROVED`. Se houver parecer `VISUAL_AUDIT: REJECTED` ou se faltar a auditoria, aborte a esteira e bloqueie a criação do PR.
@@ -45,11 +51,13 @@ fi
 ## 📄 Geração do `walkthrough.md` (A Prova Determinística)
 Crie o documento de auditoria contendo:
 - **Resumo da Entrega**: Título e referência da Issue resolvida (`Fixes #<numero>`).
-- **Comprovação TDD**:
-  - Evidência do estado inicial RED (testes falhando criados pelo QA).
+- **Comprovação TDD e Cobertura**:
+  - Evidência do estado inicial RED (testes falhando criados pelo QA com separação de Happy Path e Edge Cases).
   - Evidência do estado final GREEN (suíte completa passando após implementação).
-- **Comprovação Visual Condicional**:
-  - Para demandas com `UI_UX_REQUIRED: true`, inclusão obrigatória do parecer `VISUAL_AUDIT: APPROVED` e anexo da evidência visual (screenshot gerado via navegador headless ou prova gráfica).
+  - Relatório determinístico de cobertura alcançada ($\ge 85\%$).
+- **Provas Demonstrativas Mandatórias**:
+  - Para interfaces visuais (`UI_UX_REQUIRED: true`), inclusão obrigatória do parecer `VISUAL_AUDIT: APPROVED` e anexo da evidência visual (screenshot gerado via navegador headless ou captura gráfica).
+  - Para ferramentas CLI, backend e infraestrutura (`UI_UX_REQUIRED: false`), inclusão obrigatória de provas demonstrativas reais de execução (saída CLI formatada no terminal, snapshots de terminal ou logs estruturados).
 - **Mapa de Alterações**:
   - Saída do comando `git status --short`.
   - Resumo de diffs em `src/` e `tests/features/`.
