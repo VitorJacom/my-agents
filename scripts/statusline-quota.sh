@@ -142,35 +142,98 @@ widget_quota() {
 }
 
 # -----------------------------------------------------------------------------
-# Widget 4: Telemetria (Tokens da Sessão e Custo)
+# Widget 4: Informação Volátil de Atividade & Contexto (Idle vs Tarefa)
+# Em "idle": exibe porcentagem de /context utilizado (🧠 Context: X%)
+# Em "tarefa": exibe porcentagem aproximada restante (⏳ Falta: Y%)
 # -----------------------------------------------------------------------------
 widget_telemetry() {
-  local tokens=""
-  if [[ "$INPUT_JSON" =~ \"total_tokens\"[[:space:]]*:[[:space:]]*([0-9]+) ]]; then
-    tokens="${BASH_REMATCH[1]}"
-  elif [[ "$INPUT_JSON" =~ \"tokens\"[[:space:]]*:[[:space:]]*([0-9]+) ]]; then
-    tokens="${BASH_REMATCH[1]}"
+  local is_running=false
+  local falta=""
+  local context_pct=""
+
+  # 1. Detecção de tarefa via task.md local no workspace ativo
+  local task_file=""
+  if [ -n "${ANTIGRAVITY_WORKSPACE:-}" ] && [ -f "${ANTIGRAVITY_WORKSPACE}/task.md" ]; then
+    task_file="${ANTIGRAVITY_WORKSPACE}/task.md"
+  elif [ -f "./task.md" ]; then
+    task_file="./task.md"
   fi
 
-  local usd=""
-  if [[ "$INPUT_JSON" =~ \"total_usd\"[[:space:]]*:[[:space:]]*([0-9.]+) ]]; then
-    usd="${BASH_REMATCH[1]}"
-  fi
+  if [ -n "$task_file" ]; then
+    local done_count
+    local in_prog_count
+    local pending_count
+    done_count=$(grep -c '\[x\]' "$task_file" 2>/dev/null || true)
+    [ -z "$done_count" ] && done_count=0
+    in_prog_count=$(grep -c '\[/\]' "$task_file" 2>/dev/null || true)
+    [ -z "$in_prog_count" ] && in_prog_count=0
+    pending_count=$(grep -c '\[ \]' "$task_file" 2>/dev/null || true)
+    [ -z "$pending_count" ] && pending_count=0
+    local total_tasks=$(( done_count + in_prog_count + pending_count ))
 
-  local display="0 tok"
-  if [ -n "$tokens" ] && [ "$tokens" -gt 0 ] 2>/dev/null; then
-    if [ "$tokens" -ge 1000 ]; then
-      display="$(( tokens / 1000 ))k tok"
-    else
-      display="${tokens} tok"
+    if [ "$in_prog_count" -gt 0 ]; then
+      is_running=true
+      if [ "$total_tasks" -gt 0 ]; then
+        local calc_falta=$(( 100 - (done_count * 100 / total_tasks) ))
+        [ "$calc_falta" -le 0 ] && calc_falta=5
+        falta="$calc_falta"
+      fi
     fi
   fi
 
-  if [ -n "$usd" ]; then
-    display="${display} (\$${usd})"
+  # 2. Verificação de status via payload JSON do Antigravity CLI
+  if ! $is_running; then
+    if [[ "$INPUT_JSON" =~ \"(status|state)\"[[:space:]]*:[[:space:]]*\"(running|busy|in_progress|executing)\" ]]; then
+      is_running=true
+      if [[ "$INPUT_JSON" =~ \"(remaining_percentage|remaining|falta)\"[[:space:]]*:[[:space:]]*([0-9]+) ]]; then
+        falta="${BASH_REMATCH[2]}"
+      elif [[ "$INPUT_JSON" =~ \"(progress_percentage|progress)\"[[:space:]]*:[[:space:]]*([0-9]+) ]]; then
+        falta=$(( 100 - BASH_REMATCH[2] ))
+      fi
+    fi
   fi
 
-  printf "${CYAN}📊 %s${RESET}" "$display"
+  # 3. Renderização condicionada pelo estado
+  if $is_running; then
+    [ -z "$falta" ] && falta="50"
+    printf "${YELLOW}⏳ Falta: %d%%${RESET}" "$falta"
+  else
+    # Estado Idle: calcula porcentagem de /context utilizado
+    if [[ "$INPUT_JSON" =~ \"(context_percentage|context_used_percentage)\"[[:space:]]*:[[:space:]]*([0-9.]+) ]]; then
+      context_pct="${BASH_REMATCH[2]}"
+    elif [[ "$INPUT_JSON" =~ \"context\"[^{}]*\"(percentage|used_percentage)\"[[:space:]]*:[[:space:]]*([0-9.]+) ]]; then
+      context_pct="${BASH_REMATCH[2]}"
+    fi
+
+    if [ -z "$context_pct" ]; then
+      local tokens=""
+      if [[ "$INPUT_JSON" =~ \"total_tokens\"[[:space:]]*:[[:space:]]*([0-9]+) ]]; then
+        tokens="${BASH_REMATCH[1]}"
+      elif [[ "$INPUT_JSON" =~ \"tokens\"[[:space:]]*:[[:space:]]*([0-9]+) ]]; then
+        tokens="${BASH_REMATCH[1]}"
+      fi
+
+      if [ -n "$tokens" ] && [ "$tokens" -gt 0 ] 2>/dev/null; then
+        # Janela de contexto padrão de 1.000.000 de tokens do Gemini
+        local limit=1000000
+        if [[ "$INPUT_JSON" =~ \"context_window\"[[:space:]]*:[[:space:]]*([0-9]+) ]]; then
+          limit="${BASH_REMATCH[1]}"
+        fi
+        context_pct=$(( (tokens * 100) / limit ))
+      else
+        context_pct="0"
+      fi
+    fi
+
+    # Formatação do percentual de contexto com cores semânticas
+    local round_pct
+    round_pct=$(LC_ALL=C LC_NUMERIC=C printf "%.0f" "$context_pct" 2>/dev/null || echo "0")
+    local col_ctx=$GREEN
+    [ "$round_pct" -ge 50 ] 2>/dev/null && col_ctx=$YELLOW
+    [ "$round_pct" -ge 80 ] 2>/dev/null && col_ctx=$RED
+
+    printf "${CYAN}🧠 Context: %s%d%%%s${RESET}" "$col_ctx" "$round_pct" "$RESET"
+  fi
 }
 
 # -----------------------------------------------------------------------------
@@ -184,7 +247,7 @@ render_statusline() {
 
   parts+=("$(widget_model 2>/dev/null || printf "${MAGENTA}🤖 Gemini 3.8 Flash (Low)${RESET}")")
   parts+=("$(widget_quota 2>/dev/null || printf "⚡ Quota 5h: [${CYAN}ok${RESET}] │ 📅 Semanal: [${CYAN}ok${RESET}]")")
-  parts+=("$(widget_telemetry 2>/dev/null || printf "${CYAN}📊 0 tok${RESET}")")
+  parts+=("$(widget_telemetry 2>/dev/null || printf "${CYAN}🧠 Context: 0%%${RESET}")")
 
   local result=""
   for i in "${!parts[@]}"; do
@@ -215,7 +278,7 @@ main() {
       git) widget_git ;;
       model) widget_model ;;
       quota) widget_quota ;;
-      telemetry) widget_telemetry ;;
+      telemetry|activity|context) widget_telemetry ;;
       *) render_statusline ;;
     esac
   else

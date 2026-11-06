@@ -58,7 +58,7 @@ OUT_EMPTY=$(echo "{}" | "$STATUSLINE_SCRIPT" 2>"$STDERR_OUT")
 check "Payload vazio ({}) não emite erro para stderr" test ! -s "$STDERR_OUT"
 check "Payload vazio exibe indicador de Quota 5h default [ok]" bash -c "echo '$OUT_EMPTY' | grep -qi 'Quota 5h:.*ok'"
 check "Payload vazio exibe indicador Semanal default [ok]" bash -c "echo '$OUT_EMPTY' | grep -qi 'Semanal:.*ok'"
-check "Payload vazio exibe widget de telemetria default" bash -c "echo '$OUT_EMPTY' | grep -qi '📊'"
+check "Payload vazio exibe widget de contexto em idle (0%)" bash -c "echo '$OUT_EMPTY' | grep -qi 'Context:.*0%'"
 
 # Payload vazio via stdin fechado (/dev/null)
 OUT_DEVNULL=$("$STATUSLINE_SCRIPT" </dev/null 2>"$STDERR_OUT" || true)
@@ -101,7 +101,7 @@ check "Payload completo não emite erro em stderr" test ! -s "$STDERR_OUT"
 check "Renderiza modelo customizado 'Gemini 3.8 Pro (Experimental)'" bash -c "echo '$OUT_FULL' | grep -q 'Gemini 3.8 Pro (Experimental)'"
 check "Renderiza Quota 5h com valor calculado (65%)" bash -c "echo '$OUT_FULL' | grep -q '65%'"
 check "Renderiza Quota Semanal com valor calculado (22%)" bash -c "echo '$OUT_FULL' | grep -q '22%'"
-check "Renderiza telemetria de tokens (42k tok ou 42000 tok)" bash -c "echo '$OUT_FULL' | grep -E '42k|42000'"
+check "Renderiza contexto em idle com valor calculado de tokens (4%)" bash -c "echo '$OUT_FULL' | grep -E 'Context:.*4%'"
 
 # =============================================================================
 # SEÇÃO 3.1: ROBUSTEZ A LOCALE (LC_NUMERIC) E DESACOPLAMENTO DE ORDEM DOS BUCKETS
@@ -122,9 +122,36 @@ check "Execução com LC_NUMERIC=pt_BR.UTF-8 não emite erro em stderr" test ! -
 check "Arredondamento correto com LC_NUMERIC=pt_BR (5h -> 65%)" bash -c "echo '$OUT_LOCALE' | grep -q '65%'"
 check "Arredondamento correto com LC_NUMERIC=pt_BR (Semanal -> 23%)" bash -c "echo '$OUT_LOCALE' | grep -q '23%'"
 
+# =============================================================================
+# SEÇÃO 3.2: INFORMAÇÃO VOLÁTIL (IDLE COM /CONTEXT VS TAREFA EM EXECUÇÃO COM FALTA)
+# =============================================================================
+echo ""
+echo "--- 3.2. [ESTADO VOLÁTIL] Alternância entre Idle (/context) e Tarefa (Falta %) ---"
+
+# 1. Idle explícito com porcentagem direta de /context
+OUT_IDLE=$(echo '{"context_percentage": 35}' | "$STATUSLINE_SCRIPT")
+check "Estado Idle exibe '🧠 Context: 35%'" bash -c "echo '$OUT_IDLE' | grep -qi 'Context:.*35%'"
+
+# 2. Tarefa em execução via payload JSON com progress 60% (falta 40%)
+OUT_RUNNING_JSON=$(echo '{"status": "running", "progress": 60}' | "$STATUSLINE_SCRIPT")
+check "Tarefa via JSON exibe '⏳ Falta: 40%'" bash -c "echo '$OUT_RUNNING_JSON' | grep -qi 'Falta:.*40%'"
+
+# 3. Tarefa em execução via task.md no workspace
+TMP_TASK_DIR="$TMP_DIR/task_ws"
+mkdir -p "$TMP_TASK_DIR"
+cat << 'EOF' > "$TMP_TASK_DIR/task.md"
+- [x] Tarefa A
+- [/] Tarefa B em andamento
+- [ ] Tarefa C
+- [ ] Tarefa D
+EOF
+
+OUT_TASK_MD=$(ANTIGRAVITY_WORKSPACE="$TMP_TASK_DIR" "$STATUSLINE_SCRIPT" <<< "{}")
+check "Tarefa em andamento no task.md exibe '⏳ Falta: 75%'" bash -c "echo '$OUT_TASK_MD' | grep -qi 'Falta:.*75%'"
+
 # Teste das chamadas individuais via --widget
 echo ""
-echo "--- 3.2. [DISPATCHER] Consistência de Escape ANSI no Modo Individual ---"
+echo "--- 3.3. [DISPATCHER] Consistência de Escape ANSI no Modo Individual ---"
 OUT_W_GIT=$(echo '{"branch": "feature-issue-6"}' | "$STATUSLINE_SCRIPT" --widget git)
 OUT_W_MODEL=$(echo "$FULL_PAYLOAD" | "$STATUSLINE_SCRIPT" --widget model)
 OUT_W_QUOTA=$(echo "$FULL_PAYLOAD" | "$STATUSLINE_SCRIPT" --widget quota)
@@ -134,7 +161,7 @@ check "--widget git não emite sequência literal '\033'" bash -c "! echo \"$OUT
 check "--widget git contém nome da branch informada no JSON" bash -c "echo \"$OUT_W_GIT\" | grep -q 'feature-issue-6'"
 check "--widget model contém modelo ativo" bash -c "echo \"$OUT_W_MODEL\" | grep -q 'Gemini 3.8 Pro'"
 check "--widget quota contém indicador de 5h e Semanal" bash -c "echo \"$OUT_W_QUOTA\" | grep -q 'Quota 5h:'"
-check "--widget telemetry contém contagem de tokens" bash -c "echo \"$OUT_W_TELEMETRY\" | grep -q '42k tok'"
+check "--widget telemetry contém contexto calculado (4%)" bash -c "echo \"$OUT_W_TELEMETRY\" | grep -q 'Context:.*4%'"
 
 # =============================================================================
 # SEÇÃO 4: BENCHMARK AUTOMATIZADO SUB-50MS (10 ITERAÇÕES CONSECUTIVAS)
