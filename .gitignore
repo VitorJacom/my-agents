@@ -11,6 +11,7 @@ build/
 
 # Sandbox / Ambiente de Testes Isolado
 sandbox/
+.worktrees/
 
 # Sistema Operacional e IDEs
 .DS_Store
