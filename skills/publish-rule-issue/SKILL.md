@@ -47,18 +47,37 @@ Esta Skill permite registrar um aprendizado, regra comportamental ou melhoria de
    - [x] Regra Comportamental (`rules/AGENTS.md`)
    - [ ] Nova Skill especializada (`skills/`)
    - [ ] Validação / Hook de integridade (`hooks.json`)
+
+   ## Target Files & Dependencies
+   - Target Files: <caminho_dos_arquivos_afetados_no_my_agents>
+   - Depends On: None
+
+   ## Passos de Implementação (<= 3 passos)
+   1. Criar suíte de testes TDD em `tests/features/` cobrindo o novo comportamento ou regra.
+   2. Implementar a regra ou skill em `rules/AGENTS.md` ou `skills/`.
+   3. Executar os testes automatizados para garantir estado GREEN e comitar via conventional commits.
    ```
 
 3. **Criação da Issue no GitHub via `gh CLI`**:
-   Execute o comando determinístico:
+   - Inspecione a seção `## 🎯 Rastreamento & GitHub Governance` em `PROJECT_CONTEXT.md`:
+     - Se `Active Milestone` estiver configurada e for diferente de `None` (ex.: `"v1.1.0"`), anexe `--milestone "<milestone>"` dinamicamente ao comando `gh issue create`.
+     - Se `Active Milestone` estiver ausente, vazia ou definida como `None`, omita a flag `--milestone`.
+   - Execute o comando determinístico:
    ```bash
    gh issue create \
      --repo VitorJacom/my-agents \
      --title "feat(rules): <título conciso no imperativo em inglês>" \
-     --label "enhancement" \
+     --label "enhancement,planned" \
+     [--milestone "<milestone>"] \
      --body "<corpo_markdown_formatado>"
    ```
 
-4. **Retorno ao Desenvolvedor**:
+4. **Vinculação a GitHub Project v2 (Fallback Resiliente)**:
+   - Se `GitHub Project v2` estiver configurado em `PROJECT_CONTEXT.md` com `Owner` e `Project Number` válidos (diferentes de `None`), vincule a issue criada ao quadro do projeto utilizando fallback resiliente não-bloqueante:
+   ```bash
+   gh project item-add "<project_number>" --owner "<owner>" --url "<issue_url>" || echo "⚠️ [WARN] Falha não-bloqueante ao adicionar issue ao GitHub Project v2 (<project_number>). Prosseguindo esteira."
+   ```
+
+5. **Retorno ao Desenvolvedor**:
    - Apresente o link da Issue criada no GitHub.
-   - Destaque que a Issue já está pronta para ser executada na esteira `/run-issue` quando o repositório central for aberto.
+   - Destaque que a Issue já está formatada com contratos atômicos (`Target Files & Dependencies` e `Passos de Implementação`) e pronta para ser executada na esteira `/run-issue` quando o repositório central for aberto.
