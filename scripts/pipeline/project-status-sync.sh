@@ -17,7 +17,7 @@ fi
 
 # Localiza PROJECT_CONTEXT.md
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CONTEXT_FILE="${PROJECT_CONTEXT_PATH:-"$SCRIPT_DIR/../PROJECT_CONTEXT.md"}"
+CONTEXT_FILE="${PROJECT_CONTEXT_PATH:-"$SCRIPT_DIR/../../PROJECT_CONTEXT.md"}"
 
 if [ ! -f "$CONTEXT_FILE" ]; then
   echo "[INFO] PROJECT_CONTEXT.md não encontrado ($CONTEXT_FILE). Ignorando sincronização."

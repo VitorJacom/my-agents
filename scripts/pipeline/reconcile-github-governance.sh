@@ -65,7 +65,7 @@ done
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [ -z "$CONTEXT_FILE" ]; then
-  CONTEXT_FILE="$SCRIPT_DIR/../PROJECT_CONTEXT.md"
+  CONTEXT_FILE="$SCRIPT_DIR/../../PROJECT_CONTEXT.md"
 fi
 
 if [ ! -f "$CONTEXT_FILE" ]; then
