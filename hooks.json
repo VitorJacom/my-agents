@@ -7,7 +7,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "./scripts/safety-guard.sh"
+            "command": "./scripts/hooks/safety-guard.sh"
           }
         ]
       }
@@ -18,7 +18,7 @@
     "SessionStart": [
       {
         "type": "command",
-        "command": "./scripts/session-start-context.sh"
+        "command": "./scripts/hooks/session-start-context.sh"
       }
     ]
   }

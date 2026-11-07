@@ -109,7 +109,7 @@ Para que o novo projeto usufrua da **Persistência de Contexto Econômica** e da
 
 1. Execute o script sincronizador apontando para a raiz do seu projeto:
    ```bash
-   /home/vitor/Projetos/03-pessoal/my-agents/scripts/sync-project-context.py /caminho/do/meu-projeto
+   /home/vitor/Projetos/03-pessoal/my-agents/scripts/pipeline/sync-project-context.py /caminho/do/meu-projeto
    ```
    Isso criará o arquivo canônico `PROJECT_CONTEXT.md` na raiz do seu projeto com o template oficial.
 
@@ -139,7 +139,7 @@ Uma vez ativo no seu projeto, você tem acesso aos seguintes comandos no chat do
   ```
 - **Ativar a statusline customizada com modelo e alerta de quota**:
   ```text
-  /statusline /home/vitor/Projetos/03-pessoal/my-agents/scripts/statusline-quota.sh
+  /statusline /home/vitor/Projetos/03-pessoal/my-agents/scripts/statusline/statusline-quota.sh
   ```
 
 ---
@@ -152,12 +152,11 @@ my-agents/
 ├── README.md                   # Documentação completa
 ├── PROJECT_CONTEXT.md          # Contexto canônico da arquitetura
 ├── hooks.json                  # Registro de hooks de ciclo de vida (SessionStart, PreToolUse)
-├── scripts/
-│   ├── safety-guard.sh         # Validador de segurança PreToolUse
-│   ├── session-start-context.sh# Injetor leve de contexto SessionStart
-│   ├── sync-project-context.py # Atualizador automático do PROJECT_CONTEXT.md
-│   ├── metrics-collector.py    # Coletor de telemetria e tokens por agente
-│   └── statusline-quota.sh     # Renderizador customizado da statusline
+├── scripts/                    # Utilitários organizados por categoria
+│   ├── hooks/                  # Hooks do Antigravity CLI (safety-guard, session-start)
+│   ├── pipeline/               # Esteira AIDD (worktree-manager, metrics, reconcile, sync)
+│   ├── statusline/             # Statusline CLI e indicador de quotas
+│   └── migrations/             # Migrações históricas one-off
 ├── rules/
 │   └── AGENTS.md               # Diretrizes mandatórias globais e Duplo Gate
 ├── agents/                     # Subagentes especializados da esteira

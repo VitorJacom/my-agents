@@ -17,7 +17,7 @@ flowchart TB
 
     subgraph L2 ["2. Camada de Orquestração (Control Plane)"]
         MAESTRO["Maestro Orchestrator<br/>Ondas Concorrentes & Merge Queue"]
-        WORKTREE_MGR["scripts/worktree-manager.sh<br/>Locks Atômicos & Worktrees Isoladas"]
+        WORKTREE_MGR["scripts/pipeline/worktree-manager.sh<br/>Locks Atômicos & Worktrees Isoladas"]
     end
 
     subgraph L3 ["3. Camada de Subagentes Especializados (Execution Plane)"]
@@ -175,7 +175,7 @@ A evolução arquitetural do `my-agents` é registrada formalmente através de A
 | :---: | :--- | :---: | :---: | :--- |
 | **0001** | Generalização de Regras Visuais, Subagente UI/UX e Desacoplamento de Domínio (Game Dev) | 2026-11-04 | Implementada | Desacoplamento de regras de física e games de `rules/` para `skills/game-dev-patterns/` (*Zero Token Waste*), criação do `uiux-designer` e exigência condicional de provas visuais. |
 | **0002** | Governança Efêmera de Arquivos de Tarefa, Fonte Única ARCHITECTURE.md e Wiki Sync | 2026-11-04 | Implementada | Adição de `task.md`, `implementation_plan.md` e `walkthrough.md` ao `.gitignore`; consolidação da documentação em `docs/` e sincronização automática via `.github/workflows/wiki-sync.yml`. |
-| **0003** | Arquitetura Modular de Statusline Plug-and-Play e Performance Sub-50ms | 2026-11-04 | Proposta | Decomposição modular da statusline (`scripts/statusline-quota.sh`), instalador idempotente (`install-statusline.sh`) e suíte de benchmark sub-50ms (`test-statusline.sh`). |
+| **0003** | Arquitetura Modular de Statusline Plug-and-Play e Performance Sub-50ms | 2026-11-04 | Proposta | Decomposição modular da statusline (`scripts/statusline/statusline-quota.sh`), instalador idempotente (`scripts/statusline/install-statusline.sh`) e suíte de benchmark sub-50ms (`scripts/statusline/test-statusline.sh`). |
 | **0004** | Orquestração Multi-Task Concorrente (Maestro), Git Worktrees, Ondas e Merge Queue | 2026-11-06 | Proposta | Arquitetura Maestro com subagentes workers isolados, locks atômicos, análise de Target Files, ondas sequenciais de execução e Rebase Train em branch intermediária. |
 | **0005** | Paralelismo Intra-Task Baseado em Contrato Congelado (QA & Coder) | 2026-11-04 | Proposta | Decomposição da etapa TDD em Fork concorrente entre QA Engineer e Coder a partir da seção `## Interface Contract` congelada no `implementation_plan.md`. |
 | **0006** | Orquestração Condicional do `uiux-designer` e Protocolo Mockup-as-Code (Figma-less) | 2026-11-06 | Proposta | Protocolo em 3 camadas (Wireframe ASCII, Design Tokens de luminância e Protótipo HTML headless) acionado condicionalmente em `/plan-feature` e `/run-issue`. |

@@ -21,7 +21,7 @@ Sua missão é realizar a auditoria final de integridade, validar a ausência de
 3. Verificar a flag `UI_UX_REQUIRED`: para issues com `UI_UX_REQUIRED: true`, exigir obrigatoriamente o parecer `VISUAL_AUDIT: APPROVED` emitido pelo `uiux-designer`, a prova visual (screenshot) e a seção `## 👁️ Visual Comparison Audit` contendo a tabela comparativa `| Mockup Original Aprovado | Implementação Renderizada |` no `walkthrough.md` antes de executar `gh pr create`.
 4. Gerar o artefato `walkthrough.md` contendo as provas de execução e diffs.
 5. Validar e sincronizar a estrutura estática do arquivo canônico `PROJECT_CONTEXT.md` (sem injetar metadados voláteis do Git, que são coletados em tempo real pelo hook `SessionStart`).
-6. Em auditorias de worktrees, integrar com `scripts/worktree-manager.sh rebase-sync` e protocolo de cleanup (`scripts/worktree-manager.sh remove`).
+6. Em auditorias de worktrees, integrar com `scripts/pipeline/worktree-manager.sh rebase-sync` e protocolo de cleanup (`scripts/pipeline/worktree-manager.sh remove`).
 7. Abrir o Pull Request no GitHub apontando para a Issue original ou branch base.
 
 ## 🛡️ A "Golden Rule" Anti-Fraude (Circuit-Breaker)
@@ -36,7 +36,7 @@ fi
 ```
 - Se for detectada **qualquer alteração** em arquivos de `tests/core/`, aborte imediatamente o processo e reporte a violação. A entrega está reprovada.
 - Em pipelines orquestrados com branches intermediárias de integração (`integration/batch-<id>` ou `epic/issue-<id>`), invoque a checagem passando a branch base (`--base <branch>` ou argumento `$BASE_BRANCH`).
-- Quando atuando em worktrees isoladas com `scripts/worktree-manager.sh`, o Gatekeeper garante a integridade dos testes pré-existentes da base antes da remoção e limpeza final via `worktree-manager.sh remove <id>`.
+- Quando atuando em worktrees isoladas com `scripts/pipeline/worktree-manager.sh`, o Gatekeeper garante a integridade dos testes pré-existentes da base antes da remoção e limpeza final via `worktree-manager.sh remove <id>`.
 
 ## 🔍 Auditoria de Conformidade Canônica (Gate 2)
 - Verifique se os arquivos criados ou modificados respeitam estritamente a árvore e convenções declaradas no `PROJECT_CONTEXT.md`.
@@ -75,10 +75,10 @@ Crie o documento de auditoria contendo:
   - Resumo de diffs em `src/` e `tests/features/`.
 - **Auditoria de Integridade**: Confirmação da execução da Golden Rule sem adulteração em `tests/core/`.
 - **Telemetria**:
-  - Execução de `./scripts/metrics-collector.py --issue <numero> --agents '<json_cids>'`.
+  - Execução de `./scripts/pipeline/metrics-collector.py --issue <numero> --agents '<json_cids>'`.
 
 ## 🔄 Sincronização e Abertura do Pull Request
-1. Execute `./scripts/sync-project-context.py .` para garantir que o `PROJECT_CONTEXT.md` mantenha apenas o contexto arquitetural estável (livre de estado Git volátil para evitar conflitos em PRs paralelos).
+1. Execute `./scripts/pipeline/sync-project-context.py .` para garantir que o `PROJECT_CONTEXT.md` mantenha apenas o contexto arquitetural estável (livre de estado Git volátil para evitar conflitos em PRs paralelos).
 2. Comite todas as alterações com Conventional Commits.
 3. Valide que para issues com `UI_UX_REQUIRED: true`, o `walkthrough.md` contenha a seção `## 👁️ Visual Comparison Audit` com a tabela comparativa `| Mockup Original Aprovado | Implementação Renderizada |` antes de executar `gh pr create`. Submeta o Pull Request no GitHub:
    ```bash
@@ -86,5 +86,5 @@ Crie o documento de auditoria contendo:
    ```
 4. Atualize o status no GitHub Projects v2 para 'In Review' via script utilitário resiliente:
    ```bash
-   ./scripts/project-status-sync.sh "<numero_ou_url>" "In Review"
+   ./scripts/pipeline/project-status-sync.sh "<numero_ou_url>" "In Review"
    ```

@@ -130,16 +130,16 @@ flowchart TD %% Decisão condicional por interface visual (UI_UX_REQUIRED)
 4. **Inclusão Obrigatória de UI/UX Contract e Living Mockup**: Para tarefas com interface visual, inclua obrigatoriamente a seção `## Visual & UI/UX Contract` (Spatial Blueprint ASCII, Design Tokens & Luminance Contract) e a seção `## 🎨 Mockup & Living Visual Spec` (contendo o preview visual embedado `![Mockup Preview](docs/assets/mockups/<slug>.png)` e o link para a especificação viva `[docs/mockups/<slug>.md](docs/mockups/<slug>.md)`) diretamente no corpo (`--body`) do comando `gh issue create`.
 5. Caso seja um Épico, vincule as sub-issues criadas à issue principal utilizando a flag `--parent <numero_do_epico>` (se suportado pelo repositório) ou adicione a checklist de links na descrição do Épico.
 6. Apresente ao desenvolvedor o sumário com os links de todas as Issues criadas no GitHub e a matriz consolidada de **Execution Waves**, prontas para serem executadas com `/run-issue #<numero>`.
-7. **Reconciliação e Auditoria de Backlog**: Execute o utilitário determinístico `scripts/reconcile-github-governance.sh` para reconciliar as issues recém-criadas com a Milestone ativa e o GitHub Project v2, garantindo que o fatiamento reflita nas Views Kanban e de Roadmap sem deriva de governança:
+7. **Reconciliação e Auditoria de Backlog**: Execute o utilitário determinístico `scripts/pipeline/reconcile-github-governance.sh` para reconciliar as issues recém-criadas com a Milestone ativa e o GitHub Project v2, garantindo que o fatiamento reflita nas Views Kanban e de Roadmap sem deriva de governança:
    ```bash
-   ./scripts/reconcile-github-governance.sh
+   ./scripts/pipeline/reconcile-github-governance.sh
    ```
 
 ---
 
 ## 🛠️ Procedimento Operacional: Reconciliação de Backlog e Governança
 
-Para manter o backlog do repositório e o GitHub Projects v2 íntegros, organizados e sem deriva de governança, o ecossistema AIDD disponibiliza o utilitário determinístico `scripts/reconcile-github-governance.sh`.
+Para manter o backlog do repositório e o GitHub Projects v2 íntegros, organizados e sem deriva de governança, o ecossistema AIDD disponibiliza o utilitário determinístico `scripts/pipeline/reconcile-github-governance.sh`.
 
 ### 🎯 Casos de Uso
 1. **Pós-Planejamento em Lote**: Após o fatiamento de épicos ou criação de múltiplas issues via `/plan-feature`, garantindo que todas as sub-issues do breakdown sejam inseridas no Project v2 e na Active Milestone.
@@ -151,23 +151,23 @@ Para manter o backlog do repositório e o GitHub Projects v2 íntegros, organiza
 - **Simulação Prévia (Dry-Run)**:
   Inspeciona as issues abertas e imprime as mutações que seriam realizadas sem executar chamadas destrutivas ou de escrita na API:
   ```bash
-  ./scripts/reconcile-github-governance.sh --dry-run
+  ./scripts/pipeline/reconcile-github-governance.sh --dry-run
   ```
 
 - **Reconciliação Efetiva (Idempotente)**:
   Lê a `Active Milestone` e os metadados do `GitHub Project v2` em `PROJECT_CONTEXT.md` e aplica as atualizações necessárias:
   ```bash
-  ./scripts/reconcile-github-governance.sh
+  ./scripts/pipeline/reconcile-github-governance.sh
   ```
 
 - **Execução com Repositório Remoto Específico**:
   ```bash
-  ./scripts/reconcile-github-governance.sh --repo "owner/repo"
+  ./scripts/pipeline/reconcile-github-governance.sh --repo "owner/repo"
   ```
 
 - **Uso de Arquivo de Contexto Alternativo**:
   ```bash
-  ./scripts/reconcile-github-governance.sh --context-file /caminho/para/PROJECT_CONTEXT.md
+  ./scripts/pipeline/reconcile-github-governance.sh --context-file /caminho/para/PROJECT_CONTEXT.md
   ```
 
 ### 🛡️ Princípios Operacionais e Garantias

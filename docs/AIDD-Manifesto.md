@@ -84,7 +84,7 @@ flowchart TD
 
 #### `walkthrough.md` (O Relatório de Provas Determinísticas)
 - Substitui a inspeção manual no editor e atua como a descrição oficial do Pull Request.
-- Contém a prova irrefutável de cumprimento da tarefa: comando exato executado (ex.: `pytest`, `npm test`, `tests/features/test_*.sh`), logs de 100% de sucesso, saída de `git status --short` e diff dos arquivos modificados.
+- Contém a prova irrefutável de cumprimento da tarefa: comando exato executado (ex.: `pytest`, `npm test`, `./tests/run.sh`), logs de 100% de sucesso, saída de `git status --short` e diff dos arquivos modificados.
 - **Provas Demonstrativas Universais Mandatórias**: Nenhuma entrega é isenta de comprovação comprobatória real:
   - **UIs, Front-end e Jogos (Web, Mobile, 2D/3D ou TUIs ricas)**: Testes unitários lógicos 100% verdes NÃO são suficientes. O relatório DEVE conter evidências visuais irrefutáveis (screenshot gerado via navegador headless como `chromium --headless`, logs de renderização do canvas ou prova gráfica visual), prevenindo interfaces quebradas, textos ilegíveis ou paletas sem contraste de luminância.
   - **Backend, CLI, Scripts e Infraestrutura**: Tarefas puramente backend, CLI ou de infraestrutura NÃO são isentas de provas demonstrativas; o relatório DEVE conter evidências demonstrativas reais de execução (saída CLI formatada, snapshots de terminal ou logs estruturados), comprovando a integridade dos fluxos e discriminando cenários de Happy Path e Edge Cases / Failure Modes.
