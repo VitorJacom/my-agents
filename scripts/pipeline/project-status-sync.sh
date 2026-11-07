@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # =============================================================================
-# scripts/project-status-sync.sh - GitHub Projects v2 Status Synchronizer
+# scripts/pipeline/project-status-sync.sh - GitHub Projects v2 Status Synchronizer
 # ADR-0007: Integração Nativa de GitHub Projects v2 com Degradação Graciosa
 # =============================================================================
 
@@ -10,8 +10,8 @@ TARGET_ISSUE="${1:-}"
 STATUS_VALUE="${2:-}"
 
 if [ -z "$TARGET_ISSUE" ] || [ -z "$STATUS_VALUE" ]; then
-  echo "Uso: scripts/project-status-sync.sh <issue_numero_ou_url> <status_value>"
-  echo "Exemplo: scripts/project-status-sync.sh 21 \"In Progress\""
+  echo "Uso: scripts/pipeline/project-status-sync.sh <issue_numero_ou_url> <status_value>"
+  echo "Exemplo: scripts/pipeline/project-status-sync.sh 21 \"In Progress\""
   exit 0
 fi
 

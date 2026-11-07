@@ -24,7 +24,7 @@ Opções:
   --settings-path <caminho>  Caminho customizado do arquivo settings.json
                              (ou defina a variável ANTIGRAVITY_SETTINGS_PATH)
   --script-path <caminho>    Caminho customizado do script de statusline
-                             (padrão: scripts/statusline-quota.sh)
+                             (padrão: scripts/statusline/statusline-quota.sh)
   --dry-run                  Simula as alterações sem gravar no disco
   -h, --help                 Exibe esta mensagem de ajuda
 EOF

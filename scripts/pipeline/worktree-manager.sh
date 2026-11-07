@@ -2,13 +2,13 @@
 set -euo pipefail
 
 # =============================================================================
-# scripts/worktree-manager.sh - Git Worktree Lifecycle Manager
+# scripts/pipeline/worktree-manager.sh - Git Worktree Lifecycle Manager
 # ADR-0004: Orquestração Multiagente Concorrente com Isolamento de Worktrees
 # =============================================================================
 
 show_usage() {
   cat <<'EOF'
-Uso: scripts/worktree-manager.sh <subcomando> [opções]
+Uso: scripts/pipeline/worktree-manager.sh <subcomando> [opções]
 
 Subcomandos:
   create <issue_id> [--base <base_branch>]

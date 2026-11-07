@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # =============================================================================
-# scripts/migrate-issues-to-project.sh - Full Backlog & Issue Migration
+# scripts/migrations/migrate-issues-to-project.sh - Full Backlog & Issue Migration
 # Migra issues abertas e históricas fechadas para Milestones e GitHub Project v2
 # =============================================================================
 
@@ -13,7 +13,7 @@ OWNER="VitorJacom"
 
 usage() {
   cat <<'EOF'
-Uso: scripts/migrate-issues-to-project.sh [OPÇÕES]
+Uso: scripts/migrations/migrate-issues-to-project.sh [OPÇÕES]
 
 Opções:
   --dry-run               Simula todas as operações sem alterar GitHub issues ou Project

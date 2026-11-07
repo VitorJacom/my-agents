@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-scripts/reclassify-epics-and-releases.py
+scripts/migrations/reclassify-epics-and-releases.py
 Reclassifica Milestones como Épicos temáticos e preenche o campo 'Release' (v1.0.0, v1.1.0, v1.2.0, Backlog / Future) no Project #1.
 """
 

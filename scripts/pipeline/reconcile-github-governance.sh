@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # =============================================================================
-# scripts/reconcile-github-governance.sh - GitHub Governance Reconciler
+# scripts/pipeline/reconcile-github-governance.sh - GitHub Governance Reconciler
 # Reconciliação idempotente de Milestones e Projects v2 para issues abertas
 # =============================================================================
 
@@ -12,7 +12,7 @@ CONTEXT_FILE="${PROJECT_CONTEXT_PATH:-}"
 
 usage() {
   cat <<'EOF'
-Uso: scripts/reconcile-github-governance.sh [OPÇÕES]
+Uso: scripts/pipeline/reconcile-github-governance.sh [OPÇÕES]
 
 Opções:
   --dry-run               Simula as alterações sem executá-las via GitHub CLI
