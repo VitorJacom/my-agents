@@ -22,8 +22,8 @@ Scripts executados dinamicamente pelo Antigravity CLI nos pontos de interceptaç
 
 | Script | Evento (`hooks.json`) | Descrição |
 |---|---|---|
-| [`safety-guard.sh`](file:///home/vitor/Projetos/03-pessoal/my-agents/scripts/hooks/safety-guard.sh) | `BeforeToolExecution` | Intercepta comandos no terminal impedindo operações destrutivas não autorizadas (ex: `rm -rf /`, force push descontrolado). |
-| [`session-start-context.sh`](file:///home/vitor/Projetos/03-pessoal/my-agents/scripts/hooks/session-start-context.sh) | `SessionStart` | Injeta o estado volátil do Git dinamicamente no início da sessão do agente, garantindo contexto atualizado sem poluir `PROJECT_CONTEXT.md`. |
+| [`safety-guard.sh`](hooks/safety-guard.sh) | `BeforeToolExecution` | Intercepta comandos no terminal impedindo operações destrutivas não autorizadas (ex: `rm -rf /`, force push descontrolado). |
+| [`session-start-context.sh`](hooks/session-start-context.sh) | `SessionStart` | Injeta o estado volátil do Git dinamicamente no início da sessão do agente, garantindo contexto atualizado sem poluir `PROJECT_CONTEXT.md`. |
 
 ---
 
@@ -47,11 +47,11 @@ Gerencia o ciclo de vida completo de Git Worktrees para execução concorrente e
 ### 2.2. `metrics-collector.py`
 Analisa os logs dos transcripts (`transcript.jsonl`) e calcula o consumo determinístico de tokens (input/output/cached) e chamadas de ferramentas por issue ou sessão.
 ```bash
-# Coletar métricas da sessão ativa
-./scripts/pipeline/metrics-collector.py
+# Coletar métricas dos subagentes da sessão
+./scripts/pipeline/metrics-collector.py --agents '{"Planner": "<cid>", "QA": "<cid>", "Coder": "<cid>"}'
 
-# Coletar métricas atribuídas a uma issue específica
-./scripts/pipeline/metrics-collector.py --issue 58
+# Coletar métricas atribuídas a uma issue específica em formato Markdown
+./scripts/pipeline/metrics-collector.py --issue 58 --agents '{"Planner": "<cid>", "Coder": "<cid>"}' --markdown
 ```
 
 ### 2.3. `sync-project-context.py`
@@ -85,9 +85,9 @@ Componentes visuais e telemetria integrados ao rodapé do terminal do Antigravit
 
 | Script | Descrição |
 |---|---|
-| [`install-statusline.sh`](file:///home/vitor/Projetos/03-pessoal/my-agents/scripts/statusline/install-statusline.sh) | Configura e injeta automaticamente a statusline do `my-agents` no `~/.gemini/antigravity-cli/settings.json`. Suporta `--dry-run`. |
-| [`statusline-quota.sh`](file:///home/vitor/Projetos/03-pessoal/my-agents/scripts/statusline/statusline-quota.sh) | Script de alta performance (< 50ms com cache TTL) que consulta quotas da API Gemini e formata o rodapé em tempo real. |
-| [`test-statusline.sh`](file:///home/vitor/Projetos/03-pessoal/my-agents/scripts/statusline/test-statusline.sh) | Validação rápida e benchmark sub-50ms da renderização da statusline. |
+| [`install-statusline.sh`](statusline/install-statusline.sh) | Configura e injeta automaticamente a statusline do `my-agents` no `~/.gemini/antigravity-cli/settings.json`. Suporta `--dry-run`. |
+| [`statusline-quota.sh`](statusline/statusline-quota.sh) | Script de alta performance (< 50ms com cache TTL) que consulta quotas da API Gemini e formata o rodapé em tempo real. |
+| [`test-statusline.sh`](statusline/test-statusline.sh) | Validação rápida e benchmark sub-50ms da renderização da statusline. |
 
 ---
 

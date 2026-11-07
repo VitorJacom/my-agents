@@ -22,7 +22,7 @@ Este guia consolida a matriz diagnóstica, as causas-raiz e as soluções determ
 ## 🔧 1. Conflitos de Lock e Gerenciamento de Worktrees
 
 ### Sintoma
-Ao iniciar a execução de uma issue via `/run-issue` ou `./scripts/pipeline/worktree-manager.sh add <id>`, o comando falha reportando que o lock atômico já existe:
+Ao iniciar a execução de uma issue via `/run-issue` ou `./scripts/pipeline/worktree-manager.sh create <id>`, o comando falha reportando que o lock atômico já existe:
 ```text
 [ERROR] Worktree issue-26 already locked by .worktrees/.lock-26
 ```
@@ -39,7 +39,7 @@ Ao iniciar a execução de uma issue via `/run-issue` ou `./scripts/pipeline/wor
    ```
 2. Caso a sessão anterior tenha sido finalizada e o lock esteja órfão (stale), execute a remoção forçada:
    ```bash
-   ./scripts/pipeline/worktree-manager.sh remove <id> --force
+   ./scripts/pipeline/worktree-manager.sh remove <id>
    ```
 3. Se restarem referências pendentes no Git interno, execute o prune:
    ```bash
