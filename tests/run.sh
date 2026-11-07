@@ -65,7 +65,7 @@ while [[ $# -gt 0 ]]; do
       shift
       ;;
     -c|--category)
-      if [[ -z "${2:-}" ]]; then
+      if [[ -z "${2:-}" || "${2:-}" == -* ]]; then
         echo -e "${C_RED}Erro: --category requer um nome de categoria.${C_RESET}" >&2
         exit 1
       fi
@@ -73,13 +73,30 @@ while [[ $# -gt 0 ]]; do
       MODE="category"
       shift 2
       ;;
+    --category=*)
+      CATEGORY="${1#*=}"
+      if [[ -z "$CATEGORY" || "$CATEGORY" == -* ]]; then
+        echo -e "${C_RED}Erro: --category requer um nome de categoria.${C_RESET}" >&2
+        exit 1
+      fi
+      MODE="category"
+      shift
+      ;;
     -f|--filter)
-      if [[ -z "${2:-}" ]]; then
+      if [[ -z "${2:-}" || "${2:-}" == -* ]]; then
         echo -e "${C_RED}Erro: --filter requer uma expressão de filtro.${C_RESET}" >&2
         exit 1
       fi
       FILTER="$2"
       shift 2
+      ;;
+    --filter=*)
+      FILTER="${1#*=}"
+      if [[ -z "$FILTER" || "$FILTER" == -* ]]; then
+        echo -e "${C_RED}Erro: --filter requer uma expressão de filtro.${C_RESET}" >&2
+        exit 1
+      fi
+      shift
       ;;
     -h|--help)
       show_help
@@ -93,6 +110,18 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+# Validação de Expressão Regular do Filtro
+if [[ -n "$FILTER" ]]; then
+  set +e
+  [[ "test" =~ $FILTER ]] 2>/dev/null
+  REGEX_STATUS=$?
+  set -e
+  if [[ $REGEX_STATUS -eq 2 ]]; then
+    echo -e "${C_RED}Erro: Expressão regular inválida em --filter: '$FILTER'${C_RESET}" >&2
+    exit 1
+  fi
+fi
+
 # Coleta de Arquivos de Teste
 TEST_FILES=()
 
@@ -101,7 +130,8 @@ collect_tests() {
   if [[ -d "$dir" ]]; then
     while IFS= read -r file; do
       if [[ -n "$file" ]]; then
-        if [[ -z "$FILTER" ]] || [[ "$file" =~ $FILTER ]]; then
+        local rel_file="${file#"$SCRIPT_DIR/"}"
+        if [[ -z "$FILTER" ]] || [[ "$rel_file" =~ $FILTER ]]; then
           TEST_FILES+=("$file")
         fi
       fi
@@ -136,8 +166,8 @@ esac
 TOTAL_TESTS=${#TEST_FILES[@]}
 
 if [[ $TOTAL_TESTS -eq 0 ]]; then
-  echo -e "${C_YELLOW}Nenhum teste encontrado para os critérios especificados (Modo: $MODE, Categoria: '$CATEGORY', Filtro: '$FILTER').${C_RESET}"
-  exit 0
+  echo -e "${C_RED}Erro: Nenhum teste encontrado para os critérios especificados (Modo: $MODE, Categoria: '$CATEGORY', Filtro: '$FILTER').${C_RESET}" >&2
+  exit 1
 fi
 
 echo -e "${C_BOLD}==============================================================================${C_RESET}"
