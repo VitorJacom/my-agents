@@ -6,7 +6,8 @@
 
 ## 📂 Estrutura Canônica de Diretórios
 - `src/`: Código-fonte de produção.
-- `tests/`: Suíte de testes automatizados (`tests/core/` para testes de base e `tests/features/` para novas features TDD).
+- `scripts/`: Automação modular categorizada em `hooks/`, `pipeline/`, `statusline/` e `migrations/`.
+- `tests/`: Suíte executada via `tests/run.sh` (`tests/core/` para base imutável e `tests/features/` organizada em `pipeline/`, `governance/`, `ui-ux/`, `wiki/` e `statusline/`).
 - `docs/`: Documentação técnica viva e topologia modular da GitHub Wiki sincronizada via `.github/workflows/wiki-sync.yml`:
   - `Home.md`: Hub de navegação e landing page principal da Wiki.
   - `_Sidebar.md`: Barra lateral de navegação hierárquica.
