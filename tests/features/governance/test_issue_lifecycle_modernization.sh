@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # =============================================================================
-# tests/features/test_issue_lifecycle_modernization.sh - Issue #58 TDD Suite
+# tests/features/governance/test_issue_lifecycle_modernization.sh - Issue #58 TDD Suite
 # Validação determinística da modernização do ciclo de vida de issues:
 # Épicos (Milestones), Releases (Project v2), Sub-issues e Refinamento in-place.
 # =============================================================================

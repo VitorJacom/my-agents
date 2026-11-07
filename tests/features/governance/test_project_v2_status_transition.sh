@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # =============================================================================
-# tests/features/test_project_v2_status_transition.sh - Issue #21 TDD Suite
+# tests/features/governance/test_project_v2_status_transition.sh - Issue #21 TDD Suite
 # Validação da sincronização de status em GitHub Projects v2 no /run-issue
 # =============================================================================
 
@@ -49,10 +49,10 @@ echo ""
 echo "--- 1. [HAPPY PATH] Contratos de Integração no Pipeline e Gatekeeper ---"
 
 if [ -f "$SYNC_SCRIPT" ] && [ -x "$SYNC_SCRIPT" ]; then
-  echo "  [PASS] scripts/project-status-sync.sh existe e é executável"
+  echo "  [PASS] scripts/pipeline/project-status-sync.sh existe e é executável"
   TESTS_PASSED=$((TESTS_PASSED + 1))
 else
-  echo "  [FAIL] scripts/project-status-sync.sh não existe ou não é executável"
+  echo "  [FAIL] scripts/pipeline/project-status-sync.sh não existe ou não é executável"
   TESTS_FAILED=$((TESTS_FAILED + 1))
 fi
 

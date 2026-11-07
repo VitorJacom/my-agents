@@ -22,7 +22,7 @@ Scripts executados dinamicamente pelo Antigravity CLI nos pontos de interceptaç
 
 | Script | Evento (`hooks.json`) | Descrição |
 |---|---|---|
-| [`safety-guard.sh`](hooks/safety-guard.sh) | `BeforeToolExecution` | Intercepta comandos no terminal impedindo operações destrutivas não autorizadas (ex: `rm -rf /`, force push descontrolado). |
+| [`safety-guard.sh`](hooks/safety-guard.sh) | `PreToolUse` | Intercepta comandos no terminal impedindo operações destrutivas não autorizadas (ex: `rm -rf /`, force push descontrolado). |
 | [`session-start-context.sh`](hooks/session-start-context.sh) | `SessionStart` | Injeta o estado volátil do Git dinamicamente no início da sessão do agente, garantindo contexto atualizado sem poluir `PROJECT_CONTEXT.md`. |
 
 ---

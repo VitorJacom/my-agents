@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # =============================================================================
-# tests/features/test_project_v2_plan_feature.sh - Issue #20 TDD Suite
+# tests/features/governance/test_project_v2_plan_feature.sh - Issue #20 TDD Suite
 # Validação da vinculação de issues a GitHub Projects v2 com degradação graciosa
 # =============================================================================
 

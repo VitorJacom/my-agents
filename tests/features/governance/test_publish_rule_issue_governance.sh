@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # =============================================================================
-# tests/features/test_publish_rule_issue_governance.sh - Issue #44 TDD Suite
+# tests/features/governance/test_publish_rule_issue_governance.sh - Issue #44 TDD Suite
 # Validação da modernização do publish-rule-issue com governança e contratos atômicos
 # =============================================================================
 

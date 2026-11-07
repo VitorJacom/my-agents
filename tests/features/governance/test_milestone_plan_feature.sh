@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # =============================================================================
-# tests/features/test_milestone_plan_feature.sh - Issue #19 TDD Suite
+# tests/features/governance/test_milestone_plan_feature.sh - Issue #19 TDD Suite
 # Validação do suporte nativo à vinculação de Milestones no /plan-feature
 # =============================================================================
 

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # =============================================================================
-# tests/features/test_labels_views_conventions.sh - Issue #22 TDD Suite
+# tests/features/governance/test_labels_views_conventions.sh - Issue #22 TDD Suite
 # Validação da padronização de Views no GitHub Projects v2 e taxonomia de Labels AIDD
 # =============================================================================
 

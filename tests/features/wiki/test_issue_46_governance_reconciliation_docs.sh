@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # =============================================================================
-# tests/features/test_issue_46_governance_reconciliation_docs.sh
+# tests/features/wiki/test_issue_46_governance_reconciliation_docs.sh
 # Validação determinística das documentações de reconciliação de governança
 # e indexação da Decisão 0009 (Issue #46)
 # =============================================================================

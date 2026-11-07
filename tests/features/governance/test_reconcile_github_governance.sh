@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # =============================================================================
-# tests/features/test_reconcile_github_governance.sh - Issue #45 TDD Suite
+# tests/features/governance/test_reconcile_github_governance.sh - Issue #45 TDD Suite
 # Validação do script de reconciliação idempotente de governança GitHub
 # =============================================================================
 
@@ -60,10 +60,10 @@ echo ""
 echo "--- 1. [ESTRUTURA & FAIL-FAST] Verificação do Arquivo e Flags ---"
 
 if [ -f "$RECONCILE_SCRIPT" ] && [ -x "$RECONCILE_SCRIPT" ]; then
-  echo "  [PASS] scripts/reconcile-github-governance.sh existe e é executável"
+  echo "  [PASS] scripts/pipeline/reconcile-github-governance.sh existe e é executável"
   TESTS_PASSED=$((TESTS_PASSED + 1))
 else
-  echo "  [FAIL] scripts/reconcile-github-governance.sh não existe ou não é executável"
+  echo "  [FAIL] scripts/pipeline/reconcile-github-governance.sh não existe ou não é executável"
   TESTS_FAILED=$((TESTS_FAILED + 1))
 fi
 
