@@ -96,7 +96,7 @@ O agente orquestrador guia a execução estado por estado, chamando os subagente
 1. Identifique o número da Issue e seu contexto.
 2. Atualize o status da Issue no GitHub Projects v2 para 'In Progress' via script utilitário desacoplado:
    ```bash
-   ./scripts/project-status-sync.sh "<numero_ou_url>" "In Progress"
+   ./scripts/pipeline/project-status-sync.sh "<numero_ou_url>" "In Progress"
    ```
 3. Invoque o subagente `planner`:
    - Envie a tarefa para ler a Issue e inspecionar a arquitetura existente.
@@ -181,8 +181,8 @@ O agente orquestrador guia a execução estado por estado, chamando os subagente
      | ![Mockup Original](docs/assets/mockups/<slug>.png) | ![Implementação Renderizada](<caminho_ou_screenshot>) |
      ```
    - **Provas Demonstrativas Universais**: Exigir provas demonstrativas no `walkthrough.md` para todos os domínios (screenshots para UI; saídas reais formatadas de terminal, logs estruturados ou CLI para backend/infra).
-   - Executar `./scripts/sync-project-context.py .` para validar e manter o contexto arquitetural estável em `PROJECT_CONTEXT.md` (sem estado Git volátil, que é injetado dinamicamente pelo `session-start-context.sh`).
-   - Executar `./scripts/metrics-collector.py` para calcular o consumo de tokens da esteira.
+   - Executar `./scripts/pipeline/sync-project-context.py .` para validar e manter o contexto arquitetural estável em `PROJECT_CONTEXT.md` (sem estado Git volátil, que é injetado dinamicamente pelo `session-start-context.sh`).
+   - Executar `./scripts/pipeline/metrics-collector.py` para calcular o consumo de tokens da esteira.
    - Gerar o artefato consolidado `walkthrough.md`.
    - Comitar as alterações e abrir o Pull Request no GitHub (via MCP ou `gh pr create`) vinculando a Issue (`Fixes #<numero>`).
 2. **Conclusão & Handoff**:
@@ -215,7 +215,7 @@ O Maestro cria e valida a branch intermediária de integração como base de tod
 Para cada issue pertencente à onda ativa:
 1. O Maestro cria uma worktree estéril com lock exclusivo derivando da branch intermediária:
    ```bash
-   ./scripts/worktree-manager.sh create <id> --base <branch_intermediaria>
+   ./scripts/pipeline/worktree-manager.sh create <id> --base <branch_intermediaria>
    ```
 2. O Maestro despacha workers isolados realizando delegação via `invoke_subagent 'self'` mandatória (cada issue da onda ativa deve ser despachada para um subagente worker desacoplado).
 3. Cada worker opera com contexto limpo em isolamento estrito, confinado à sua worktree estéril `.worktrees/issue-<id>`, executando seu planejamento, testes (RED), codificação (GREEN) e auditoria local sem interferir na raiz ou em worktrees simultâneas.
@@ -224,14 +224,14 @@ Para cada issue pertencente à onda ativa:
 À medida que os workers concluem suas tarefas, o Maestro gerencia a **Merge Queue** de forma estritamente sequencial:
 1. **Rebase e Sincronização**:
    ```bash
-   ./scripts/worktree-manager.sh rebase-sync <id> --base <branch_intermediaria>
+   ./scripts/pipeline/worktree-manager.sh rebase-sync <id> --base <branch_intermediaria>
    ```
 2. **Validação da Suíte Acumulada**:
    - Dentro da worktree sincronizada, o Maestro executa toda a suíte de testes acumulada (`tests/core/` + `tests/features/`).
    - Todos os testes legados somados aos testes introduzidos pelas issues anteriores já mescladas devem passar (**GREEN**).
 3. **Auto-Merge na Branch Intermediária**:
    - Com o teste acumulado verde, o Maestro executa o auto-merge na branch intermediária (`git checkout <branch_intermediaria> && git merge --ff-only feature/issue-<id>`).
-   - Realiza a limpeza da worktree de forma idempotente via `./scripts/worktree-manager.sh remove <id>`.
+   - Realiza a limpeza da worktree de forma idempotente via `./scripts/pipeline/worktree-manager.sh remove <id>`.
 
 ### 📍 M6 & M7. Protocolo de Auto-Reconciliação e Travas Anti-Fraude
 Se o comando de sincronização reportar conflito de rebase (Exit Code 4) ou se a suíte acumulada quebrar (RED):
@@ -250,7 +250,7 @@ Ao finalizar todas as ondas de execução:
 1. O Maestro aciona o subagente `gatekeeper` com `--base origin/main` na branch intermediária:
    - Valida a suíte global completa (`tests/core/` + `tests/features/`).
    - Audita a ausência de alterações em `tests/core/`.
-   - Sincroniza o contexto estável via `./scripts/sync-project-context.py .`.
+   - Sincroniza o contexto estável via `./scripts/pipeline/sync-project-context.py .`.
    - Coleta métricas consolidadas de tokens de todos os subagentes envolvidos.
 2. Abre um **Pull Request consolidado** (PR consolidado / PR único) da branch intermediária diretamente para a branch `main`:
    ```bash

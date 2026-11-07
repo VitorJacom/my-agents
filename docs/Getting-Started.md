@@ -209,13 +209,13 @@ O repositório inclui um renderizador de statusline de alta performance com lat�
 
 ```bash
 cd ~/Projetos/my-agents
-bash scripts/install-statusline.sh
+bash scripts/statusline/install-statusline.sh
 ```
 
 O script fará backup da sua configuração em `~/.gemini/antigravity-cli/settings.json` e ativará a statusline automaticamente. Para validar o benchmark de performance:
 
 ```bash
-bash scripts/test-statusline.sh
+bash scripts/statusline/test-statusline.sh
 ```
 
 ---

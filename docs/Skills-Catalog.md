@@ -57,7 +57,7 @@ O Antigravity CLI impõe limites de contexto para regras globais para preservar 
 - **Objetivo**: Executar a máquina de estados determinística AIDD para implementar issues do GitHub garantindo integridade de testes, TDD rigoroso e proteção anti-fraude.
 - **Dois Modos de Trabalho**:
   1. **Modo Unitário**: Execução atômica de uma única issue via subagentes (`planner` ➔ `qa-engineer` ➔ `coder` ➔ `gatekeeper`).
-  2. **Modo Maestro (Multi-Issue)**: Pre-flight de governança, particionamento em Git Worktrees isolados (`scripts/worktree-manager.sh`), paralelização por Execution Waves com arquivos disjuntos, Merge Queue sequencial com rebase-sync e Auto-Reconciliação.
+  2. **Modo Maestro (Multi-Issue)**: Pre-flight de governança, particionamento em Git Worktrees isolados (`scripts/pipeline/worktree-manager.sh`), paralelização por Execution Waves com arquivos disjuntos, Merge Queue sequencial com rebase-sync e Auto-Reconciliação.
 - **Gatilho de Progressive Disclosure**:
   - Solicitação de resolução ou implementação de issues no GitHub.
 - **Formas de Invocação**:

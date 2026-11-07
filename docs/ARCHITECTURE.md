@@ -33,11 +33,10 @@ my-agents/
 │   ├── architecture-decision/# Diretrizes de design técnico
 │   └── ...                   # Outras skills especializadas
 ├── scripts/                  # Ferramental operacional e statusline
-│   ├── statusline-quota.sh   # Renderizador modular da statusline
-│   ├── install-statusline.sh # Automação de setup plug-and-play
-│   ├── test-statusline.sh    # Benchmark sub-50ms e suite de integridade
-│   ├── worktree-manager.sh   # Gestor de ciclo de vida de worktrees isolados
-│   └── reconcile-github-governance.sh # Reconciliação idempotente de governança e backlog
+│   ├── hooks/                # Hooks do Antigravity CLI (safety-guard, session-start)
+│   ├── pipeline/             # Esteira AIDD (worktree-manager, metrics, reconcile, sync)
+│   ├── statusline/           # Statusline CLI (statusline-quota, install, test)
+│   └── migrations/           # Migrações históricas one-off
 ├── hooks.json                # Guardrails de execução e injeção de contexto
 └── docs/                     # Documentação viva e modular do sistema (espelhada na Wiki)
     ├── ARCHITECTURE.md       # Fonte única da verdade arquitetural (ADRs e Decisões Técnicas)
@@ -94,11 +93,11 @@ Para equilibrar a velocidade e economia de tokens da IA com a visibilidade de ge
 
 ### Decisão 0003 (2026-11-04): Arquitetura Modular de Statusline Plug-and-Play e Performance Sub-50ms
 * **Status**: Proposta
-* **Contexto**: A statusline personalizada atual (`scripts/statusline-quota.sh`) é monolítica e exige configuração manual em `~/.gemini/antigravity-cli/settings.json`. Adicionalmente, extensões futuras de widgets podem degradar o tempo de resposta do terminal.
+* **Contexto**: A statusline personalizada atual (`scripts/statusline/statusline-quota.sh`) é monolítica e exige configuração manual em `~/.gemini/antigravity-cli/settings.json`. Adicionalmente, extensões futuras de widgets podem degradar o tempo de resposta do terminal.
 * **Solução Adotada**:
   1. **Modularização de Widgets**: Decomposição em widgets desacoplados (Model, Git, Quota 5h/Semanal e Telemetria) com renderização combinada e fallback seguro caso o payload do Antigravity CLI seja parcial ou ausente.
-  2. **Garantia de Latência Sub-50ms**: Proibição de chamadas externas de rede ou subprocessos pesados síncronos na renderização; adoção de script de validação e benchmark automatizado (`scripts/test-statusline.sh`).
-  3. **Instalação Plug-and-Play**: Script idempotente (`scripts/install-statusline.sh`) com salvaguarda de backup para injetar o comando da statusline no `settings.json` do usuário de forma transparente.
+  2. **Garantia de Latência Sub-50ms**: Proibição de chamadas externas de rede ou subprocessos pesados síncronos na renderização; adoção de script de validação e benchmark automatizado (`scripts/statusline/test-statusline.sh`).
+  3. **Instalação Plug-and-Play**: Script idempotente (`scripts/statusline/install-statusline.sh`) com salvaguarda de backup para injetar o comando da statusline no `settings.json` do usuário de forma transparente.
 
 ---
 
@@ -113,7 +112,7 @@ Para equilibrar a velocidade e economia de tokens da IA com a visibilidade de ge
      - O `system-architect` (em `/plan-feature`) e o `planner` declaram formalmente os `Target Files` (blast radius) e `Depends On` de cada issue.
      - O Maestro realiza checagem pre-flight de interseção de `Target Files`: issues que tocam no mesmo arquivo nunca rodam simultaneamente, sendo escalonadas automaticamente em Ondas de Execução (*Execution Waves*) sequenciais.
   3. **Desacoplamento de Estado Volátil do `PROJECT_CONTEXT.md`**:
-     - Para eliminar 100% dos falsos conflitos em PRs paralelos, o bloco volátil (`Última Atualização`, `Branch Ativa`, `Último Commit`, `Resumo de Alterações Recentes`) deixa de ser comitado no `PROJECT_CONTEXT.md` pelas branches de feature e passa a ser extraído e injetado dinamicamente em tempo real pelo hook `scripts/session-start-context.sh`.
+     - Para eliminar 100% dos falsos conflitos em PRs paralelos, o bloco volátil (`Última Atualização`, `Branch Ativa`, `Último Commit`, `Resumo de Alterações Recentes`) deixa de ser comitado no `PROJECT_CONTEXT.md` pelas branches de feature e passa a ser extraído e injetado dinamicamente em tempo real pelo hook `scripts/hooks/session-start-context.sh`.
   4. **Branch Intermediária de Integração, Merge Queue e Auto-Reconciliação**:
      - Em execuções multi-issue, o Maestro cria uma branch intermediária (`integration/batch-<id>` ou `epic/issue-<id>`) a partir de `origin/main`, da qual derivam as worktrees das issues.
      - Conforme cada Worker conclui seu ciclo TDD e passa pelo Gatekeeper, o Maestro executa o **Rebase Train (`worktree-manager.sh rebase-sync`)**: faz rebase da branch da issue sobre a branch intermediária atualizada, roda 100% da suíte acumulada (`tests/core/` + todos os `tests/features/` já integrados) e realiza o auto-merge na branch intermediária.
@@ -202,7 +201,7 @@ Para equilibrar a velocidade e economia de tokens da IA com a visibilidade de ge
   3. **Refatoração do Pipeline de Sincronização (`.github/workflows/wiki-sync.yml`)**:
      - Eliminação do workaround legado que sobrescrevia `Home.md` a partir de `ARCHITECTURE.md`.
      - Preservação da integridade estrutural: cópia de todos os arquivos de `docs/` diretamente para o clone da Wiki, mantendo cada documento em seu escopo de URL nativo do GitHub (`https://github.com/<owner>/<repo>/wiki/<slug>`).
-  4. **Garantia Determinística de Integridade via Testes TDD (`tests/features/test_wiki_structure_and_links.sh`)**:
+  4. **Garantia Determinística de Integridade via Testes TDD (`tests/features/wiki/test_wiki_structure_and_links.sh`)**:
      - Implementação de suíte de testes de conformidade que valida a presença física de todos os artefatos de documentação, verifica a resolução de todos os links internos de navegação (anti-dead link) e audita o pipeline do GitHub Actions contra regressões no script de sincronização.
 
 ---
@@ -211,7 +210,7 @@ Para equilibrar a velocidade e economia de tokens da IA com a visibilidade de ge
 * **Status**: Implementada
 * **Contexto**: Com o suporte nativo a Milestones e GitHub Projects v2 (Decisão 0007), issues existentes, épicos desmembrados ou itens criados fora do pipeline AIDD sofrem deriva de governança (ausência de milestone ativa ou não vinculação ao quadro do Project v2). Além disso, falhas transitórias de conectividade ou execuções legadas necessitavam de um mecanismo determinístico de auditoria e reconciliação em lote.
 * **Solução Adotada**:
-  1. **Script Utilitário de Reconciliação (`scripts/reconcile-github-governance.sh`)**:
+  1. **Script Utilitário de Reconciliação (`scripts/pipeline/reconcile-github-governance.sh`)**:
      - Varredura determinística de issues abertas via GitHub CLI (`gh issue list`).
      - Extração canônica de `Active Milestone`, `Owner` e `Project Number` a partir de `PROJECT_CONTEXT.md` (ou caminho alternativo via `--context-file`).
      - Atribuição idempotente da Milestone ativa às issues desprovidas de marco (`gh issue edit --milestone`), preservando milestones distintas pré-existentes.
@@ -224,7 +223,7 @@ Para equilibrar a velocidade e economia de tokens da IA com a visibilidade de ge
 
 ### Decisão 0010 (2026-11-06): Telemetria de Concorrência e Eficiência no Modo Maestro (Wall-Clock Time e Speedup)
 * **Status**: Proposta
-* **Contexto**: No Modo Maestro (`issue-pipeline`), tarefas e issues são particionadas e despachadas em ondas concorrentes (*Execution Waves*) de até 3 workers simultâneos em worktrees isoladas. Contudo, o coletor de telemetria legado (`scripts/metrics-collector.py`) realizava apenas o somatório linear das durações dos agentes (`tot_time += duration_seconds`). Essa abordagem distorcia a telemetria em execuções concorrentes, apresentando um "tempo total" irreal que somava tempos de tarefas executadas em paralelo e ocultava os ganhos reais de velocidade (*speedup*), além de não identificar o worker gargalo de cada onda.
+* **Contexto**: No Modo Maestro (`issue-pipeline`), tarefas e issues são particionadas e despachadas em ondas concorrentes (*Execution Waves*) de até 3 workers simultâneos em worktrees isoladas. Contudo, o coletor de telemetria legado (`scripts/pipeline/metrics-collector.py`) realizava apenas o somatório linear das durações dos agentes (`tot_time += duration_seconds`). Essa abordagem distorcia a telemetria em execuções concorrentes, apresentando um "tempo total" irreal que somava tempos de tarefas executadas em paralelo e ocultava os ganhos reais de velocidade (*speedup*), além de não identificar o worker gargalo de cada onda.
 * **Solução Adotada**:
   1. **Modelo Hierárquico de Ondas de Execução**:
      - Suporte nativo ao argumento `--waves` recebendo estruturas mapeadas por onda: `{"Wave 1": {"Worker #1": "cid1", ...}, "Wave 2": {...}}`.
@@ -259,7 +258,7 @@ Para equilibrar a velocidade e economia de tokens da IA com a visibilidade de ge
      - Subcomando `create-issues`: Extração estruturada de apontamentos `🚨 Crítico` e `⚠️ Importante` para criação em lote de issues no GitHub via `gh issue create`.
      - Taxonomia Semântica AIDD: Injeção de labels `type:fix` / `type:refactor`, `status:planned` e `source:code-review`.
      - Cross-Reference Bidirecional: A issue gerada contém o link direto e commit SHA do PR de origem, e o parecer do PR referencia as issues criadas para rastreamento.
-     - Reconciliação Imediata de Governança: Acionamento determinístico de `scripts/reconcile-github-governance.sh` garantindo atribuição da `Active Milestone` e vinculação ao `GitHub Project v2` conforme configurado em `PROJECT_CONTEXT.md`.
+     - Reconciliação Imediata de Governança: Acionamento determinístico de `scripts/pipeline/reconcile-github-governance.sh` garantindo atribuição da `Active Milestone` e vinculação ao `GitHub Project v2` conforme configurado em `PROJECT_CONTEXT.md`.
   4. **Orquestrador de Alto Nível (`/review-pr` & `skills/review-pr/SKILL.md`)**:
      - Máquina de estados de 5 fases (Pre-flight ➔ Deep Audit ➔ Human Gate ➔ PR Review ➔ Issue Generation & Governance).
      - Gate de Validação Humana mandatório antes de qualquer ação com efeitos colaterais externos no GitHub.
@@ -269,7 +268,7 @@ Para equilibrar a velocidade e economia de tokens da IA com a visibilidade de ge
 
 ### Decisão 0012 (2026-11-06): Telemetria Resiliente de Quotas na Statusline do Antigravity CLI, Isolamento Multiterminal e Portabilidade Universal
 * **Status**: Aprovada
-* **Contexto**: O extrator de telemetria da statusline modular (`scripts/statusline-quota.sh`) apresentava fragilidades no ambiente de produção do Antigravity CLI:
+* **Contexto**: O extrator de telemetria da statusline modular (`scripts/statusline/statusline-quota.sh`) apresentava fragilidades no ambiente de produção do Antigravity CLI:
   1. **Contaminação Cruzada de Schemas**: O schema JSON do Antigravity CLI provê quotas sob a chave `"quota"` com identificadores nominais e disponibilidade expressa em `"remaining_fraction"` (float $0.0 \dots 1.0$). O parser anterior tentava casar `"5h"` e `"used_percentage"`; ao falhar, caía em um fallback desprovido de escopo que capturava o `used_percentage` de `context_window` (atribuindo a ocupação de contexto à quota de 5h) e deixava a quota semanal estática em `[ok]`.
   2. **Interferência Multissessão / Multiterminal**: Dois ou mais terminais operando simultaneamente (ex.: um com `gemini-3.8-flash` e outro com `gemini-4-argon`) arriscavam sobrescrever ou misturar seus estados voláteis caso compartilhassem arquivos transitórios sem indexação por sessão.
   3. **Diversidade de Provedores e Modelos Especializados**: Falta de seletor inteligente para modelos Argon (que utilizam quotas dedicadas como `gemini-argon-wtu-weekly`) e modelos de terceiros 3P (Claude, GPT via `3p-5h`), além dos modelos Gemini padrão (`gemini-5h`).
@@ -316,5 +315,5 @@ Para equilibrar a velocidade e economia de tokens da IA com a visibilidade de ge
   4. **Refinamento In-place e Reorganização do Backlog**:
      - Diretriz e automação em `/plan-feature` e `rules/AGENTS.md` para priorizar a atualização in-place de issues existentes via `gh issue edit`, eliminando a criação de tickets redundantes ou duplicatas.
   5. **Scripts Utilitários de Migração e Reconciliação**:
-     - Scripts de apoio `scripts/reclassify-epics-and-releases.py` e `scripts/migrate-issues-to-project.sh` para classificação retrospectiva e integridade do backlog.
-     - Atualização do `scripts/reconcile-github-governance.sh` para manter coerência contínua entre issues abertas, épicos e releases.
+     - Scripts de apoio `scripts/migrations/reclassify-epics-and-releases.py` e `scripts/migrations/migrate-issues-to-project.sh` para classificação retrospectiva e integridade do backlog.
+     - Atualização do `scripts/pipeline/reconcile-github-governance.sh` para manter coerência contínua entre issues abertas, épicos e releases.

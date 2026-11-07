@@ -18,7 +18,7 @@
   - `System-Architecture.md`: Visão arquitetural em 5 camadas concêntricas e índice de ADRs.
   - `Troubleshooting.md`: Diagnóstico de problemas, locks, tokens e circuit breakers.
   - `ARCHITECTURE.md`: Especificação técnica canônica viva e decisões consolidadas.
-  - *Validação de Integridade*: Suíte determinística em `tests/features/test_wiki_structure_and_links.sh`.
+  - *Validação de Integridade*: Suíte determinística em `tests/features/wiki/test_wiki_structure_and_links.sh`.
 
 ## 🛑 Regras e Invariantes Estritas (Anti-Alucinação)
 1. **Grounding Mandatório**: Não invente diretórios ou convenções de nomenclatura fora do padrão declarado acima.

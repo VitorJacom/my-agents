@@ -22,7 +22,7 @@ Este guia consolida a matriz diagnóstica, as causas-raiz e as soluções determ
 ## 🔧 1. Conflitos de Lock e Gerenciamento de Worktrees
 
 ### Sintoma
-Ao iniciar a execução de uma issue via `/run-issue` ou `./scripts/worktree-manager.sh add <id>`, o comando falha reportando que o lock atômico já existe:
+Ao iniciar a execução de uma issue via `/run-issue` ou `./scripts/pipeline/worktree-manager.sh add <id>`, o comando falha reportando que o lock atômico já existe:
 ```text
 [ERROR] Worktree issue-26 already locked by .worktrees/.lock-26
 ```
@@ -34,12 +34,12 @@ Ao iniciar a execução de uma issue via `/run-issue` ou `./scripts/worktree-man
 ### Solução Determinística
 1. Inspecione as worktrees ativas e verifique se há processos pendentes:
    ```bash
-   ./scripts/worktree-manager.sh list
+   ./scripts/pipeline/worktree-manager.sh list
    git worktree list
    ```
 2. Caso a sessão anterior tenha sido finalizada e o lock esteja órfão (stale), execute a remoção forçada:
    ```bash
-   ./scripts/worktree-manager.sh remove <id> --force
+   ./scripts/pipeline/worktree-manager.sh remove <id> --force
    ```
 3. Se restarem referências pendentes no Git interno, execute o prune:
    ```bash
@@ -117,7 +117,7 @@ O token do GitHub CLI (`GITHUB_TOKEN` padrão no Actions ou token pessoal `gh au
 ## ⚡ 4. Latência, Cache e Falhas na Statusline
 
 ### Sintoma
-A statusline personalizada (`scripts/statusline-quota.sh`) demora para responder, causa lentidão visível no terminal ou o benchmark automatizado falha:
+A statusline personalizada (`scripts/statusline/statusline-quota.sh`) demora para responder, causa lentidão visível no terminal ou o benchmark automatizado falha:
 ```text
 [FAIL] Benchmark: 82ms (teto máximo permitido: 50ms)
 ```
@@ -130,7 +130,7 @@ A statusline personalizada (`scripts/statusline-quota.sh`) demora para responder
 ### Solução Determinística
 1. **Executar o Benchmark Automatizado**:
    ```bash
-   ./scripts/test-statusline.sh
+   ./scripts/statusline/test-statusline.sh
    ```
 2. **Garantir Utilitários de Alta Performance**:
    Certifique-se de que `jq` está instalado (`sudo apt-get install jq`).
