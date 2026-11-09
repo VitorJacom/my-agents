@@ -60,11 +60,11 @@ Esta é a forma mais prática: o plugin fica ativo para **todos** os repositóri
 Execute uma única vez no terminal:
 
 ```bash
-# A partir do caminho local
-agy plugin install /home/vitor/Projetos/03-pessoal/my-agents
-
-# Ou diretamente do repositório remoto do GitHub
+# Instalação remota oficial via GitHub (Recomendada)
 agy plugin install https://github.com/VitorJacom/my-agents.git
+
+# Ou a partir de um clone local (desenvolvimento do plugin):
+agy plugin install ~/.gemini/config/plugins/my-agents
 ```
 
 > [!TIP]
@@ -81,10 +81,11 @@ No seu projeto alvo (ex.: `meu-app/`):
 ```json
 {
   "plugins": [
-    "/home/vitor/Projetos/03-pessoal/my-agents"
+    "~/.gemini/config/plugins/my-agents"
   ]
 }
 ```
+*(Você também pode utilizar caminhos relativos ao workspace, como `"./.agents/plugins/my-agents"`).*
 
 2. O Antigravity carregará automaticamente todas as regras, skills, hooks e subagentes sempre que esse workspace estiver aberto.
 
@@ -109,11 +110,59 @@ Para que o novo projeto usufrua da **Persistência de Contexto Econômica** e da
 
 1. Execute o script sincronizador apontando para a raiz do seu projeto:
    ```bash
-   /home/vitor/Projetos/03-pessoal/my-agents/scripts/pipeline/sync-project-context.py /caminho/do/meu-projeto
+   # Utilizando a instalação global do plugin:
+   ~/.gemini/config/plugins/my-agents/scripts/pipeline/sync-project-context.py /caminho/do/meu-projeto
+
+   # Ou utilizando o submódulo local no workspace:
+   ./.agents/plugins/my-agents/scripts/pipeline/sync-project-context.py .
    ```
    Isso criará o arquivo canônico `PROJECT_CONTEXT.md` na raiz do seu projeto com o template oficial.
 
 2. Ajuste as seções `## 🛠️ Stack Tecnológica` e `## 📂 Estrutura Canônica de Diretórios` para refletir a arquitetura daquele projeto.
+
+---
+
+## 📊 Statusline Inteligente & Telemetria em Tempo Real
+
+A statusline do `my-agents` monitora cotas de API, telemetria de tokens e progresso de tarefas com latência sub-50ms e isolamento estrito de sessão via STDIN.
+
+### 🎨 Prévia Visual e Modos de Operação
+
+```text
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│ MODO IDLE (Aguardando Comando - Monitoramento de Contexto & Cotas)                     │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│ 🌿 main │ 🤖 Gemini 3.8 Flash (Low) │ ⚡ Quota 5h: [92%] │ 📅 Semanal: [85%] │ 🧠 Context: 12% │
+└────────────────────────────────────────────────────────────────────────────────────────┘
+
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│ MODO ATIVO (Execução de Tarefa / Esteira AIDD - Progresso Monotônico Feito %)         │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│ 🌿 feature/issue-57 │ 🤖 Gemini 3.8 Pro (High) │ ⚡ Quota 5h: [74%] │ 📅 Semanal: [68%] │ 🚀 Feito: 65% │
+└────────────────────────────────────────────────────────────────────────────────────────┘
+
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│ SELETORES INTELIGENTES POLIMÓRFICOS POR MODELO                                         │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│ 1. Modelos Gemini Regulares (Flash / Pro):                                             │
+│    🌿 main │ 🤖 Gemini 3.8 Flash │ ⚡ Quota 5h: [88%] │ 📅 Semanal: [91%] │ 🧠 Context: 8%      │
+│                                                                                        │
+│ 2. Modelos Argon (Google DeepMind):                                                    │
+│    🌿 main │ 🤖 Gemini 4 Argon │ ⚡ Argon: [78%] │ 📅 Semanal: [82%] │ 🧠 Context: 15%        │
+│                                                                                        │
+│ 3. Modelos 3P (Anthropic Claude / OpenAI GPT via Bridge):                              │
+│    🌿 main │ 🤖 Claude 3.7 Sonnet │ ⚡ 3P 5h: [62%] │ 📅 Semanal: [70%] │ 🧠 Context: 24%     │
+└────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+#### ⚙️ Como Ativar a Statusline:
+```bash
+# Configuração automatizada de comando único no settings.json:
+~/.gemini/config/plugins/my-agents/scripts/statusline/install-statusline.sh
+
+# Ou invocação manual pontual para inspeção:
+~/.gemini/config/plugins/my-agents/scripts/statusline/statusline-quota.sh
+```
 
 ---
 
@@ -138,8 +187,12 @@ Uma vez ativo no seu projeto, você tem acesso aos seguintes comandos no chat do
   /git-workflow
   ```
 - **Ativar a statusline customizada com modelo e alerta de quota**:
-  ```text
-  /statusline /home/vitor/Projetos/03-pessoal/my-agents/scripts/statusline/statusline-quota.sh
+  ```bash
+  # Via terminal com instalador automatizado:
+  ~/.gemini/config/plugins/my-agents/scripts/statusline/install-statusline.sh
+
+  # Ou comando no chat do Antigravity CLI:
+  /statusline ~/.gemini/config/plugins/my-agents/scripts/statusline/statusline-quota.sh
   ```
 
 ---
