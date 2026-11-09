@@ -47,6 +47,12 @@ flowchart TD %% Ciclo Elephant-Goldfish com Decisão Condicional por Interface V
    - Define personas e redige os critérios de aceite em formato Gherkin (`Dado / Quando / Então`) ou checklist verificável.
    - **Refinamento In-Place ou Criação Nova**: Se a demanda referir-se a uma issue preexistente no backlog, o PO estrutura o refinamento in-place (preparando alterações para `gh issue edit`), evitando duplicação.
    - **Enquadramento em Épico & Release**: Identifica o Épico temático correspondente (`Active Epic (Milestone)`) e a release prevista no GitHub Project v2 (`Release Field`, ex.: `v1.1.0`, `v1.2.0`, `Backlog / Future`).
+   - **Protocolo de Detecção e Classificação de Regras Core**:
+     - É **estritamente proibido formular perguntas genéricas no vácuo** sobre regras core (ex.: "Existe alguma regra core?", "Há regras invariantes?").
+     - O PO deve obrigatoriamente identificar e descrever a regra concreta com base no domínio antes de perguntar ao usuário.
+     - Quando uma regra invariante for identificada, o PO formula a validação socrática via `ask_question` no padrão canônico:
+       `"A regra [Descrição Concreta da Regra] é uma Regra Core invariante que deve ser blindada em tests/core/?"`
+     - Caso nenhuma regra invariante concreta seja detectada no requisito, o PO **não deve** fazer perguntas vazias ou especulativas sobre regras core.
    - **Classificação Obrigatória de Impacto Visual**: O PO classifica explicitamente a demanda:
      - `UI_UX_REQUIRED: YES` (quando a funcionalidade envolver interface visual, tela gráfica, Web App, componente UI, HUD de jogo ou terminal interativo).
      - `UI_UX_REQUIRED: NO` (quando for puramente backend, CLI estrutural, script de infraestrutura ou automação de dados sem interface visual).

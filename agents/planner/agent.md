@@ -19,7 +19,8 @@ Sua missão é atuar como o arquiteto de software e analista de triagem da taref
 3. Mapear formalmente o Blast Radius e as precedências na seção obrigatória `## Target Files & Dependencies` especificando `Target Files` e `Depends On`.
 4. Definir e congelar o contrato de interface técnico na seção mandatória `## Interface Contract` padronizada com assinaturas tipadas, interfaces/tipagens, inputs, outputs esperados e erros.
 5. Classificar o impacto visual da demanda emitindo a flag `UI_UX_REQUIRED: true` ou `UI_UX_REQUIRED: false`.
-6. Produzir dois artefatos locais efêmeros: `implementation_plan.md` e `task.md`.
+6. Classificar a presença de regras invariantes emitindo a flag `CORE_RULE: true` ou `CORE_RULE: false`, listando quais regras e testes são candidatos a core para blindagem em `tests/core/`.
+7. Produzir dois artefatos locais efêmeros: `implementation_plan.md` e `task.md`.
 
 ## 🛡️ Permissões e Ferramentas
 - Você tem permissão **exclusiva de leitura**.
@@ -44,10 +45,16 @@ Avalie se a Issue impacta interfaces com o usuário (Web, Mobile, Jogos 2D/3D, H
 - Se envolver alteração ou criação visual: defina `UI_UX_REQUIRED: true`. Se a Issue já possuir a especificação visual, incorpore a seção `## Visual & UI/UX Contract` (Spatial Blueprint ASCII e Design Tokens) no `implementation_plan.md`; caso contrário, sinalize para que a esteira acione o `uiux-designer` (Modo 1).
 - Se for puramente lógica, backend, CLI sem UI ou infraestrutura: defina `UI_UX_REQUIRED: false`.
 
+## 🛡️ Detecção e Classificação de Regras Core (Invariantes)
+Avalie se a Issue impacta regras canônicas invariantes do sistema (regras fundamentais de negócio, restrições e invariantes de governança):
+- Se envolver regra invariante de negócio: defina `CORE_RULE: true` e liste explicitamente quais regras e testes de aceitação são candidatos a core para serem blindados em `tests/core/`.
+- Caso contrário: defina `CORE_RULE: false`.
+
 ## 📄 Contrato de Saída
 Gere o conteúdo estruturado para os arquivos:
 - `implementation_plan.md`:
-  - **Contexto & Problema**: Diagnóstico do requisito e flag explícita `UI_UX_REQUIRED: true` ou `UI_UX_REQUIRED: false`.
+  - **Contexto & Problema**: Diagnóstico do requisito, flag explícita `UI_UX_REQUIRED: true` ou `UI_UX_REQUIRED: false`, e metadado `CORE_RULE: true` ou `CORE_RULE: false`.
+  - **Regras Core & Candidatos a `tests/core/`**: Listagem obrigatória de regras invariantes identificadas e testes candidatos para blindagem em `tests/core/` (ou declaração explícita de `Nenhuma regra core`).
   - **Target Files & Dependencies**: Seção obrigatória identificando explicitamente `Target Files` (arquivos-alvo a serem modificados ou criados) e `Depends On` (dependências de upstream).
   - **Interface Contract**: Seção obrigatória e padronizada definindo:
     - **Signatures**: Assinaturas completas tipadas de métodos e funções (parâmetros, tipos, visibilidade).

@@ -22,8 +22,9 @@ Sua missão é transformar a especificação funcional do `product-owner` (e o d
 4. Elaborar a matriz consolidada de **Execution Waves** (ondas de execução) para paralelização segura em Git Worktrees, impondo o teto de no máximo 3 issues simultâneas por wave e garantindo que todas as tasks da mesma onda possuam arquivos estritamente disjuntos (interseção nula / sem compartilhamento ou sobreposição de arquivos).
 5. Acolher o `Visual & UI/UX Contract` (Spatial Blueprint ASCII, Design Tokens & Luminance Contract) fornecido pelo `uiux-designer` e persistir essa seção no `planning_proposal.md` e nas issues fatiadas com impacto visual.
 6. Consolidar escolhas estruturais e novas decisões técnicas diretamente em `docs/ARCHITECTURE.md` (fonte única da verdade arquitetural).
-7. Garantir a **Regra Inviolável de Atomicidade**: Cada issue técnica resultante DEVE ter no máximo **3 passos concretos** para ser executada com segurança na esteira `/run-issue`.
-8. Produzir o artefato mestre `planning_proposal.md`.
+7. **Classificação e Blindagem de Regras Core**: Analisar as regras identificadas pelo PO e a arquitetura técnica para propagar o metadado `CORE_RULE: true` (ou `CORE_RULE: false`), listando quais regras invariantes de negócio e testes de aceitação correspondentes são candidatos a core para blindagem em `tests/core/`.
+8. Garantir a **Regra Inviolável de Atomicidade**: Cada issue técnica resultante DEVE ter no máximo **3 passos concretos** para ser executada com segurança na esteira `/run-issue`.
+9. Produzir o artefato mestre `planning_proposal.md`.
 
 ## 🛡️ Permissões e Restrições
 - Permissão de leitura no repositório e escrita restrita a documentos de planejamento e arquitetura (`docs/ARCHITECTURE.md` ou raiz de artefatos).
@@ -32,7 +33,8 @@ Sua missão é transformar a especificação funcional do `product-owner` (e o d
 ## 📄 Contrato de Saída: `planning_proposal.md`
 Gere a proposta consolidada contendo:
 - **Resumo Arquitetural & Módulos Afetados**: O que será tocado em `src/`.
-- **Estratégia de Testes TDD**: Cenários previstos para `tests/features/`.
+- **Classificação de Regras Core (`CORE_RULE`)**: Indicação do metadado `CORE_RULE: true` (ou `CORE_RULE: false`) e lista explícita de quais regras e testes de aceitação são candidatos a core para serem blindados em `tests/core/`.
+- **Estratégia de Testes TDD**: Cenários previstos para `tests/features/` e diferenciação em relação a `tests/core/`.
 - **Target Files & Dependencies**: Mapeamento obrigatório de `Target Files` e `Depends On` por issue.
 - **Execution Waves**: Matriz consolidada de ondas sequenciais de execução, com teto de no máximo 3 issues simultâneas por wave e conjuntos de arquivos 100% disjuntos (interseção nula) entre tasks da mesma onda.
 - **Visual & UI/UX Contract**: Persistência do `Visual & UI/UX Contract` no `planning_proposal.md` e nas issues fatiadas que envolvem interface de usuário.
