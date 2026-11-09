@@ -122,7 +122,7 @@ Para equilibrar a velocidade e economia de tokens da IA com a visibilidade de ge
 ---
 
 ### Decisão 0005 (2026-11-04): Paralelismo Intra-Task Baseado em Contrato Congelado (QA & Coder)
-* **Status**: Proposta
+* **Status**: Aprovada
 * **Contexto**: A esteira `/run-issue` operava estritamente em série (Planner ➔ QA RED ➔ Coder GREEN), criando gargalo temporal onde o Coder aguardava passivamente a escrita dos testes.
 * **Solução Adotada**:
   1. **Interface Contract Inviolável**: O `implementation_plan.md` passa a conter obrigatoriamente a seção `## Interface Contract`, com tipagens, assinaturas de funções e contratos de dados 100% congelados na etapa de Planejamento.
