@@ -166,6 +166,41 @@ A statusline do `my-agents` monitora cotas de API, telemetria de tokens e progre
 
 ---
 
+## 🔄 Atualização e Gerenciamento de Versões
+
+O `my-agents` conta com um mecanismo desacoplado de verificação de atualizações com checagem assíncrona em background e notificação visual *Zero-Noise* na statusline modular (`📦 Update: vX.Y.Z`):
+
+### ⚙️ Verificação Manual e Aplicação Segura
+```bash
+# Verificar se há novas versões remotas e atualizar o cache local:
+~/.gemini/config/plugins/my-agents/scripts/pipeline/update-plugin.sh --check
+
+# Consultar o status detalhado da versão local, remota e validade do cache:
+~/.gemini/config/plugins/my-agents/scripts/pipeline/update-plugin.sh --status
+
+# Aplicar a versão mais recente de forma segura (com proteção fail-safe de working tree limpa):
+~/.gemini/config/plugins/my-agents/scripts/pipeline/update-plugin.sh --apply
+```
+
+> [!TIP]
+> **Projetos com Submódulo Git**: Em projetos consumidores configurados via submódulo local, utilize o caminho relativo correspondente:
+> ```bash
+> ./.agents/plugins/my-agents/scripts/pipeline/update-plugin.sh --check
+> ./.agents/plugins/my-agents/scripts/pipeline/update-plugin.sh --status
+> ./.agents/plugins/my-agents/scripts/pipeline/update-plugin.sh --apply
+> ```
+
+### 🤖 Atualização Automática (Opt-in)
+Para atualizar o plugin de forma desassistida sempre que uma nova versão estiver disponível, defina a variável de ambiente no seu arquivo de perfil (`~/.bashrc` ou `~/.zshrc`):
+
+```bash
+export MY_AGENTS_AUTO_UPDATE=1
+```
+
+O utilitário respeita estritamente a trava de segurança *dirty working tree fail-safe*: caso existam alterações locais não comitadas, a atualização é interrompida preservando seu código intacto.
+
+---
+
 ## 🚀 Comandos Rápidos nos Seus Projetos
 
 Uma vez ativo no seu projeto, você tem acesso aos seguintes comandos no chat do Antigravity:
@@ -194,6 +229,11 @@ Uma vez ativo no seu projeto, você tem acesso aos seguintes comandos no chat do
   # Ou comando no chat do Antigravity CLI:
   /statusline ~/.gemini/config/plugins/my-agents/scripts/statusline/statusline-quota.sh
   ```
+- **Verificar e aplicar atualizações do plugin**:
+  ```bash
+  ~/.gemini/config/plugins/my-agents/scripts/pipeline/update-plugin.sh --status
+  ~/.gemini/config/plugins/my-agents/scripts/pipeline/update-plugin.sh --apply
+  ```
 
 ---
 
@@ -207,7 +247,7 @@ my-agents/
 ├── hooks.json                  # Registro de hooks de ciclo de vida (SessionStart, PreToolUse)
 ├── scripts/                    # Utilitários organizados por categoria
 │   ├── hooks/                  # Hooks do Antigravity CLI (safety-guard, session-start)
-│   ├── pipeline/               # Esteira AIDD (worktree-manager, metrics, reconcile, sync)
+│   ├── pipeline/               # Esteira AIDD (worktree-manager, metrics, reconcile, sync, update)
 │   ├── statusline/             # Statusline CLI e indicador de quotas
 │   └── migrations/             # Migrações históricas one-off
 ├── rules/
