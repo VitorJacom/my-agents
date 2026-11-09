@@ -153,11 +153,11 @@ Com a seção `## Interface Contract` congelada e validada no ESTADO 1, o orques
 No ponto de integração (Join Point), o orquestrador unifica os testes construídos em `tests/features/` e a implementação em `src/`, executando a suíte para validar a convergência sob o contrato:
 
 1. **Execução do Portão de Integração**:
-   - O orquestrador executa o utilitário determinístico do Join Point:
+   - O orquestrador executa o utilitário determinístico do Join Point com comando explícito e timeout rígido:
      ```bash
-     ./scripts/pipeline/contract-integration-gate.sh --iteration 1
+     ./scripts/pipeline/contract-integration-gate.sh --iteration 1 --test-cmd "./tests/run.sh"
      ```
-     (o utilitário executa o runner `./tests/run.sh`, valida a conformidade das interfaces, audita a cobertura mínima $\ge 85\%$ e checa o confinamento anti-fraude).
+     (o utilitário executa o runner `./tests/run.sh` com timeout anti-hang de 60s, valida a conformidade das interfaces, audita a cobertura mínima $\ge 85\%$ e checa o confinamento anti-fraude).
 2. **Avaliação do Join Point**:
    - **Cenário A: Sucesso Imediato (GREEN & Cobertura >= 85%)**:
      - Se todos os testes passarem (**GREEN**) e a cobertura de código for $\ge 85\%$:
@@ -170,7 +170,7 @@ No ponto de integração (Join Point), o orquestrador unifica os testes constru�
      - Em cada iteração de reconciliação:
        - O `coder` é invocado com as falhas reportadas pela suíte para ajustar a implementação em `src/`, mantendo aderência estrita ao `## Interface Contract` congelado.
        - A **Trava Anti-Fraude** permanece inviolável: o `coder` é proibido de editar ou afrouxar arquivos da pasta `tests/`.
-       - O orquestrador reexecuta `./scripts/pipeline/contract-integration-gate.sh --iteration 2`.
+       - O orquestrador reexecuta `./scripts/pipeline/contract-integration-gate.sh --iteration 2 --test-cmd "./tests/run.sh"`.
      - Se os testes passarem (**GREEN**) e a cobertura for $\ge 85\%$ dentro do teto de 2 iterações: o portão é aprovado e a esteira avança imediatamente (para ESTADO 3.5 se visual, ou ESTADO 4 se não).
      - **Fail-Safe em Esgotamento**: Se após as 2 iterações a suíte não ficar 100% verde ou a cobertura permanecer abaixo de 85% (< 85%), o script emite `[JOIN_POINT: FAILED_CONTRACT_INTEGRATION]` (Exit Code 2). Interrompa a esteira imediatamente com status de falha, apresentando o log de discrepâncias para auditoria humana.
 

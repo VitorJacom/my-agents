@@ -45,6 +45,11 @@ O agente **não conversa em texto corrido para gerenciar estado**; ele é obriga
 - Todo script de automação deve iniciar com `set -euo pipefail`.
 - Se uma dependência externa falhar (ex: clone da Wiki, API fora do ar, build ausente), o script DEVE emitir erro explícito e encerrar com `exit 1` (usando anotações `::error::` no GitHub Actions), garantindo que o pipeline fique vermelho (RED) imediatamente.
 
+### 1.5. Timeouts Rígidos Mandatórios em Testes, Anti-Hang e Mocks Determinísticos
+- **Timeouts Rígidos Mandatórios em Subprocessos**: Todo script, portão de integração ou esteira que executa comandos de teste em subprocessos DEVE impor timeout rígido mandatório finito (`timeout` explícito, padrão de 60s). Subprocessos sem timeout que podem travar indefinidamente são estritamente proibidos. Em caso de expiração (`subprocess.TimeoutExpired`), o script deve tratar a exceção com fail-fast imediato (código de erro e diagnóstico claro), impedindo hangs na esteira.
+- **Proibição de Fallback Pesado Silencioso**: É estritamente proibido criar scripts ou portões que executem suítes pesadas completas (ex.: `./tests/run.sh`) como fallback default implícito quando parâmetros não forem fornecidos. O comando de teste (`--test-cmd`) ou código pré-executado (`--test-exit-code`) deve ser fornecido explicitamente. Fallback implícito mascara erros e induz execuções recursivas e pesadas.
+- **Obrigatoriedade de Mocks em Testes de Esteira e CLI**: Suítes de teste automatizadas que validam infraestrutura, scripts de pipeline, portões de integração ou comandos CLI DEVEM utilizar mocks determinísticos explícitos (`--test-cmd "true"` ou similar) em vez de acionar a suíte real do projeto. Isso garante isolamento estrito, testes de milissegundos e blindagem contra recursão infinita.
+
 ---
 
 ## 🛡️ 2. A Trava Dupla Anti-Fraude (Defesa em Profundidade)
