@@ -178,6 +178,19 @@ check "Coder tocando em tests/ bloqueia com exit code 3" test "$CODER_TEST_EXIT"
 check "Alerta de fraude de Coder modificando tests/" \
   bash -c "echo '$CODER_TEST_OUT' | grep -qi 'coder violou a Trava Anti-Fraude ao modificar arquivo em tests/'"
 
+# AF-04: Normalização de caminhos absolutos para confinamento de escopo
+QA_ABS_EXIT=0
+QA_ABS_OUT="$("$GATE_SCRIPT" --test-exit-code 0 --qa-files "/workspace/my-agents/src/core/auth.py" 2>&1)" || QA_ABS_EXIT=$?
+check "QA tocando em caminho absoluto /workspace/my-agents/src/... bloqueia com exit code 3" test "$QA_ABS_EXIT" -eq 3
+check "Alerta de violação de QA com caminho absoluto" \
+  bash -c "echo '$QA_ABS_OUT' | grep -qi 'qa-engineer modificou arquivo de produção proibido'"
+
+CODER_ABS_EXIT=0
+CODER_ABS_OUT="$("$GATE_SCRIPT" --test-exit-code 0 --coder-files "/workspace/my-agents/tests/features/test_feature.sh" 2>&1)" || CODER_ABS_EXIT=$?
+check "Coder tocando em caminho absoluto /workspace/my-agents/tests/... bloqueia com exit code 3" test "$CODER_ABS_EXIT" -eq 3
+check "Alerta de fraude de Coder com caminho absoluto" \
+  bash -c "echo '$CODER_ABS_OUT' | grep -qi 'coder violou a Trava Anti-Fraude'"
+
 # =============================================================================
 # SEÇÃO 5: EDGE CASES - VALIDAÇÃO DE ENTRADAS ANÔMALAS E LIMITES
 # =============================================================================

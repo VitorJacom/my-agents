@@ -295,6 +295,35 @@ else
   fail "Lock de concorrência falhou: arquivo de cache corrompido!"
 fi
 
+# 2.5 Comparação Semântica de Versões (sort -V)
+# Quando a versão local estiver à frente ou igual à versão remota, update_available deve ser false
+(
+  cd "$LOCAL_REPO"
+  git commit --allow-empty -m "bump local to v2.0.0" >/dev/null 2>&1
+  git tag v2.0.0 >/dev/null 2>&1
+)
+set +e
+HIGHER_LOCAL_OUT=$(cd "$LOCAL_REPO" && MY_AGENTS_CACHE_FILE="$TEST_CACHE_FILE" "$SCRIPT_UNDER_TEST" --force-check 2>&1)
+set -e
+IS_UPD_AVAIL=$(python3 -c "import json, sys; print(json.load(open(sys.argv[1])).get('update_available', ''))" "$TEST_CACHE_FILE")
+if [[ "$IS_UPD_AVAIL" == "False" || "$IS_UPD_AVAIL" == "false" ]]; then
+  pass "Comparação Semântica: versão local superior à remota não dispara falso update disponível"
+else
+  fail "Comparação Semântica falhou: esperado update_available=false quando local > remota, obteve: $IS_UPD_AVAIL"
+fi
+
+# 2.6 Caminho de Cache com Caracteres Especiais (Injeção Segura via argv)
+SPECIAL_CACHE="$TMP_TEST_DIR/it's a tricky cache.json"
+set +e
+SPECIAL_OUT=$(cd "$LOCAL_REPO" && MY_AGENTS_CACHE_FILE="$SPECIAL_CACHE" "$SCRIPT_UNDER_TEST" --status 2>&1)
+SPECIAL_CODE=$?
+set -e
+if [[ $SPECIAL_CODE -eq 0 ]]; then
+  pass "Cache com aspas e espaços: manipulado com segurança via sys.argv sem erros de sintaxe ou injeção"
+else
+  fail "Cache com aspas e espaços falhou: exit code $SPECIAL_CODE. Output: $SPECIAL_OUT"
+fi
+
 # =============================================================================
 # SUMÁRIO
 # =============================================================================

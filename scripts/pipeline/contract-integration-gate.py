@@ -104,6 +104,18 @@ def evaluate_join_point(
         }
 
 
+def normalize_canonical_path(path: str) -> str:
+    """
+    Normaliza o caminho removendo barras iniciais, './' e extraindo o prefixo canônico
+    (src/ ou tests/) mesmo se o caminho fornecido for absoluto ou contiver diretórios pais.
+    """
+    p = path.strip()
+    match = re.search(r"(?:^|/)(src/.*|tests/.*)$", p)
+    if match:
+        return match.group(1)
+    return p.lstrip("./")
+
+
 def verify_persona_confinement(
     qa_modified_files: list[str],
     coder_modified_files: list[str]
@@ -112,18 +124,19 @@ def verify_persona_confinement(
     Valida as travas de integridade e confinamento de escopo:
     - qa-engineer é proibido de tocar em src/ e tests/core/
     - coder é proibido de tocar em tests/
+    Suporta tanto caminhos relativos quanto absolutos.
     """
     violations = []
 
     for path in qa_modified_files:
-        clean = path.strip().lstrip("./")
+        clean = normalize_canonical_path(path)
         if clean.startswith("src/"):
             violations.append(f"qa-engineer modificou arquivo de produção proibido: '{clean}'")
         elif clean.startswith("tests/core/"):
             violations.append(f"qa-engineer violou a Golden Rule em tests/core/: '{clean}'")
 
     for path in coder_modified_files:
-        clean = path.strip().lstrip("./")
+        clean = normalize_canonical_path(path)
         if clean.startswith("tests/"):
             violations.append(f"coder violou a Trava Anti-Fraude ao modificar arquivo em tests/: '{clean}'")
 

@@ -170,9 +170,10 @@ do_check() {
     cache_eval=$(python3 -c "
 import json, sys, time
 try:
-    with open('$CACHE_FILE') as f:
+    cache_path = sys.argv[1]
+    with open(cache_path) as f:
         d = json.load(f)
-    now = int(sys.argv[1])
+    now = int(sys.argv[2])
     ts = int(d.get('last_checked_timestamp', 0))
     ttl = int(d.get('ttl_seconds', 86400))
     valid = 1 if (now - ts) < ttl else 0
@@ -180,7 +181,7 @@ try:
     print(f'{valid}|{d.get(\"latest_version\", \"\")}|{upd}|{ts}|{ttl}')
 except Exception:
     print('0||false|0|86400')
-" "$now")
+" "$CACHE_FILE" "$now")
     IFS='|' read -r is_cache_valid cached_latest cached_upd_avail cached_timestamp cached_ttl <<< "$cache_eval"
   fi
 
@@ -220,8 +221,12 @@ except Exception:
 
   local update_available="false"
   if [[ "$remote_latest" != "$local_ver" ]]; then
-    # Compara se a remota é diferente da local
-    update_available="true"
+    # Compara se a remota é estritamente superior à local usando sort -V
+    local highest
+    highest=$(printf '%s\n%s\n' "$local_ver" "$remote_latest" | sort -V | tail -n 1)
+    if [[ "$highest" == "$remote_latest" && "$highest" != "$local_ver" ]]; then
+      update_available="true"
+    fi
   fi
 
   write_cache_atomic "$local_ver" "$remote_latest" "$update_available" "$now" "$DEFAULT_TTL"
@@ -262,12 +267,13 @@ do_status() {
   parsed=$(python3 -c "
 import json, sys
 try:
-    with open('$CACHE_FILE') as f:
+    cache_path = sys.argv[1]
+    with open(cache_path) as f:
         d = json.load(f)
     print(f\"{d.get('latest_version', 'desconhecida')}|{d.get('update_available', False)}|{d.get('last_checked_timestamp', 0)}|{d.get('ttl_seconds', 86400)}\")
 except Exception as e:
     print('desconhecida|False|0|86400')
-")
+" "$CACHE_FILE")
   local remote_ver upd_avail ts ttl
   IFS='|' read -r remote_ver upd_avail ts ttl <<< "$parsed"
 
@@ -317,7 +323,7 @@ do_apply() {
 
   local target_tag=""
   if [[ -f "$CACHE_FILE" ]]; then
-    target_tag=$(python3 -c "import json; print(json.load(open('$CACHE_FILE')).get('latest_version', ''))" 2>/dev/null || echo "")
+    target_tag=$(python3 -c "import json, sys; print(json.load(open(sys.argv[1])).get('latest_version', ''))" "$CACHE_FILE" 2>/dev/null || echo "")
   fi
 
   if [[ -z "$target_tag" || "$target_tag" == "unknown" ]]; then

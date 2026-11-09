@@ -311,7 +311,10 @@ widget_update() {
   # Estado B: Update disponível -> renderiza em âmbar bold (\033[1;33m)
   local display_tag="${latest_tag:-}"
   if [ -n "$display_tag" ]; then
-    [[ ! "$display_tag" =~ ^v ]] && display_tag="v$display_tag"
+    # Normalização robusta: prefixa 'v' para tags numéricas ou semânticas, sem duplicar se já existir
+    if [[ "$display_tag" =~ ^[0-9]+(\.[0-9]+)*.*$ ]]; then
+      display_tag="v$display_tag"
+    fi
     printf "${AMBER}📦 Update: %s${RESET}" "$display_tag"
   else
     printf "${AMBER}📦 Update disponível${RESET}"
