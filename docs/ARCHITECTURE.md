@@ -34,7 +34,7 @@ my-agents/
 │   └── ...                   # Outras skills especializadas
 ├── scripts/                  # Ferramental operacional e statusline
 │   ├── hooks/                # Hooks do Antigravity CLI (safety-guard, session-start)
-│   ├── pipeline/             # Esteira AIDD (worktree-manager, metrics, reconcile, sync)
+│   ├── pipeline/             # Esteira AIDD (worktree-manager, metrics, reconcile, sync, audit-token-efficiency)
 │   ├── statusline/           # Statusline CLI (statusline-quota, install, test)
 │   └── migrations/           # Migrações históricas one-off
 ├── hooks.json                # Guardrails de execução e injeção de contexto
@@ -385,4 +385,27 @@ Para equilibrar a velocidade e economia de tokens da IA com a visibilidade de ge
      - Suporte a variável de ambiente `MY_AGENTS_AUTO_UPDATE=1` para automação desassistida com confirmação explícita.
   4. **Documentação Viva e Sincronizada na Wiki**:
      - Atualização dos guias de introdução (`docs/Getting-Started.md`, `README.md`), guia de solução de problemas (`docs/Troubleshooting.md`) e topologia técnica (`docs/System-Architecture.md`) com verificação determinística de ausência de dead links via suíte de testes.
+
+---
+
+### Decisão 0017 (2026-11-09): Auditor Automatizado de Eficiência de Tokens e Telemetria da Esteira AIDD
+* **Status**: Aprovada
+* **Contexto**:
+  - A execução de múltiplos subagentes (Product Owner, Architect, Planner, QA, Coder, Gatekeeper) consome tokens em diferentes fases e operações de ferramentas (tool calls).
+  - Sem uma auditoria estruturada e contínua dos transcripts de execução (`transcript.jsonl`), anomalias como *cache miss* sistemático, leituras redundantes de arquivos e picos excessivos de tokens em etapas individuais passavam despercebidas, desafiando os princípios de *Zero Token Waste* e *Resultado sobre Volume* do Manifesto AIDD.
+* **Solução Adotada**:
+  1. **Utilitário Canônico `scripts/pipeline/audit-token-efficiency.py` e Wrapper `scripts/audit-token-efficiency.py`**:
+     - Analisador determinístico que processa transcripts individuais (`--transcript`), fluxos contínuos (`--stdin`) ou matrizes de subagentes da esteira (`--agents` com `--brain-dir`).
+     - Mapeia o consumo de tokens discriminado por agente, por fase canônica (Planning, QA, Coding, Gatekeeper) e por operação de ferramenta (`read_file`, `write_file`, `run_command`, etc.).
+  2. **Identificação de Hotspots e Anomalias de Cache**:
+     - Detecção de etapas com spikes de tokens ($\ge$ 50.000 tokens de entrada).
+     - Identificação de anomalias de cache miss (taxa de cache $< 50\%$ ou quedas bruscas entre steps consecutivos).
+     - Alerta de operações redundantes de ferramentas (ex.: leitura repetida do mesmo arquivo $> 2$ vezes).
+  3. **Score Determinístico de Eficiência (0-100) e Quality Gate**:
+     - Base de 100 pontos com deduções calibradas para cache miss, hotspots e operações redundantes, classificando em faixas (Classe A: $\ge 90$, Classe B: $\ge 75$, Classe C: $\ge 50$, Classe D/F: $< 50$).
+     - Diagnósticos objetivos de acertos e falhas com recomendações acionáveis de engenharia de prompt.
+     - Suporte a flag fail-fast `--min-score <N>` para validação automatizada em pipelines de CI/CD.
+  4. **Multi-Formato de Renderização**:
+     - Formato Terminal com cores ANSI, formato Markdown estruturado para PRs e formato JSON padronizado para integração programática.
+
 
