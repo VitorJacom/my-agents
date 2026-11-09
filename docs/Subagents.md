@@ -18,23 +18,26 @@ O Manifesto AIDD estabelece que nenhum agente generalista deve executar tarefas 
 
 | Subagente | Papel Principal | Ferramentas (`tools`) | Confinamento de Escrita | Fase AIDD |
 | :--- | :--- | :--- | :--- | :--- |
-| [`product-owner`](#31-product-owner-o-gestor-de-requisitos) | Gestor de Produto & Requisitos | `read_file`, `search_web` | Nenhuma escrita (somente leitura) | Planejamento |
+| [`product-owner`](#31-product-owner-the-elephant--o-gestor-de-requisitos) | Gestor de Produto, The Elephant & Long-Horizon Context | `read_file`, `search_web` | Nenhuma escrita (somente leitura) | Planejamento |
 | [`system-architect`](#32-system-architect-o-arquiteto-de-sistemas) | Arquiteto de Sistemas & Design Técnico | `read_file`, `search_web`, `write_file`, `edit_file` | Restrito a `docs/ARCHITECTURE.md` e `planning_proposal.md` | Planejamento |
 | [`uiux-designer`](#33-uiux-designer-o-especialista-visual--interação) | Designer UI/UX & Interação Visual | `read_file`, `write_file`, `edit_file`, `search_web`, `run_command` | Artefatos visuais, mockups, pareceres e captura de tela | Planejamento & Auditoria |
 | [`planner`](#34-planner-o-arquiteto-de-triagem-atômica) | Triagem de Issue & Contrato Atômico | `read_file`, `search_web` | Nenhuma escrita em código ou testes | Execução (Triage) |
 | [`qa-engineer`](#35-qa-engineer-o-engenheiro-de-testes-tdd-red) | Engenheiro de Testes (Fase RED) | `read_file`, `write_file`, `edit_file`, `run_command` | Exclusivo em `tests/features/` (proibido `src/` e `tests/core/`) | Execução (RED) |
 | [`coder`](#36-coder-o-desenvolvedor-de-software-tdd-green) | Desenvolvedor de Software (Fase GREEN) | `read_file`, `write_file`, `edit_file`, `run_command` | Exclusivo em `src/` (proibido alterar testes) | Execução (GREEN) |
-| [`gatekeeper`](#37-gatekeeper-o-auditor-anti-fraude--finalizador) | Auditor de Integridade & PR | `read_file`, `write_file`, `edit_file`, `run_command` | `walkthrough.md`, git commit e abertura de PR | Execução (Finalização) |
+| [`gatekeeper`](#37-gatekeeper-the-goldfish--o-auditor-anti-fraude--finalizador) | Auditor de Integridade, The Goldfish & PR | `read_file`, `write_file`, `edit_file`, `run_command` | `walkthrough.md`, git commit e abertura de PR | Planejamento (Modo 1) & Execução (Modo 2) |
 
 ---
 
 ## 🤖 3. Detalhamento das Personas
 
-### 3.1. `product-owner` (O Gestor de Requisitos)
+### 3.1. `product-owner` (The Elephant — O Gestor de Requisitos)
 - **Definição**: [agents/product-owner/agent.md](https://github.com/VitorJacom/my-agents/blob/main/agents/product-owner/agent.md)
-- **Missão**: Guardião do valor de negócio e da clareza funcional antes de qualquer detalhamento técnico.
+- **Missão**: Atuar como **The Elephant**, detentor do **contexto de longo alcance** (*Long-Horizon Context*), retenção de contexto cumulativo e guardião do valor de negócio antes de qualquer detalhamento técnico.
 - **Ferramentas**: `read_file`, `search_web`.
 - **Regras Operacionais**:
+  - **The Elephant**: Retenção de contexto de longo alcance sem escrita prematura de código de produção.
+  - **Postura Socrática de Engenharia de Requisitos**: Questionamento ativo, antecipação de casos de borda e desafio a premissas implícitas antes da consolidação.
+  - **Especificações Autocontidas**: As especificações funcionais devem passar com sucesso no teste do **olhar frio** (*Cold Audit*), sem assumir conhecimento prévio da esteira de implementação.
   - Foco estrito no **Porquê** e no **O Quê**, sem ditar a implementação técnica.
   - Proibição de tocar em código, criar branches ou rodar comandos modificadores.
 - **Contrato de Entrada**:
@@ -136,40 +139,48 @@ O Manifesto AIDD estabelece que nenhum agente generalista deve executar tarefas 
 
 ---
 
-### 3.7. `gatekeeper` (O Auditor Anti-Fraude & Finalizador AIDD)
+### 3.7. `gatekeeper` (The Goldfish — O Auditor Anti-Fraude & Finalizador AIDD)
 - **Definição**: [agents/gatekeeper/agent.md](https://github.com/VitorJacom/my-agents/blob/main/agents/gatekeeper/agent.md)
-- **Missão**: Auditoria final de conformidade, validação anti-fraude, consolidação de evidências e submissão do Pull Request.
+- **Missão**: Auditoria fria de especificações (The Goldfish), integridade arquitetural, governança anti-fraude e submissão do Pull Request.
 - **Ferramentas**: `read_file`, `write_file`, `edit_file`, `run_command`.
-- **Regras Operacionais**:
-  - **Golden Rule Anti-Fraude**: Executar a verificação determinística via bash contra alterações em `tests/core/`:
-    ```bash
-    MODIFIED=$(git diff --name-only origin/main...HEAD 2>/dev/null | grep -E '^tests/core/' || true)
-    if [ -n "$MODIFIED" ]; then
-      echo "ALERTA DE FRAUDE: O agente modificou arquivos protegidos em tests/core/!"
-      exit 1
-    fi
-    ```
-  - **Auditoria de Visual Gate**: Exigir `VISUAL_AUDIT: APPROVED` e screenshot anexado quando `UI_UX_REQUIRED: true`.
-  - **Relatório `walkthrough.md`**: Gerar o documento de provas reais (comandos, logs de testes, git status e diff).
-  - **Abertura de PR**: Submeter o Pull Request no GitHub injetando o relatório (`gh pr create --body-file walkthrough.md`).
+- **Dois Modos de Operação**:
+  - **Modo 1: Auditoria de Especificação (The Goldfish Reviewer / Cold Audit)**:
+    - Postura fria e sem memória prévia (*stateless*), examinando a especificação isolada pelo teste do **olhar frio**.
+    - **Bloqueio Determinístico de Premissas**: Rejeita formalmente com circuit breaker premissas implícitas não testadas, ambiguidades e termos especulativos ("supõe-se", "obviamente", "deve funcionar").
+    - **Bloqueio de Atomicidade**: Rejeita formalmente especificações que excedam 3 passos (> 3 passos) de execução.
+    - Parecer formal `SPEC_AUDIT: APPROVED` ou `SPEC_AUDIT: REJECTED` com apontamentos para o loop de auto-healing (teto de 2 iterações).
+  - **Modo 2: Auditoria de Código & PR (O Guardião Anti-Fraude)**:
+    - **Golden Rule Anti-Fraude**: Executar a verificação determinística via bash contra alterações em `tests/core/`:
+      ```bash
+      MODIFIED=$(git diff --name-only origin/main...HEAD 2>/dev/null | grep -E '^tests/core/' || true)
+      if [ -n "$MODIFIED" ]; then
+        echo "ALERTA DE FRAUDE: O agente modificou arquivos protegidos em tests/core/!"
+        exit 1
+      fi
+      ```
+    - **Auditoria de Visual Gate**: Exigir `VISUAL_AUDIT: APPROVED` e screenshot anexado quando `UI_UX_REQUIRED: true`.
+    - **Governança de Cobertura $\ge 85\%$** e discriminação de cenários de Happy Path e Edge Cases.
+    - **Relatório `walkthrough.md`**: Gerar o documento de provas reais (comandos, logs de testes, git status e diff).
+    - **Abertura de PR**: Submeter o Pull Request no GitHub injetando o relatório (`gh pr create --body-file walkthrough.md`).
 - **Contrato de Saída**:
-  - Artefato `walkthrough.md`.
-  - Pull Request aberto no GitHub apontando para a issue original.
+  - Parecer formal de auditoria (`SPEC_AUDIT` no Modo 1; `walkthrough.md` e Pull Request no GitHub no Modo 2).
 
 ---
 
 ## 🔄 4. Fluxo de Orquestração Entre Personas
 
-### 4.1. Esteira de Planejamento (`/plan-feature`)
+### 4.1. Esteira de Planejamento (`/plan-feature` — Ciclo Elephant-Goldfish)
 
 ```mermaid
 flowchart TD
-    User["Usuário / Requisito"] --> PO["1. product-owner<br/>(Requisitos Funcionais & Critérios Gherkin)"]
+    User["Usuário / Requisito"] --> PO["1. product-owner (The Elephant)<br/>(Contexto Cumulativo, Postura Socrática & Gherkin)"]
     PO --> VisualCheck{"Demanda Visual?<br/>UI_UX_REQUIRED"}
     VisualCheck -- SIM --> UIUX["1.5. uiux-designer<br/>(Mockup-as-Code & Value Contrast)"]
     VisualCheck -- NÃO --> Arch
     UIUX --> Arch["2. system-architect<br/>(Design Técnico, Execution Waves & ADR)"]
-    Arch --> Approval{"Gate de Aprovação<br/>(planning_proposal.md)"}
+    Arch --> Goldfish["2.5. gatekeeper (The Goldfish Reviewer)<br/>(Modo 1: Cold Audit, Anti-Premissas & <= 3 passos)"]
+    Goldfish -- "Reprovado (Auto-Healing <= 2 iterações)" --> Arch
+    Goldfish -- "Aprovado" --> Approval{"Gate de Aprovação Humana<br/>(planning_proposal.md)"}
     Approval -- Aprovado --> GH["GitHub Issues & Milestones Criadas"]
 ```
 

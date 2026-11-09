@@ -34,9 +34,9 @@ O Antigravity CLI impõe limites de contexto para regras globais para preservar 
 
 ## 🛠️ 3. Detalhamento Exaustivo das Skills
 
-### 3.1. `plan-feature` (Esteira de Planejamento e Design)
+### 3.1. `plan-feature` (Esteira de Planejamento, Design & Ciclo Elephant-Goldfish)
 - **Definição**: [skills/plan-feature/SKILL.md](https://github.com/VitorJacom/my-agents/blob/main/skills/plan-feature/SKILL.md)
-- **Objetivo**: Conduzir o ciclo completo de planejamento e refinamento arquitetural antes de qualquer linha de código de produção ser escrita. Orquestra a colaboração entre `product-owner`, `uiux-designer` (quando houver interface) e `system-architect`.
+- **Objetivo**: Conduzir o ciclo completo de planejamento e refinamento arquitetural sob o modelo **Elephant-Goldfish** antes de qualquer linha de código de produção ser escrita. Orquestra a colaboração entre `product-owner` (The Elephant: descoberta socrática e contexto cumulativo), `uiux-designer` (mockups visuais), `system-architect` (design técnico atômico <= 3 passos) e `gatekeeper` (The Goldfish Reviewer: Cold Audit stateless com loop de auto-healing de no máximo 2 iterações).
 - **Gatilho de Progressive Disclosure**:
   - Quando o usuário deseja desenhar uma nova funcionalidade do zero.
   - Quando há uma issue macro/épico que precisa de fatiamento atômico e análise de Blast Radius.
@@ -46,8 +46,8 @@ O Antigravity CLI impõe limites de contexto para regras globais para preservar 
   /plan-feature Refinar a issue #14 adicionando suporte a autenticação multifator
   ```
 - **Artefatos Produzidos**:
-  - `planning_proposal.md`: Contém a visão funcional, Personas, Critérios Gherkin, Contrato Visual (Mockup ASCII e Tokens), Mapeamento de Blast Radius e Matriz de Execution Waves.
-  - Atualização viva em `docs/ARCHITECTURE.md`.
+  - `planning_proposal.md`: Contém a visão funcional socrática, Personas, Critérios Gherkin, Contrato Visual (Mockup ASCII e Tokens), Mapeamento de Blast Radius, Matriz de Execution Waves e parecer `SPEC_AUDIT: APPROVED` do Goldfish.
+  - Atualização viva em `docs/ARCHITECTURE.md` (Decisão Técnica).
   - Criação automática de Milestones e Issues no GitHub após aprovação explícita do usuário.
 
 ---
