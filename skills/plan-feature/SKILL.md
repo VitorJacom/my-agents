@@ -23,14 +23,14 @@ flowchart TD %% Ciclo Elephant-Goldfish com Decisão Condicional por Interface V
     Start["[Entrada: Ideia / Épico / Issue #XX]"] --> PO["1. Product Owner (The Elephant)<br/>(Contexto Cumulativo, Postura Socrática & Living Specs)"]
     PO --> Decision{"Interface Visual?<br/>(UI_UX_REQUIRED)"}
     Decision -- YES --> UIUX["1.5. UI/UX Designer<br/>(Modo 1: Mockup-as-Code & Visual Contract)"]
-    Decision -- NO --> Arch["2. System Architect<br/>(Design Técnico, <= 3 passos, Blast Radius & Waves)"]
+    Decision -- NO --> Arch["2. System Architect<br/>(Design Técnico, <= 3 passos, Interface Contract & Waves)"]
     UIUX --> Arch
-    Arch --> Goldfish["2.5. Gatekeeper (The Goldfish Reviewer)<br/>(Modo 1: Cold Audit Stateless, Anti-Premissas & <= 3 passos)"]
+    Arch --> Goldfish["2.5. Gatekeeper (The Goldfish Reviewer)<br/>(Cold Audit Stateless, Anti-Premissas & Interface Contract Gate)"]
     Goldfish -- "SPEC_AUDIT: REJECTED" --> Healing{"Loop de Auto-Healing<br/>(Teto: 2 iterações)"}
     Healing -- "Iteração <= 2" --> Arch
     Healing -- "Excedeu 2 iterações" --> CircuitBreaker["🚨 Circuit Breaker<br/>(Interrupção Determinística)"]
     Goldfish -- "SPEC_AUDIT: APPROVED" --> Gate["3. Gate de Aprovação Humana<br/>(Validação Desenvolvedor + .mockup-preview.png)"]
-    Gate --> GH["4. Criação no GitHub<br/>(gh issue create + Visual & UI/UX Contract)"]
+    Gate --> GH["4. Criação no GitHub<br/>(gh issue create + Interface Contract & Visual Spec)"]
     GH --> Reconcile["5. Reconciliação de Governança<br/>(reconcile-github-governance.sh)"]
     Reconcile --> Done["[ Handoff Final ]"]
 ```
@@ -75,6 +75,13 @@ flowchart TD %% Ciclo Elephant-Goldfish com Decisão Condicional por Interface V
    - O Arquiteto mapeia quais módulos em `src/` serão alterados ou criados.
    - Caso haja escolha de design ou arquitetura, registra as decisões em `docs/ARCHITECTURE.md`.
    - **Regra de Atomicidade AIDD**: Cada issue gerada DEVE ter no máximo **3 passos concretos** para execução posterior em TDD.
+   - **Padronização Mandatória de Interface Contract**: O Arquiteto é estritamente obrigado a definir no `planning_proposal.md` e nas especificações das issues a seção formal `## Interface Contract` com:
+     - **Signatures**: Assinaturas completas tipadas de funções, métodos ou comandos.
+     - **Types & Interfaces**: Definições formais de tipos, structs, schemas ou contratos de dados.
+     - **Inputs**: Parâmetros de entrada tipados e regras de validação.
+     - **Outputs**: Retornos tipados e estruturas de dados esperadas.
+     - **Errors**: Erros tipados, exceções e tratamento de failure modes.
+     Esta seção fornece todos os símbolos e tipos necessários para que QA (`tests/features/`) e Coder (`src/`) operem simultaneamente em paralelo (ADR-0005).
    - **Refinamento e Reorganização de Backlog**: Para issues já abertas no backlog que estão sendo reestruturadas ou refinadas, documenta as atualizações de corpo, critérios e labels a serem aplicadas com `gh issue edit`.
    - **Mapeamento de Blast Radius & Precedências**: Cada issue fatiada deve conter explicitamente a seção `## Target Files & Dependencies` com os campos `Target Files:` e `Depends On:`.
    - **Heurística de Execution Waves**: O Arquiteto organiza as issues fatiadas em ondas sequenciais (`## Execution Waves`) para viabilizar execução concorrente em Git Worktrees. Cada onda suporta até no máximo 3 issues simultâneas por wave, com a garantia mandatória de conjuntos de arquivos 100% disjuntos (interseção nula) entre as issues da mesma onda. Issues com colisão em `Target Files` ou com relações de dependência são alocadas em ondas subsequentes.
@@ -85,6 +92,7 @@ flowchart TD %% Ciclo Elephant-Goldfish com Decisão Condicional por Interface V
 1. Invoque o subagente `gatekeeper` operando em **Modo 1 (The Goldfish Reviewer / Auditoria de Especificação)** via `invoke_subagent`:
    - Envie a especificação técnica consolidada contida em `planning_proposal.md`.
    - O Gatekeeper executa a auditoria fria (**Cold Audit**) com olhar estéril e sem estado prévio:
+     - **Interface Contract Gate (Validação Estrita de Contrato)**: Bloqueio determinístico e rejeição imediata (`SPEC_AUDIT: REJECTED`) caso a seção `## Interface Contract` esteja ausente, ambígua, desprovida de tipagem explícita ou contendo termos especulativos/placeholders. O contrato deve garantir símbolos inequívocos para QA e Coder operarem simultaneamente.
      - Validação de Atomicidade: cada issue não pode ter mais de 3 passos (> 3 passos é bloqueado).
      - Validação Anti-Premissas: bloqueio determinístico de premissas implícitas não testadas, ambiguidades e termos especulativos ("supõe-se", "obviamente", "deve funcionar").
      - Autocontenção e verificabilidade dos critérios de aceite.
@@ -117,6 +125,13 @@ flowchart TD %% Ciclo Elephant-Goldfish com Decisão Condicional por Interface V
        [--parent "<parent_issue_id>"] \
        --body "<descrição_completa_com_critérios_de_aceite_e_referência_ao_triângulo_AIDD>
 
+     ## Interface Contract
+     - **Signatures**: <assinaturas_completas_tipadas>
+     - **Types & Interfaces**: <estruturas_de_dados_e_tipagens>
+     - **Inputs**: <parametros_tipados_e_validacoes>
+     - **Outputs**: <retornos_esperados_tipados>
+     - **Errors**: <excecoes_tipadas_e_cenarios_de_falha>
+
      ## 🎨 Mockup & Living Visual Spec
      ![Mockup Preview](docs/assets/mockups/<slug>.png)
 
@@ -147,7 +162,7 @@ flowchart TD %% Ciclo Elephant-Goldfish com Decisão Condicional por Interface V
      gh project item-edit "<project_number>" --owner "<owner>" --url "<issue_url>" --field "Release" --value "<release>" || echo "⚠️ [WARN] Falha não-bloqueante ao atualizar campo Release no GitHub Project v2. Prosseguindo esteira."
      ```
    - Em caso de erro (ex.: 403, permissões insuficientes ou projeto inexistente), o pipeline emite a mensagem `⚠️ [WARN]` e conclui sem bloquear a esteira (Princípio da Degradação Graciosa).
-4. **Inclusão Obrigatória de UI/UX Contract e Living Mockup**: Para tarefas com interface visual, inclua obrigatoriamente a seção `## Visual & UI/UX Contract` (Spatial Blueprint ASCII, Design Tokens & Luminance Contract) e a seção `## 🎨 Mockup & Living Visual Spec` (contendo o preview visual embedado `![Mockup Preview](docs/assets/mockups/<slug>.png)` e o link para a especificação viva `[docs/mockups/<slug>.md](docs/mockups/<slug>.md)`) diretamente no corpo (`--body`) do comando `gh issue create`.
+4. **Inclusão Obrigatória de Interface Contract e UI/UX Contract**: Todas as issues fatiadas devem conter obrigatoriamente a seção `## Interface Contract` (Signatures, Types & Interfaces, Inputs, Outputs, Errors) devidamente tipada, permitindo que QA e Coder atuem em paralelo. Para tarefas com interface visual, inclua adicionalmente a seção `## Visual & UI/UX Contract` (Spatial Blueprint ASCII, Design Tokens & Luminance Contract) e a seção `## 🎨 Mockup & Living Visual Spec` (contendo o preview visual embedado `![Mockup Preview](docs/assets/mockups/<slug>.png)` e o link para a especificação viva `[docs/mockups/<slug>.md](docs/mockups/<slug>.md)`) diretamente no corpo (`--body`) do comando `gh issue create`.
 5. Caso seja um Épico, vincule as sub-issues criadas à issue principal utilizando a flag `--parent <numero_do_epico>` (se suportado pelo repositório) ou adicione a checklist de links na descrição do Épico.
 6. Apresente ao desenvolvedor o sumário com os links de todas as Issues criadas no GitHub e a matriz consolidada de **Execution Waves**, prontas para serem executadas com `/run-issue #<numero>`.
 7. **Reconciliação e Auditoria de Backlog**: Execute o utilitário determinístico `scripts/pipeline/reconcile-github-governance.sh` para reconciliar as issues recém-criadas com a Milestone ativa e o GitHub Project v2, garantindo que o fatiamento reflita nas Views Kanban e de Roadmap sem deriva de governança:

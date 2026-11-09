@@ -101,12 +101,17 @@ O agente orquestrador guia a execução estado por estado, chamando os subagente
 3. Invoque o subagente `planner`:
    - Envie a tarefa para ler a Issue e inspecionar a arquitetura existente.
    - Solicite a classificação explícita de impacto visual (`UI_UX_REQUIRED: true` ou `UI_UX_REQUIRED: false`).
+   - Solicite a definição mandatória da seção `## Interface Contract` padronizada (Signatures, Types & Interfaces, Inputs, Outputs, Errors) com tipagens explícitas.
    - Solicite a geração de `implementation_plan.md` e `task.md`.
-3. **Validação do Portão de Planejamento**:
-   - O plano possui mais de 3 passos ou atinge domínios desconexos?
-   - **Se SIM (Rejeitado)**: Pare a execução imediatamente. Informe ao usuário os motivos do arquiteto e solicite o fatiamento da Issue.
-   - **Se NÃO (Aprovado)**: Verifique se a demanda possui impacto visual (`UI_UX_REQUIRED: true`).
-4. **Resolução de Contrato Visual e Living Spec UI/UX**:
+4. **Validação dos Portões de Planejamento (Atomicity & Interface Contract Gate)**:
+   - **Atomicity Gate**: O plano possui mais de 3 passos ou atinge domínios desconexos?
+   - **Interface Contract Gate**: O plano carece da seção `## Interface Contract`, possui interfaces técnicas ambíguas, ausentes ou campos com placeholders ("TODO", "TBD", etc.)? Execute a validação determinística:
+     ```bash
+     ./scripts/pipeline/validate-interface-contract.sh implementation_plan.md
+     ```
+   - **Se REJEITADO por violação de atomicidade ou falha no Interface Contract**: Pare a execução imediatamente. Informe ao usuário o erro reportado e interrompa o planejamento.
+   - **Se APROVADO**: Avance para a resolução de contrato visual.
+5. **Resolução de Contrato Visual e Living Spec UI/UX**:
    - Se `UI_UX_REQUIRED: true`:
      - **Carregamento de Living Spec Pré-existente**: Verifique se já existe a especificação viva em `docs/mockups/<slug>.md`. Caso exista, instrua o subagente a carregar a living spec em `docs/mockups/<slug>.md` e seu asset de mockup em `docs/assets/mockups/<slug>.png`, integrando os Design Tokens e o Spatial Blueprint aprovados diretamente no `implementation_plan.md`.
      - **Fallback Condicional de Concepção UI/UX (Modo 1)**: Se a Issue ainda **não possuir** um `## Visual & UI/UX Contract` consolidado e a living spec em `docs/mockups/<slug>.md` não existir:

@@ -28,6 +28,7 @@ O agente **não conversa em texto corrido para gerenciar estado**; ele é obriga
 
 ### 1.2. `implementation_plan.md` (O Contrato Técnico Preliminar)
 - Especifica com precisão cirúrgica quais arquivos serão tocados em `src/`, quais funções/interfaces serão criadas e quais testes serão exigidos em `tests/features/`.
+- **Interface Contract Padronizado Obrigatório**: Deve conter obrigatoriamente a seção `## Interface Contract` congelada (Signatures, Types & Interfaces, Inputs, Outputs, Errors) com assinaturas tipadas. Planos sem essa seção ou com interfaces técnicas ambíguas são sumariamente rejeitados na etapa de Planning.
 - **Nenhum código de produção em `src/` pode ser gerado antes de esse plano existir e ser aprovado.**
 
 ### 1.3. `walkthrough.md` (O Relatório de Provas Determinísticas)

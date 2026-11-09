@@ -77,6 +77,16 @@ Reconcilia issues, Milestones (Épicos) e campos do GitHub Projects v2 (Status, 
 ./scripts/pipeline/reconcile-github-governance.sh
 ```
 
+### 2.6. `validate-interface-contract.sh`
+Valida o **Interface Contract Gate** de forma determinística, garantindo a presença da seção `## Interface Contract` e a integridade de seus 5 pilares (Signatures, Types & Interfaces, Inputs, Outputs, Errors) com assinaturas tipadas e sem ambiguidades.
+```bash
+# Validar um arquivo de plano existente
+./scripts/pipeline/validate-interface-contract.sh implementation_plan.md
+
+# Validar via stdin
+cat planning_proposal.md | ./scripts/pipeline/validate-interface-contract.sh
+```
+
 ---
 
 ## 📊 3. `scripts/statusline/` (Statusline CLI & Quota Indicator)
