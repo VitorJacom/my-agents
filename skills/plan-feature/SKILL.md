@@ -1,13 +1,13 @@
 ---
 name: plan-feature
 description: >-
-  Orquestra o ciclo completo de planejamento e design de software via GitHub (AIDD):
-  Product Owner (Requisitos & Valor) ➔ [UI/UX Designer (Mockup-as-Code, se UI)] ➔ System Architect (Impacto Técnico, ADR & Atomicidade) ➔ Gate de Aprovação ➔ Criação das Issues no GitHub.
+  Orquestra o ciclo completo de planejamento e design de software via GitHub (AIDD) com o Modelo Elephant-Goldfish:
+  Product Owner (The Elephant: Requisitos & Valor Socrático) ➔ [UI/UX Designer (Mockup-as-Code, se UI)] ➔ System Architect (Impacto Técnico, ADR & Atomicidade) ➔ Gatekeeper (The Goldfish: Cold Audit & Auto-Healing <= 2 iterações) ➔ Gate de Aprovação Humana ➔ Criação das Issues no GitHub.
 ---
 
 # Feature Planning Pipeline (`/plan-feature`)
 
-Esta Skill gerencia a esteira de planejamento e design de software no GitHub, decompondo ideias, refinando issues existentes, estruturando contratos visuais e decisões de arquitetura antes de qualquer linha de código ser escrita.
+Esta Skill gerencia a esteira de planejamento e design de software no GitHub, decompondo ideias, refinando issues existentes, estruturando contratos visuais e decisões de arquitetura sob o modelo **Elephant-Goldfish** antes de qualquer linha de código ser escrita.
 
 ## 🚀 Como Invocar
 ```text
@@ -16,16 +16,20 @@ Esta Skill gerencia a esteira de planejamento e design de software no GitHub, de
 
 ---
 
-## 🔄 Máquina de Estados de Planejamento
+## 🔄 Máquina de Estados de Planejamento (Ciclo Elephant-Goldfish)
 
 ```mermaid
-flowchart TD %% Decisão condicional por interface visual (UI_UX_REQUIRED)
-    Start["[Entrada: Ideia / Épico / Issue #XX]"] --> PO["1. Product Owner<br/>(Especificação Funcional & UI_UX_REQUIRED)"]
+flowchart TD %% Ciclo Elephant-Goldfish com Decisão Condicional por Interface Visual (UI_UX_REQUIRED)
+    Start["[Entrada: Ideia / Épico / Issue #XX]"] --> PO["1. Product Owner (The Elephant)<br/>(Contexto Cumulativo, Postura Socrática & Living Specs)"]
     PO --> Decision{"Interface Visual?<br/>(UI_UX_REQUIRED)"}
     Decision -- YES --> UIUX["1.5. UI/UX Designer<br/>(Modo 1: Mockup-as-Code & Visual Contract)"]
-    Decision -- NO --> Arch["2. System Architect<br/>(Impacto src/, docs/ARCHITECTURE.md, <= 3 passos)"]
+    Decision -- NO --> Arch["2. System Architect<br/>(Design Técnico, <= 3 passos, Blast Radius & Waves)"]
     UIUX --> Arch
-    Arch --> Gate["3. Gate de Aprovação<br/>(Validação Humana + .mockup-preview.png)"]
+    Arch --> Goldfish["2.5. Gatekeeper (The Goldfish Reviewer)<br/>(Modo 1: Cold Audit Stateless, Anti-Premissas & <= 3 passos)"]
+    Goldfish -- "SPEC_AUDIT: REJECTED" --> Healing{"Loop de Auto-Healing<br/>(Teto: 2 iterações)"}
+    Healing -- "Iteração <= 2" --> Arch
+    Healing -- "Excedeu 2 iterações" --> CircuitBreaker["🚨 Circuit Breaker<br/>(Interrupção Determinística)"]
+    Goldfish -- "SPEC_AUDIT: APPROVED" --> Gate["3. Gate de Aprovação Humana<br/>(Validação Desenvolvedor + .mockup-preview.png)"]
     Gate --> GH["4. Criação no GitHub<br/>(gh issue create + Visual & UI/UX Contract)"]
     GH --> Reconcile["5. Reconciliação de Governança<br/>(reconcile-github-governance.sh)"]
     Reconcile --> Done["[ Handoff Final ]"]
@@ -35,10 +39,12 @@ flowchart TD %% Decisão condicional por interface visual (UI_UX_REQUIRED)
 
 ## 📋 Protocolo de Execução por Estado
 
-### 📍 ESTADO 1: DESCOBERTA FUNCIONAL (Product Owner)
-1. Invoque o subagente `product-owner` via `invoke_subagent`:
+### 📍 ESTADO 1: DESCOBERTA FUNCIONAL (Product Owner — The Elephant)
+1. Invoque o subagente `product-owner` (atuando como **The Elephant**) via `invoke_subagent`:
    - Envie a descrição do requisito ou o número da Issue (#XX).
-   - O PO analisa a dor do negócio, define personas e redige os critérios de aceite em formato Gherkin (`Dado / Quando / Então`) ou checklist verificável.
+   - **Postura Socrática de Engenharia de Requisitos**: O PO adota postura socrática ativa. Faz perguntas desafiadoras, investiga motivações de negócio e cenários de borda antes de consolidar.
+   - **Retenção de Contexto de Longo Alcance**: O PO opera como guardião da visão global e histórico, assegurando especificações autocontidas que passem no teste do olhar frio sem assumir conhecimento tácito.
+   - Define personas e redige os critérios de aceite em formato Gherkin (`Dado / Quando / Então`) ou checklist verificável.
    - **Refinamento In-Place ou Criação Nova**: Se a demanda referir-se a uma issue preexistente no backlog, o PO estrutura o refinamento in-place (preparando alterações para `gh issue edit`), evitando duplicação.
    - **Enquadramento em Épico & Release**: Identifica o Épico temático correspondente (`Active Epic (Milestone)`) e a release prevista no GitHub Project v2 (`Release Field`, ex.: `v1.1.0`, `v1.2.0`, `Backlog / Future`).
    - **Classificação Obrigatória de Impacto Visual**: O PO classifica explicitamente a demanda:
@@ -75,8 +81,22 @@ flowchart TD %% Decisão condicional por interface visual (UI_UX_REQUIRED)
    - Acolhe e embute a seção `## Visual & UI/UX Contract` e os links para a living spec `docs/mockups/<slug>.md` e asset `docs/assets/mockups/<slug>.png` no `planning_proposal.md` e nas issues fatiadas correspondentes.
 2. Aguarde o retorno com o plano consolidado.
 
+### 📍 ESTADO 2.5: AUDITORIA GOLDFISH & AUTO-HEALING (The Goldfish Reviewer)
+1. Invoque o subagente `gatekeeper` operando em **Modo 1 (The Goldfish Reviewer / Auditoria de Especificação)** via `invoke_subagent`:
+   - Envie a especificação técnica consolidada contida em `planning_proposal.md`.
+   - O Gatekeeper executa a auditoria fria (**Cold Audit**) com olhar estéril e sem estado prévio:
+     - Validação de Atomicidade: cada issue não pode ter mais de 3 passos (> 3 passos é bloqueado).
+     - Validação Anti-Premissas: bloqueio determinístico de premissas implícitas não testadas, ambiguidades e termos especulativos ("supõe-se", "obviamente", "deve funcionar").
+     - Autocontenção e verificabilidade dos critérios de aceite.
+2. **Loop de Auto-Healing de Especificação**:
+   - Se o Gatekeeper aprovar (`SPEC_AUDIT: APPROVED`), avance imediatamente para o **ESTADO 3**.
+   - Se o Gatekeeper rejeitar (`SPEC_AUDIT: REJECTED`), inicia-se o **loop de auto-healing de especificação**:
+     - O Arquiteto e o PO ajustam a proposta sanando pontualmente os apontamentos da auditoria fria.
+     - **Teto Determinístico**: O loop de auto-healing possui um **limite máximo de 2 iterações** (teto determinístico de 2 iterações).
+     - Se após a segunda iteração a especificação ainda não obtiver aprovação do Goldfish, o pipeline ativa o **Circuit Breaker** e interrompe a esteira com erro explícito, prevenindo context collapse, conversational slop e deriva de especificação.
+
 ### 📍 ESTADO 3: GATE DE REVISÃO & APROVAÇÃO HUMANA
-1. Apresente o `planning_proposal.md` ao desenvolvedor utilizando `write_file` com `RequestFeedback: true`.
+1. Apresente o `planning_proposal.md` já auditado pelo Goldfish ao desenvolvedor utilizando `write_file` com `RequestFeedback: true`.
 2. Para propostas com interface visual (`UI_UX_REQUIRED: YES`), instrua o desenvolvedor a realizar a validação visual inspecionando a especificação viva em `docs/mockups/<slug>.md`, o asset em `docs/assets/mockups/<slug>.png` e o arquivo de preview gerado `.mockup-preview.png` antes da aprovação.
 3. O desenvolvedor revisa:
    - Se solicitar ajustes visuais ou de arquitetura: reinvoque o subagente correspondente (`uiux-designer` ou `system-architect`).

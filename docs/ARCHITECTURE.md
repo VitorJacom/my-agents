@@ -317,3 +317,47 @@ Para equilibrar a velocidade e economia de tokens da IA com a visibilidade de ge
   5. **Scripts Utilitários de Migração e Reconciliação**:
      - Scripts de apoio `scripts/migrations/reclassify-epics-and-releases.py` e `scripts/migrations/migrate-issues-to-project.sh` para classificação retrospectiva e integridade do backlog.
      - Atualização do `scripts/pipeline/reconcile-github-governance.sh` para manter coerência contínua entre issues abertas, épicos e releases.
+
+---
+
+### Decisão 0014 (2026-11-09): Incorporação do Modelo Elephant-Goldfish no Ciclo AIDD
+* **Status**: Aprovada
+* **Contexto**:
+  - Em esteiras de desenvolvimento orientadas por IA, longas sessões de refinamento sofrem frequentemente com *context collapse*, perda gradual de restrições de negócio e acúmulo de ruído conversacional (*conversational slop*).
+  - Além disso, o agente de planejamento tende ao viés de confirmação (*confirmation bias*): assume que especificações vagas ou incompletas "obviamente funcionarão", transferindo premissas implícitas não testadas e quebras de atomicidade para a fase de codificação.
+* **Solução Adotada (Modelo Elephant-Goldfish)**:
+  1. **The Elephant (Product Owner - Long-Horizon Context)**:
+     - O PO assume o papel de "The Elephant", detentor do contexto de longo alcance, visão holística e retenção de contexto cumulativo sem escrita prematura de código.
+     - Pratica a postura socrática na engenharia de requisitos, desafiando premissas e antecipando edge cases antes de consolidar especificações funcionais autocontidas que passam no teste do olhar frio.
+  2. **The Goldfish (Gatekeeper Modo 1 - Cold Audit Stateless)**:
+     - O Gatekeeper opera em Modo 1 como "The Goldfish Reviewer": um auditor sem memória prévia (stateless) que avalia a especificação sob o teste do olhar frio (*Cold Audit*).
+     - Bloqueio determinístico de premissas implícitas não testadas ("obviamente", "supõe-se", "presume-se", "deve funcionar") e quebras de atomicidade (> 3 passos por issue).
+  3. **Loop de Auto-Healing de Especificação com Circuit Breaker**:
+     - Caso o Goldfish rejeite a especificação (`SPEC_AUDIT: REJECTED`), Arquiteto e PO realizam a auto-reparação pontual com teto determinístico de **2 iterações**.
+     - Se o alinhamento não for obtido após 2 iterações, ativa-se o Circuit Breaker determinístico, interrompendo a esteira e prevenindo degradação de contexto (*context collapse*), conversational slop e loops infinitos.
+* **Consequências**:
+  - Elimina conversational slop e premissas implícitas antes que cheguem ao código ou aos testes TDD.
+  - Mitiga viés de confirmação e context collapse com rigor formal de especificação.
+  - Garante issues atômicas (<= 3 passos) com critérios verificáveis prontos para execução autônoma.
+
+---
+
+### Decisão 0015 (2026-11-09): Promoção Interativa de Testes de Regras de Negócio para `tests/core/` e Modernização da Golden Rule Anti-Fraude
+* **Status**: Aprovada
+* **Contexto**:
+  - No ecossistema AIDD, `tests/core/` atua como a base imutável e protegida de testes invariantes, enquanto `tests/features/` recebe os novos testes criados pelos agentes durante cada ciclo de desenvolvimento.
+  - Testes que comprovam regras de negócio fundamentais permaneciam indefinidamente em `tests/features/`, deixando-os suscetíveis a afrouxamento ou adulteração por agentes em sprints subsequentes.
+  - Ao mesmo tempo, a implementação histórica da Golden Rule Anti-Fraude (`git diff --name-only ... | grep -E '^tests/core/'`) tratava qualquer alteração no diretório `tests/core/` como fraude, bloqueando indiscriminadamente qualquer tentativa de adicionar novos testes aprovados à base protegida.
+* **Solução Adotada**:
+  1. **Duplo Portão Interativo Human-in-the-Loop**:
+     - *Portão 1 (Descoberta & Planejamento / `/plan-feature`)*: Identificação explícita das regras de negócio concretas extraídas dos requisitos. O agente não pergunta no vácuo se haverá uma regra core; ele indica especificamente qual é a regra identificada (ex.: *"A regra '[Descrição Concreta da Regra]' é uma regra Core?"*) e consulta o desenvolvedor humano via `ask_question`. Se for classificada como regra core invariante (`CORE_RULE: true`), os testes de aceitação correspondentes são registrados formalmente no plano como candidatos à promoção para `tests/core/`.
+     - *Portão 2 (Handoff & Gatekeeping / `/run-issue`)*: Ao concluir o loop de implementação (`GREEN >= 85%`), o `gatekeeper` inspeciona os testes criados em `tests/features/` e consulta interativamente o desenvolvedor humano (`ask_question`), discriminando os testes específicos para autorizar a promoção dos arquivos selecionados para `tests/core/`.
+  2. **Utilitário Desacoplado `scripts/pipeline/promote-core-test.sh`**:
+     - Ferramenta de linha de comando idempotente e independente para gerenciar a promoção segura de testes.
+     - Suporta listagem de candidatos (`--list-candidates`), modo de simulação (`--dry-run`), migração segura com preservação de histórico, execução de suíte de integridade pós-promoção (`./tests/run.sh --core`) e rollback imediato caso os testes falhem no novo diretório.
+  3. **Modernização da Golden Rule Anti-Fraude (`--diff-filter=MD`)**:
+     - A Golden Rule passa a segregar estritamente adulterações ilícitas de adições legítimas promovidas:
+       - *Adulteração / Fraude*: Qualquer alteração (`M`) ou deleção (`D`) em testes preexistentes de `tests/core/` em relação à branch base aciona o Circuit-Breaker determinístico com erro fatal (`git diff --diff-filter=MD --name-only "$BASE_BRANCH...HEAD" | grep -E '^tests/core/'`).
+       - *Adição Legítima Auditada*: Novos arquivos adicionados (`A`) em `tests/core/` são autorizados e auditados, exigindo que a suíte `tests/core/` execute com 100% de sucesso e que a evidência conste no `walkthrough.md`.
+  4. **Documentação Viva e Atualização da Wiki**:
+     - Sincronização conceitual imediata das regras em `rules/AGENTS.md`, personas de subagentes (`gatekeeper`, `product-owner`, `planner`, `system-architect`) e páginas canônicas da Wiki (`docs/AIDD-Manifesto.md`, `docs/System-Architecture.md`, `docs/Subagents.md`).
