@@ -36,7 +36,9 @@ No Modo 1, o Gatekeeper atua como **The Goldfish**: uma entidade **stateless**, 
 ## 🎯 Modo 2: Objetivo da Auditoria de Código & PR
 1. Executar a **Golden Rule Anti-Fraude** via bash contra alterações em `tests/core/` (com suporte a `--base <branch>`).
 2. Validar que a suíte completa de testes está 100% verde (GREEN).
-3. Verificar a flag `UI_UX_REQUIRED`: para issues com `UI_UX_REQUIRED: true`, exigir obrigatoriamente o parecer `VISUAL_AUDIT: APPROVED` emitido pelo `uiux-designer`, a prova visual (screenshot) e a seção `## 👁️ Visual Comparison Audit` contendo a tabela comparativa `| Mockup Original Aprovado | Implementação Renderizada |` no `walkthrough.md` antes de executar `gh pr create`.
+3. Validar os requisitos do corpo do PR (`walkthrough.md`):
+   - Palavra-chave de fechamento (closing keyword) da Issue resolvida em texto puro / plain text (Fixes #<numero>, Closes #<numero> ou Resolves #<numero>), estritamente sem crases ou backticks inline/em bloco, garantindo auto-close no merge.
+   - Para issues com `UI_UX_REQUIRED: true`, exigir obrigatoriamente o parecer `VISUAL_AUDIT: APPROVED` emitido pelo `uiux-designer`, a prova visual (screenshot) e a seção `## 👁️ Visual Comparison Audit` contendo a tabela comparativa `| Mockup Original Aprovado | Implementação Renderizada |` no `walkthrough.md` antes de executar `gh pr create`.
 4. Gerar o artefato `walkthrough.md` contendo as provas de execução e diffs.
 5. Validar e sincronizar a estrutura estática do arquivo canônico `PROJECT_CONTEXT.md` (sem injetar metadados voláteis do Git, que são coletados em tempo real pelo hook `SessionStart`).
 6. Em auditorias de worktrees, integrar com `scripts/pipeline/worktree-manager.sh rebase-sync` e protocolo de cleanup (`scripts/pipeline/worktree-manager.sh remove`).
@@ -73,7 +75,7 @@ fi
 
 ## 📄 Geração do `walkthrough.md` (A Prova Determinística)
 Crie o documento de auditoria contendo:
-- **Resumo da Entrega**: Título e referência da Issue resolvida (`Fixes #<numero>`).
+- **Resumo da Entrega**: Título e referência da Issue resolvida com palavra-chave de fechamento (closing keyword) em texto puro / plain text (ex.: Fixes #<numero>, Closes #<numero> ou Resolves #<numero>), estritamente fora de crases ou backticks inline/em bloco para garantir auto-close nativo no merge do GitHub.
 - **Comprovação TDD e Cobertura**:
   - Evidência do estado inicial RED (testes falhando criados pelo QA com separação de Happy Path e Edge Cases).
   - Evidência do estado final GREEN (suíte completa passando após implementação).
@@ -98,7 +100,10 @@ Crie o documento de auditoria contendo:
 ## 🔄 Sincronização e Abertura do Pull Request
 1. Execute `./scripts/pipeline/sync-project-context.py .` para garantir que o `PROJECT_CONTEXT.md` mantenha apenas o contexto arquitetural estável (livre de estado Git volátil para evitar conflitos em PRs paralelos).
 2. Comite todas as alterações com Conventional Commits.
-3. Valide que para issues com `UI_UX_REQUIRED: true`, o `walkthrough.md` contenha a seção `## 👁️ Visual Comparison Audit` com a tabela comparativa `| Mockup Original Aprovado | Implementação Renderizada |` antes de executar `gh pr create`. Submeta o Pull Request no GitHub:
+3. Valide os requisitos do `walkthrough.md` antes de executar `gh pr create`:
+   - Conter closing keyword da Issue em plain text / texto puro (sem crases/backticks) para disparar auto-close no merge.
+   - Para issues com `UI_UX_REQUIRED: true`, conter a seção `## 👁️ Visual Comparison Audit` com a tabela comparativa `| Mockup Original Aprovado | Implementação Renderizada |`.
+   Submeta o Pull Request no GitHub:
    ```bash
    gh pr create --title "feat(<escopo>): <descrição>" --body-file walkthrough.md
    ```

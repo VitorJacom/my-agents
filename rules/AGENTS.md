@@ -34,6 +34,7 @@ O agente **não conversa em texto corrido para gerenciar estado**; ele é obriga
 ### 1.3. `walkthrough.md` (O Relatório de Provas Determinísticas)
 - É a substituição da inspeção manual no VS Code e a descrição oficial do Pull Request.
 - Contém a prova irrefutável de cumprimento da tarefa: comando exato executado (ex.: `pytest`, `npx vitest run`), logs de 100% de sucesso, saída de `git status --short` e diff dos arquivos modificados. Se o relatório estiver verde e sem desvios, o merge pode ser feito com segurança.
+- **Vinculação e Auto-Close de Issues (Closing Keywords em Texto Puro)**: O relatório DEVE referenciar explicitamente a Issue resolvida utilizando palavras-chave de fechamento suportadas pelo GitHub (`Fixes #<id>`, `Closes #<id>` ou `Resolves #<id>`) estritamente em **texto puro (plain text)**. É expressamente proibido envolver a closing keyword em crases inline (como `` `Fixes #123` ``) ou em blocos de código, pois o parser nativo do GitHub desativa o fechamento automático (auto-close) quando a keyword está formatada como código.
 - **Provas Demonstrativas Universais Mandatórias**: Nenhuma entrega é isenta de comprovação comprobatória real. O relatório DEVE conter evidências demonstrativas adequadas à natureza da tarefa:
   - **UIs e Front-end (Web, Mobile, Jogos 2D/3D ou UIs ricas de terminal)**: Testes unitários lógicos 100% verdes NÃO são suficientes. O relatório DEVE conter evidências visuais irrefutáveis (screenshot gerado via navegador headless como `chromium --headless`, logs de renderização do canvas ou prova gráfica visual), prevenindo interfaces quebradas, textos ilegíveis ou paletas sem contraste de luminância.
   - **Backend, CLI, Scripts e Infraestrutura**: Tarefas puramente backend, CLI ou de infraestrutura NÃO são isentas de provas demonstrativas; o relatório DEVE conter evidências demonstrativas reais de execução (saída CLI formatada, snapshots de terminal ou logs estruturados), comprovando a integridade dos fluxos e discriminando cenários de Happy Path e Edge Cases / Failure Modes.
@@ -189,5 +190,9 @@ Para repositórios governados pelo ecossistema AIDD e integrados ao GitHub Proje
 
 ### 9.4. Refinamento In-place e Reorganização de Backlog
 - **Atualização sem Duplicação**: Durante o planejamento ou reavaliação de prioridades, deve-se priorizar o refinamento in-place e reorganização de issues já existentes no backlog via `gh issue edit` (ajustando títulos, corpos, milestones ou campos de projeto), evitando a criação de issues redundantes ou duplicadas.
+
+### 9.5. Vinculação e Auto-Close de Issues em Pull Requests (Plain-Text Closing Keywords)
+- **Palavras-Chave Canônicas em Texto Puro**: Toda entrega que encerra uma issue deve declarar no corpo do PR (`walkthrough.md`) a diretiva de fechamento oficial do GitHub (`Fixes #<id>`, `Closes #<id>` ou `Resolves #<id>`) estritamente em texto puro (plain text).
+- **Proibição de Crases / Blocos de Código em Keywords**: O parser do GitHub desativa o fechamento automático (auto-close) se a diretiva estiver contida entre crases inline (como `` `Fixes #123` ``) ou dentro de blocos de código. A declaração da palavra-chave de fechamento sem crases em texto puro é mandatória para garantir que o fechamento ocorra automaticamente no merge para a branch padrão.
 
 
