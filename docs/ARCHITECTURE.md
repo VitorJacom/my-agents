@@ -361,3 +361,28 @@ Para equilibrar a velocidade e economia de tokens da IA com a visibilidade de ge
        - *Adição Legítima Auditada*: Novos arquivos adicionados (`A`) em `tests/core/` são autorizados e auditados, exigindo que a suíte `tests/core/` execute com 100% de sucesso e que a evidência conste no `walkthrough.md`.
   4. **Documentação Viva e Atualização da Wiki**:
      - Sincronização conceitual imediata das regras em `rules/AGENTS.md`, personas de subagentes (`gatekeeper`, `product-owner`, `planner`, `system-architect`) e páginas canônicas da Wiki (`docs/AIDD-Manifesto.md`, `docs/System-Architecture.md`, `docs/Subagents.md`).
+
+---
+
+### Decisão 0016 (2026-11-09): Mecanismo Desacoplado de Atualização de Plugins e Notificação Zero-Noise na Statusline
+* **Status**: Aprovada
+* **Contexto**:
+  - Usuários do plugin `my-agents` operando via Antigravity CLI não recebiam avisos quando novas versões, correções ou melhorias eram lançadas no repositório GitHub upstream.
+  - Realizar checagens de rede síncronas na statusline violaria a invariante de latência sub-50ms (SLA estrito), travando a interatividade do prompt caso a rede ficasse lenta ou instável.
+  - Atualizações precipitadas ou forçadas arriscavam sobrescrever ou corromper alterações locais em branches de desenvolvimento ou working trees com arquivos modificados.
+* **Solução Adotada**:
+  1. **Arquitetura Assíncrona de Verificação com Cache Local e TTL**:
+     - O utilitário `scripts/pipeline/update-plugin.sh` encapsula a inspeção de versões remotas (`git ls-remote --tags origin`) e persiste os metadados em cache estruturado (`~/.cache/antigravity/my-agents-update.json`) com TTL configurável (padrão de 24 horas).
+     - Escrita atômica protegida por lock para evitar concorrência em múltiplos terminais abertos simultaneamente.
+  2. **Widget Zero-Noise na Statusline Modular (`widget_update`)**:
+     - O renderizador `scripts/statusline/statusline-quota.sh` consulta exclusivamente o cache local em disco (I/O < 5ms).
+     - Se o plugin estiver na versão mais recente (`update_available: false` ou cache ausente), o widget retorna string vazia sem renderizar espaços ou separadores `│` órfãos (Invariante Zero-Noise / Estado A).
+     - Se houver versão mais recente (`update_available: true`), o widget é ativado no slot à extrema direita em âmbar bold (`\033[1;33m` ou `\033[38;5;214m`), assegurando WCAG AA $\ge$ 4.5:1 e Value Contrast $\ge$ 2:1 sem uso de vermelho (Estado B).
+     - Caso o cache expire durante o uso, a statusline dispara a verificação em segundo plano desanexado (`&`), garantindo que o tempo de resposta síncrono permaneça estritamente abaixo de 50ms.
+  3. **Mecanismo de Atualização Seguro e Fail-Safe (`update-plugin.sh`)**:
+     - Subcomandos e flags formais: `--check` (inspeção não bloqueante), `--status` (detalhamento de versões e TTL), `--apply` (aplicação segura) e `--auto` (atualização automática opt-in).
+     - *Dirty Working Tree Fail-Safe*: Inspeção prévia de `git status --porcelain` antes do pull/checkout. Existindo alterações não comitadas, o processo é abortado com instruções claras de segurança.
+     - Suporte a variável de ambiente `MY_AGENTS_AUTO_UPDATE=1` para automação desassistida com confirmação explícita.
+  4. **Documentação Viva e Sincronizada na Wiki**:
+     - Atualização dos guias de introdução (`docs/Getting-Started.md`, `README.md`), guia de solução de problemas (`docs/Troubleshooting.md`) e topologia técnica (`docs/System-Architecture.md`) com verificação determinística de ausência de dead links via suíte de testes.
+
