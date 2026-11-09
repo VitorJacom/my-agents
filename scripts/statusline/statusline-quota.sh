@@ -9,6 +9,7 @@ YELLOW=$'\033[33m'
 RED=$'\033[31m'
 MAGENTA=$'\033[35m'
 BLUE=$'\033[34m'
+AMBER=$'\033[1;33m'
 RESET=$'\033[0m'
 BOLD=$'\033[1m'
 DIM=$'\033[2m'
@@ -239,6 +240,85 @@ widget_telemetry() {
 }
 
 # -----------------------------------------------------------------------------
+# Widget 5: Notificação de Atualização do Plugin (Zero-Noise / Background Check)
+# -----------------------------------------------------------------------------
+widget_update() {
+  local cache_dir="${MY_AGENTS_CACHE_DIR:-${XDG_CACHE_HOME:-$HOME/.cache}/antigravity}"
+  local cache_file="${MY_AGENTS_CACHE_FILE:-$cache_dir/my-agents-update.json}"
+  local script_dir
+  script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+  # Localizar script de atualização
+  local update_script=""
+  if [ -n "${ANTIGRAVITY_WORKSPACE:-}" ] && [ -x "${ANTIGRAVITY_WORKSPACE}/scripts/pipeline/update-plugin.sh" ]; then
+    update_script="${ANTIGRAVITY_WORKSPACE}/scripts/pipeline/update-plugin.sh"
+  elif [ -n "${MY_AGENTS_WORKSPACE_ROOT:-}" ] && [ -x "${MY_AGENTS_WORKSPACE_ROOT}/scripts/pipeline/update-plugin.sh" ]; then
+    update_script="${MY_AGENTS_WORKSPACE_ROOT}/scripts/pipeline/update-plugin.sh"
+  elif [ -x "$script_dir/../pipeline/update-plugin.sh" ]; then
+    update_script="$script_dir/../pipeline/update-plugin.sh"
+  elif [ -x "./scripts/pipeline/update-plugin.sh" ]; then
+    update_script="./scripts/pipeline/update-plugin.sh"
+  fi
+
+  local trigger_check=false
+  local update_available=false
+  local latest_tag=""
+
+  if [ ! -f "$cache_file" ] || [ ! -r "$cache_file" ]; then
+    trigger_check=true
+  else
+    local content=""
+    content=$(< "$cache_file")
+    if [ -z "$content" ]; then
+      trigger_check=true
+    else
+      if [[ "$content" =~ \"update_available\"[[:space:]]*:[[:space:]]*(true|false) ]]; then
+        update_available="${BASH_REMATCH[1]}"
+      fi
+
+      if [[ "$content" =~ \"(latest_tag|latest_version)\"[[:space:]]*:[[:space:]]*\"([^\"]+)\" ]]; then
+        latest_tag="${BASH_REMATCH[2]}"
+      fi
+
+      local last_checked=0
+      if [[ "$content" =~ \"(last_checked_timestamp|timestamp)\"[[:space:]]*:[[:space:]]*([0-9]+) ]]; then
+        last_checked="${BASH_REMATCH[2]}"
+      fi
+
+      local ttl=86400
+      if [[ "$content" =~ \"(ttl_seconds|ttl)\"[[:space:]]*:[[:space:]]*([0-9]+) ]]; then
+        ttl="${BASH_REMATCH[2]}"
+      fi
+
+      local now
+      now=$(date +%s)
+      if [ $(( now - last_checked )) -ge "$ttl" ]; then
+        trigger_check=true
+      fi
+    fi
+  fi
+
+  # Disparo assíncrono e desanexado sem travar o pipeline síncrono (< 50ms)
+  if $trigger_check && [ -n "$update_script" ]; then
+    ( "$update_script" --check </dev/null >/dev/null 2>&1 & )
+  fi
+
+  # Estado A: Up to date ou sem update -> retorna string vazia
+  if [ "$update_available" != "true" ]; then
+    return 0
+  fi
+
+  # Estado B: Update disponível -> renderiza em âmbar bold (\033[1;33m)
+  local display_tag="${latest_tag:-}"
+  if [ -n "$display_tag" ]; then
+    [[ ! "$display_tag" =~ ^v ]] && display_tag="v$display_tag"
+    printf "${AMBER}📦 Update: %s${RESET}" "$display_tag"
+  else
+    printf "${AMBER}📦 Update disponível${RESET}"
+  fi
+}
+
+# -----------------------------------------------------------------------------
 # Renderizador Principal de Statusline
 # -----------------------------------------------------------------------------
 render_statusline() {
@@ -250,6 +330,10 @@ render_statusline() {
   parts+=("$(widget_model 2>/dev/null || printf "${MAGENTA}🤖 Gemini 3.8 Flash (Low)${RESET}")")
   parts+=("$(widget_quota 2>/dev/null || printf "⚡ Quota 5h: [${CYAN}ok${RESET}] │ 📅 Semanal: [${CYAN}ok${RESET}]")")
   parts+=("$(widget_telemetry 2>/dev/null || printf "${CYAN}🧠 Context: 0%%${RESET}")")
+
+  local w_update
+  w_update=$(widget_update 2>/dev/null || true)
+  [ -n "$w_update" ] && parts+=("$w_update")
 
   local result=""
   for i in "${!parts[@]}"; do
@@ -281,6 +365,7 @@ main() {
       model) widget_model ;;
       quota) widget_quota ;;
       telemetry|activity|context) widget_telemetry ;;
+      update) widget_update ;;
       *) render_statusline ;;
     esac
   else
