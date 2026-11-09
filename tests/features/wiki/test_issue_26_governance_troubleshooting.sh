@@ -74,7 +74,7 @@ check "AIDD-Manifesto: Formalização da Trava Dupla Anti-Fraude e pasta tests/c
   bash -c "grep -qi 'Trava Dupla Anti-Fraude' '$AIDD_MD' && grep -q 'tests/core/' '$AIDD_MD'"
 
 check "AIDD-Manifesto: Snippet determinístico da checagem Golden Rule no Git" \
-  grep -E -q 'MODIFIED=\$\(git diff (--diff-filter=MD )?--name-only origin/main\.\.\.HEAD' "$AIDD_MD"
+  grep -Fq 'MODIFIED=$(git diff --name-only origin/main...HEAD' "$AIDD_MD"
 
 check "AIDD-Manifesto: Exigência inegociável de Cobertura >= 85%" \
   grep -E -q "85%" "$AIDD_MD"

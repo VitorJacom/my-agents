@@ -121,6 +121,9 @@ flowchart LR
 - `tests/features/`: Onde o QA Engineer cria novos testes de aceitação específicos da issue ativa.
 
 ### 3.2. A "Golden Rule" via Bash (Gatekeeper & CI)
+> [!NOTE]
+> **Evolução da Golden Rule (ADR-0015)**: A checagem determinística clássica `MODIFIED=$(git diff --name-only origin/main...HEAD 2>/dev/null | grep -E '^tests/core/' || true)` foi modernizada com a flag `--diff-filter=MD` para permitir a adição legítima de novos testes promovidos pós-GREEN sem disparar falsos positivos de fraude.
+
 Antes de comitar ou abrir PR, o Gatekeeper e os pipelines de CI executam a checagem determinística do Git com `--diff-filter=MD` para detectar estritamente modificações (`M`) e deleções (`D`) ilegais em `tests/core/`:
 ```bash
 MODIFIED=$(git diff --diff-filter=MD --name-only origin/main...HEAD 2>/dev/null | grep -E '^tests/core/' || true)
