@@ -200,12 +200,12 @@ No ponto de integração (Join Point), o orquestrador unifica os testes constru�
    - **Auditoria do Duplo Gate**: Comprovar conformidade estrutural contra o `PROJECT_CONTEXT.md` (zero alucinação de padrões).
    - **Auditoria de Cobertura e Casos**: Auditar que a cobertura de código é $\ge 85\%$ e que a suíte contempla separadamente cenários de Happy Path e Edge Cases / cenários de borda. Se a cobertura for inferior a 85% (< 85%), aborte e bloqueie a finalização.
    - **Auditoria Visual Mandatória**: Para issues com `UI_UX_REQUIRED: true`, exigir obrigatoriamente a auditoria visual aprovada com `VISUAL_AUDIT: APPROVED` e anexar a prova visual irrefutável (screenshot headless) no `walkthrough.md`.
-   - **Auditoria Visual Comparativa (Living Mockup Side-by-Side)**: Para issues com `UI_UX_REQUIRED: true`, embutir obrigatoriamente a seção `## 👁️ Visual Comparison Audit` no `walkthrough.md` e corpo do PR contendo a tabela comparativa:
+   - **Auditoria Visual Comparativa (Living Mockup Side-by-Side)**: Para issues com `UI_UX_REQUIRED: true`, embutir obrigatoriamente a seção `## 👁️ Visual Comparison Audit` no `walkthrough.md` e corpo do PR contendo a tabela comparativa. É estritamente proibido o uso de caminhos relativos (`docs/assets/mockups/...`) no corpo do PR e walkthrough; deve-se utilizar URLs canônicas absolutas raw do GitHub (`https://raw.githubusercontent.com/<owner>/<repo>/<branch_or_commit>/<path>`) ou tags `<img src="https://raw.githubusercontent.com/..." width="560" />` para garantir renderização lado a lado responsiva:
      ```markdown
      ## 👁️ Visual Comparison Audit
      | Mockup Original Aprovado | Implementação Renderizada |
      | :---: | :---: |
-     | ![Mockup Original](docs/assets/mockups/<slug>.png) | ![Implementação Renderizada](<caminho_ou_screenshot>) |
+     | <img src="https://raw.githubusercontent.com/<owner>/<repo>/<branch_or_commit>/docs/assets/mockups/<slug>.png" width="560" /> | <img src="https://raw.githubusercontent.com/<owner>/<repo>/<branch_or_commit>/<caminho_ou_screenshot>" width="560" /> |
      ```
    - **Provas Demonstrativas Universais**: Exigir provas demonstrativas no `walkthrough.md` para todos os domínios (screenshots para UI; saídas reais formatadas de terminal, logs estruturados ou CLI para backend/infra).
    - Executar `./scripts/pipeline/sync-project-context.py .` para validar e manter o contexto arquitetural estável em `PROJECT_CONTEXT.md` (sem estado Git volátil, que é injetado dinamicamente pelo `session-start-context.sh`).

@@ -39,6 +39,7 @@ No Modo 1, o Gatekeeper atua como **The Goldfish**: uma entidade **stateless**, 
 3. Validar os requisitos do corpo do PR (`walkthrough.md`):
    - Palavra-chave de fechamento (closing keyword) da Issue resolvida em texto puro / plain text (Fixes #<numero>, Closes #<numero> ou Resolves #<numero>), estritamente sem crases ou backticks inline/em bloco, garantindo auto-close no merge.
    - Para issues com `UI_UX_REQUIRED: true`, exigir obrigatoriamente o parecer `VISUAL_AUDIT: APPROVED` emitido pelo `uiux-designer`, a prova visual (screenshot) e a seção `## 👁️ Visual Comparison Audit` contendo a tabela comparativa `| Mockup Original Aprovado | Implementação Renderizada |` no `walkthrough.md` antes de executar `gh pr create`.
+   - Exigir obrigatoriamente URLs canônicas absolutas raw do GitHub (`https://raw.githubusercontent.com/<owner>/<repo>/<branch_or_commit>/<path>`) ou tags `<img src="https://raw.githubusercontent.com/..." width="560" />` para imagens e mockups na auditoria comparativa, sendo estritamente proibidos caminhos relativos (`docs/assets/mockups/...`).
 4. Gerar o artefato `walkthrough.md` contendo as provas de execução e diffs.
 5. Validar e sincronizar a estrutura estática do arquivo canônico `PROJECT_CONTEXT.md` (sem injetar metadados voláteis do Git, que são coletados em tempo real pelo hook `SessionStart`).
 6. Em auditorias de worktrees, integrar com `scripts/pipeline/worktree-manager.sh rebase-sync` e protocolo de cleanup (`scripts/pipeline/worktree-manager.sh remove`).
@@ -70,7 +71,8 @@ fi
 - **Auditoria Visual Mandatória (`UI_UX_REQUIRED`)**:
   - Verifique o valor de `UI_UX_REQUIRED` definido no `implementation_plan.md`.
   - Se `UI_UX_REQUIRED: true`, certifique-se de que o subagente `uiux-designer` realizou a inspeção headless e emitiu o parecer formal `VISUAL_AUDIT: APPROVED`.
-  - Exigir obrigatoriamente a presença da seção `## 👁️ Visual Comparison Audit` no `walkthrough.md` com a tabela comparativa (`| Mockup Original Aprovado | Implementação Renderizada |`) confrontando o mockup original aprovado em `docs/assets/mockups/<slug>.png` com a tela da implementação antes de executar `gh pr create`. Se houver parecer `VISUAL_AUDIT: REJECTED` ou se faltar a auditoria visual comparativa, aborte a esteira e bloqueie a criação do PR.
+  - Exigir obrigatoriamente a presença da seção `## 👁️ Visual Comparison Audit` no `walkthrough.md` com a tabela comparativa (`| Mockup Original Aprovado | Implementação Renderizada |`) confrontando o mockup original aprovado com a tela da implementação antes de executar `gh pr create`. Se houver parecer `VISUAL_AUDIT: REJECTED` ou se faltar a auditoria visual comparativa, aborte a esteira e bloqueie a criação do PR.
+  - **Auditoria de URLs de Imagens (Circuit-Breaker para Caminhos Relativos)**: O Gatekeeper audita deterministamente as referências visuais no `walkthrough.md`. É estritamente proibido o uso de caminhos relativos (`docs/assets/mockups/...`, `./...`). Todas as imagens devem utilizar URLs canônicas absolutas raw do GitHub (`https://raw.githubusercontent.com/<owner>/<repo>/<branch_or_commit>/<path>`) ou tags `<img src="https://raw.githubusercontent.com/..." width="560" />`. Se qualquer caminho relativo for detectado, o Gatekeeper aciona o circuito de bloqueio, rejeita e aborta a criação do PR (`gh pr create`).
   - Se `UI_UX_REQUIRED: false`, a verificação visual é ignorada (bypass).
 
 ## 📄 Geração do `walkthrough.md` (A Prova Determinística)
@@ -81,12 +83,12 @@ Crie o documento de auditoria contendo:
   - Evidência do estado final GREEN (suíte completa passando após implementação).
   - Relatório determinístico de cobertura alcançada ($\ge 85\%$).
 - **Provas Demonstrativas Mandatórias**:
-  - Para interfaces visuais (`UI_UX_REQUIRED: true`), inclusão obrigatória do parecer `VISUAL_AUDIT: APPROVED`, anexo da evidência visual (screenshot gerado via navegador headless ou captura gráfica) e a seção formal `## 👁️ Visual Comparison Audit` contendo a tabela comparativa:
+  - Para interfaces visuais (`UI_UX_REQUIRED: true`), inclusão obrigatória do parecer `VISUAL_AUDIT: APPROVED`, anexo da evidência visual (screenshot gerado via navegador headless ou captura gráfica) e a seção formal `## 👁️ Visual Comparison Audit` contendo a tabela comparativa com URLs canônicas absolutas raw do GitHub (sendo proibidos caminhos relativos `docs/assets/mockups/...`), recomendando tags `<img ... width="560" />` para layout responsivo lado a lado:
     ```markdown
     ## 👁️ Visual Comparison Audit
     | Mockup Original Aprovado | Implementação Renderizada |
     | :---: | :---: |
-    | ![Mockup Original](docs/assets/mockups/<slug>.png) | ![Implementação Renderizada](<caminho_da_captura_ou_url>) |
+    | <img src="https://raw.githubusercontent.com/<owner>/<repo>/<branch_or_commit>/docs/assets/mockups/<slug>.png" width="560" /> | <img src="https://raw.githubusercontent.com/<owner>/<repo>/<branch_or_commit>/<caminho_da_captura_ou_screenshot>" width="560" /> |
     ```
     Essa seção e tabela comparativa são obrigatórias antes de executar `gh pr create`.
   - Para ferramentas CLI, backend e infraestrutura (`UI_UX_REQUIRED: false`), inclusão obrigatória de provas demonstrativas reais de execução (saída CLI formatada no terminal, snapshots de terminal ou logs estruturados).
