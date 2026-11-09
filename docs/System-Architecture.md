@@ -71,7 +71,8 @@ Os utilitários do diretório `scripts/` são particionados em domínios operaci
   - `worktree-manager.sh`: Gestor de ciclo de vida de worktrees estéreis com lockfiles atômicos.
   - `update-plugin.sh`: Mecanismo desacoplado de atualização de plugins e sincronização upstream (`--check`, `--status`, `--apply`), garantindo proteção preventiva com *dirty tree fail-safe* e escrita atômica em cache JSON (formalizado no [ADR-0016](#-4-índice-consolidado-de-decisões-de-arquitetura-adrs)).
   - `sync-project-context.py`: Sincronizador de `PROJECT_CONTEXT.md` com desacoplamento de estado Git volátil.
-  - `reconcile-github-governance.sh`: Reconciliador idempotente de Milestones e campos de Projects v2.
+  - `project-status-sync.sh`: Sincronizador resiliente de status de issues e pull requests no GitHub Projects v2 com auto-inclusão idempotente e normalização de taxonomia canônica (formalizado no [ADR-0017](#-4-índice-consolidado-de-decisões-de-arquitetura-adrs)).
+  - `reconcile-github-governance.sh`: Reconciliador idempotente de Milestones, status inicial ("Planned") e encerramento ("Done") no GitHub Projects v2 (formalizado no [ADR-0009](#-4-índice-consolidado-de-decisões-de-arquitetura-adrs) e [ADR-0017](#-4-índice-consolidado-de-decisões-de-arquitetura-adrs)).
   - `promote-core-test.sh`: Promotor interativo de testes de regras de negócio aprovados para `tests/core/`.
   - `metrics-collector.py`: Coletor de métricas concorrentes de tempo e concorrência no modo Maestro.
 - **Camada de Telemetria e Statusline (`scripts/statusline/`)**:
@@ -205,6 +206,7 @@ A evolução arquitetural do `my-agents` é registrada formalmente através de A
 | **0014** | Incorporação do Modelo Elephant-Goldfish no Ciclo AIDD | 2026-11-09 | Aprovada | Segregação estrita entre The Elephant (PO: Requisitos & Valor Socrático com memória de longo prazo) e The Goldfish (Gatekeeper: Cold Audit e Clean Room sem viés). |
 | **0015** | Promoção Interativa de Testes de Regras de Negócio para `tests/core/` e Modernização da Golden Rule Anti-Fraude | 2026-11-09 | Aprovada | Promoção auditada de testes de negócio pós-GREEN via `promote-core-test.sh`, permitindo adição legítima (`--diff-filter=MD`) enquanto preserva a trava contra modificações e deleções ilícitas. |
 | **0016** | Mecanismo Desacoplado de Atualização de Plugins e Notificação Zero-Noise na Statusline | 2026-11-09 | Aprovada | Arquitetura assíncrona de verificação com cache JSON local (TTL 24h), `scripts/pipeline/update-plugin.sh`, proteção *dirty tree fail-safe* e widget `widget_update` na statusline (`scripts/statusline/statusline-quota.sh`) com notificação discreta em âmbar bold. |
+| **0017** | Ciclo de Vida Reativo, Inicialização Idempotente e Reconciliação Contínua de Status no GitHub Projects v2 | 2026-11-09 | Aprovada | Governança reativa via `.github/workflows/project-v2-automation.yml`, auto-inclusão resiliente em `scripts/pipeline/project-status-sync.sh`, eliminação de cartões órfãos ("No Status") via `scripts/pipeline/reconcile-github-governance.sh` e padronização da taxonomia canônica de status (Planned, In Progress, In Review, Done). |
 
 > [!NOTE]
 > Para o histórico detalhado, contexto de motivação, alternativas descartadas e consequências técnicas aprofundadas de cada decisão, consulte o documento interno canônico [docs/ARCHITECTURE.md](https://github.com/VitorJacom/my-agents/blob/main/docs/ARCHITECTURE.md).

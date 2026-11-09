@@ -97,7 +97,7 @@ O agente orquestrador guia a execução estado por estado, chamando os subagente
 
 ### 📍 ESTADO 1: PLANNING
 1. Identifique o número da Issue e seu contexto.
-2. Atualize o status da Issue no GitHub Projects v2 para 'In Progress' via script utilitário desacoplado:
+2. Atualize o status da Issue no GitHub Projects v2 para 'In Progress' via script utilitário desacoplado (com auto-inclusão idempotente e normalização de taxonomia canônica):
    ```bash
    ./scripts/pipeline/project-status-sync.sh "<numero_ou_url>" "In Progress"
    ```
@@ -212,8 +212,19 @@ No ponto de integração (Join Point), o orquestrador unifica os testes constru�
    - Executar `./scripts/pipeline/metrics-collector.py` para calcular o consumo de tokens da esteira.
    - Gerar o artefato consolidado `walkthrough.md`.
    - Comitar as alterações e abrir o Pull Request no GitHub (via MCP ou `gh pr create`) vinculando a Issue (`Fixes #<numero>`).
+   - **Transição de Status no Project v2 ('In Review')**:
+     Transite o status da Issue e/ou Pull Request para `'In Review'` no Kanban View 2 via `project-status-sync.sh`:
+     ```bash
+     ./scripts/pipeline/project-status-sync.sh "<pr_url_ou_numero_da_issue>" "In Review"
+     ```
+     *(Nota: Se configurado, o workflow de automação `.github/workflows/project-v2-automation.yml` também realiza essa transição reativamente no GitHub Actions).*
 2. **Conclusão & Handoff**:
    - Apresente ao usuário o link do Pull Request aberto, a tabela de telemetria de consumo/cota e a documentação gerada em `walkthrough.md`.
+   - Após a aprovação e o merge do Pull Request (ou fechamento da issue), o status transita para `'Done'`, acionado automaticamente pelo CI ou pelo comando operacional:
+     ```bash
+     ./scripts/pipeline/project-status-sync.sh "<numero_ou_url>" "Done"
+     ```
+   - Em auditorias periódicas, execute a reconciliação com `./scripts/pipeline/reconcile-github-governance.sh --include-closed` para consolidar todas as issues concluídas.
 
 ---
 
@@ -244,7 +255,7 @@ Para cada issue pertencente à onda ativa:
    ```bash
    ./scripts/pipeline/worktree-manager.sh create <id> --base <branch_intermediaria>
    ```
-2. O Maestro despacha workers isolados realizando delegação via `invoke_subagent 'self'` mandatória (cada issue da onda ativa deve ser despachada para um subagente worker desacoplado).
+2. O Maestro atualiza o status de cada issue da onda para `'In Progress'` via `./scripts/pipeline/project-status-sync.sh "<id>" "In Progress"` e despacha workers isolados realizando delegação via `invoke_subagent 'self'` mandatória (cada issue da onda ativa deve ser despachada para um subagente worker desacoplado).
 3. Cada worker opera com contexto limpo em isolamento estrito, confinado à sua worktree estéril `.worktrees/issue-<id>`, executando seu planejamento, testes (RED), codificação (GREEN) e auditoria local sem interferir na raiz ou em worktrees simultâneas.
 
 ### 📍 M4 & M5. Merge Queue Sequencial & Validação da Suíte Acumulada
@@ -285,3 +296,31 @@ Ao finalizar todas as ondas de execução:
      --title "feat(epic): batch integration of issues #A, #B, #C" \
      --body-file walkthrough.md
    ```
+3. **Transição de Status e Reconciliação Contínua**:
+   - Atualiza o status de cada issue do lote para `'In Review'` no Kanban View 2 via `./scripts/pipeline/project-status-sync.sh "<id>" "In Review"` (ou deixa o workflow de CI sincronizar reativamente).
+   - Após o merge do PR consolidado na branch `main`, execute a reconciliação final de encerramento para transitar todas as issues para `'Done'`:
+     ```bash
+     ./scripts/pipeline/reconcile-github-governance.sh --include-closed
+     ```
+
+---
+
+## 📊 Governança de Status no GitHub Projects v2 (Kanban View 2)
+
+O ecossistema AIDD mantém a rastreabilidade contínua do ciclo de desenvolvimento no GitHub Projects v2 fundamentando-se em 4 estados canônicos de Kanban:
+- **`Planned`**: Issue criada, decomposta ou refinada, aguardando início de execução.
+- **`In Progress`**: Desenvolvimento ativo em andamento (planejamento, testes TDD e implementação por workers em worktrees isoladas).
+- **`In Review`**: Pull Request aberto e pronto para inspeção, acionando o portão de gatekeeping.
+- **`Done`**: Issue fechada e Pull Request integrado com sucesso.
+
+### 🛠️ Utilitários de Sincronização e Reconciliação
+1. **Transição Pontual e Resiliente (`scripts/pipeline/project-status-sync.sh`)**:
+   - Acionado a cada transição de estado no pipeline local.
+   - Auto-inclui o item no Project v2 se ainda não existir (`gh project item-add`) antes da mutação de status.
+   - Aplica degradação graciosa não-bloqueante se o token não possuir privilégios de projeto.
+2. **Reconciliação Idempotente de Backlog (`scripts/pipeline/reconcile-github-governance.sh`)**:
+   - Inicializa issues abertas sem status como `'Planned'`, eliminando cartões órfãos em *"No Status"*.
+   - Transita issues fechadas para `'Done'` via `--include-closed`.
+   - Suporta `--dry-run` para auditoria sem mutações reais.
+3. **Reatividade Orientada a Eventos (`.github/workflows/project-v2-automation.yml`)**:
+   - CI/CD no GitHub Actions que reage instantaneamente aos eventos de `issues` e `pull_request`, sincronizando o quadro Kanban sem intervenção manual.
