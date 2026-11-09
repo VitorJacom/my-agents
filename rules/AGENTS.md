@@ -54,15 +54,17 @@ Para impedir o "golpe do estagiário" (quando o modelo tenta alterar, comentar o
 - `tests/features/`: Onde o QA cria novos testes de aceitação da issue ativa.
 
 ### 2.2. A "Golden Rule" via Bash (Gatekeeper & CI)
-Antes de comitar ou abrir PR, o Gatekeeper e o CI executam a checagem determinística do Git:
+Antes de comitar ou abrir PR, o Gatekeeper e o CI executam a checagem determinística do Git com `--diff-filter=MD` para detectar estritamente modificações (`M`) e deleções (`D`) ilegais em `tests/core/`:
 ```bash
-MODIFIED=$(git diff --name-only origin/main...HEAD 2>/dev/null | grep -E '^tests/core/' || true)
+BASE_BRANCH="${1:-origin/main}"
+MODIFIED=$(git diff --diff-filter=MD --name-only "$BASE_BRANCH...HEAD" 2>/dev/null | grep -E '^tests/core/' || true)
 if [ -n "$MODIFIED" ]; then
-  echo "ALERTA DE FRAUDE: O agente modificou arquivos protegidos em tests/core/!"
+  echo "ALERTA DE FRAUDE: O agente modificou ou removeu arquivos protegidos em tests/core/!"
   exit 1
 fi
 ```
-Se houver **1 caractere alterado** em `tests/core/`, a esteira é abortada imediatamente (Circuit-Breaker).
+- **Adulteração / Fraude**: Se houver qualquer alteração (`M`) ou remoção (`D`) em testes protegidos de `tests/core/`, a esteira é abortada imediatamente (Circuit-Breaker com exit code 1).
+- **Adições Legítimas Auditadas**: Novos arquivos adicionados (`A`) em `tests/core/` (como testes promovidos pelo utilitário `promote-core-test.sh` após aprovação) são permitidos e não disparam falso positivo de fraude.
 
 ### 2.3. Anti-Triviality & Mutation Testing (Exterminador de Testes Falsos)
 - Proibido testes vazios ou tautológicos (ex.: `expect(true).toBe(true)` ou `assert True`).
