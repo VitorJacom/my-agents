@@ -13,6 +13,7 @@ A tabela abaixo lista todas as telas cadastradas no sistema, seu identificador (
 | Slug | Nome da Tela | Viewport | Status | Origem | Spec |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | *template* | Template Canônico de Living Spec | 1280x720 / 375x812 | `Approved` | Issue #31 | [TEMPLATE.md](TEMPLATE.md) |
+| `statusline-update-notification` | Statusline Update Notification | 1280x720 / TUI | `Approved` | Update Check Feature | [statusline-update-notification.md](statusline-update-notification.md) |
 
 *(Novas telas desenvolvidas nas issues do projeto serão adicionadas aqui)*
 

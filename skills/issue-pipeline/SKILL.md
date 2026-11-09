@@ -53,14 +53,17 @@ flowchart TD %% Orquestrador: Modo Unitário e Modo Maestro com Merge Queue e On
     CheckMode -- "Modo Unitário (1 Issue)" --> E1["1. PLANNING<br/>(planner: implementation_plan.md & task.md)"]
     E1 --> CheckContract{"Interface Visual?<br/>(UI_UX_REQUIRED: true) e<br/>sem Contrato Prévio?"}
     CheckContract -- "Sim" --> E1Fallback["1.1 Fallback UI/UX<br/>(uiux-designer: Modo 1 Mockup-as-Code)"]
-    CheckContract -- "Não" --> E2["2. TEST DESIGN (RED)<br/>(qa-engineer: tests/features/)"]
+    CheckContract -- "Não" --> E2["2. CONCURRENT FORK<br/>(qa-engineer & coder paralelos sob Interface Contract)"]
     E1Fallback --> E2
-    E2 --> E3["3. CODING LOOP (GREEN)<br/>(coder: implementação src/)"]
-    E3 --> CheckVisualGate{"Interface Visual?<br/>(UI_UX_REQUIRED)"}
+    E2 --> E3["3. CONTRACT INTEGRATION GATE (JOIN POINT)<br/>(Validação da suíte & Loop de Reconciliação <= 2 iterações)"]
+    E3 --> CheckJoin{"Suíte GREEN &<br/>Cobertura >= 85%?"}
+    CheckJoin -- "Sim" --> CheckVisualGate{"Interface Visual?<br/>(UI_UX_REQUIRED)"}
+    CheckJoin -- "Falha após 2 iterações" --> EFailJoin["[ FAILED_CONTRACT_INTEGRATION ]"]
     CheckVisualGate -- "true" --> E35["3.5. UI/UX VISUAL AUDIT GATE<br/>(uiux-designer: Modo 2 Inspeção Headless)"]
     CheckVisualGate -- "false (Bypass)" --> E4["4. GATEKEEPING & HANDOFF<br/>(gatekeeper: Golden Rule, walkthrough & PR)"]
     E35 --> VisualVerdict{"Veredito Visual?"}
-    VisualVerdict -- "VISUAL_AUDIT: REJECTED" --> E3
+    VisualVerdict -- "VISUAL_AUDIT: REJECTED" --> E3Reconcile["Reconciliação Visual (coder)"]
+    E3Reconcile --> E35
     VisualVerdict -- "VISUAL_AUDIT: APPROVED" --> E4
     E4 --> EndUnit["[ Pull Request Criado & Handoff ]"]
 
@@ -101,12 +104,17 @@ O agente orquestrador guia a execução estado por estado, chamando os subagente
 3. Invoque o subagente `planner`:
    - Envie a tarefa para ler a Issue e inspecionar a arquitetura existente.
    - Solicite a classificação explícita de impacto visual (`UI_UX_REQUIRED: true` ou `UI_UX_REQUIRED: false`).
+   - Solicite a definição mandatória da seção `## Interface Contract` padronizada (Signatures, Types & Interfaces, Inputs, Outputs, Errors) com tipagens explícitas.
    - Solicite a geração de `implementation_plan.md` e `task.md`.
-3. **Validação do Portão de Planejamento**:
-   - O plano possui mais de 3 passos ou atinge domínios desconexos?
-   - **Se SIM (Rejeitado)**: Pare a execução imediatamente. Informe ao usuário os motivos do arquiteto e solicite o fatiamento da Issue.
-   - **Se NÃO (Aprovado)**: Verifique se a demanda possui impacto visual (`UI_UX_REQUIRED: true`).
-4. **Resolução de Contrato Visual e Living Spec UI/UX**:
+4. **Validação dos Portões de Planejamento (Atomicity & Interface Contract Gate)**:
+   - **Atomicity Gate**: O plano possui mais de 3 passos ou atinge domínios desconexos?
+   - **Interface Contract Gate**: O plano carece da seção `## Interface Contract`, possui interfaces técnicas ambíguas, ausentes ou campos com placeholders ("TODO", "TBD", etc.)? Execute a validação determinística:
+     ```bash
+     ./scripts/pipeline/validate-interface-contract.sh implementation_plan.md
+     ```
+   - **Se REJEITADO por violação de atomicidade ou falha no Interface Contract**: Pare a execução imediatamente. Informe ao usuário o erro reportado e interrompa o planejamento.
+   - **Se APROVADO**: Avance para a resolução de contrato visual.
+5. **Resolução de Contrato Visual e Living Spec UI/UX**:
    - Se `UI_UX_REQUIRED: true`:
      - **Carregamento de Living Spec Pré-existente**: Verifique se já existe a especificação viva em `docs/mockups/<slug>.md`. Caso exista, instrua o subagente a carregar a living spec em `docs/mockups/<slug>.md` e seu asset de mockup em `docs/assets/mockups/<slug>.png`, integrando os Design Tokens e o Spatial Blueprint aprovados diretamente no `implementation_plan.md`.
      - **Fallback Condicional de Concepção UI/UX (Modo 1)**: Se a Issue ainda **não possuir** um `## Visual & UI/UX Contract` consolidado e a living spec em `docs/mockups/<slug>.md` não existir:
@@ -117,35 +125,54 @@ O agente orquestrador guia a execução estado por estado, chamando os subagente
 
 ---
 
-### 📍 ESTADO 2: TEST DESIGN (TDD RED)
+### 📍 ESTADO 2: CONCURRENT FORK (QA & CODER SOB INTERFACE CONTRACT)
+Com a seção `## Interface Contract` congelada e validada no ESTADO 1, o orquestrador desacopla a criação dos testes e a codificação de produção, eliminando a dependência sequencial direta entre QA e Coder (ADR-0005):
+
 1. Crie uma branch de trabalho dedicada seguindo o padrão de branches:
    ```bash
    git checkout -b feature/issue-<numero>-<slug>
    ```
-2. Invoque o subagente `qa-engineer`:
-   - Instrua-o a ler `implementation_plan.md` e criar os testes de aceite estritamente em `tests/features/`.
-   - Instrua-o a categorizar e cobrir explicitamente cenários de **Happy Path** e cenários de **Edge Cases** / borda e falha.
-   - Instrua-o a rodar o test runner e capturar a prova de falha (**RED**).
-3. **Validação do Portão de QA**:
-   - Os testes novos falharam conforme esperado e cobrem regras reais e cenários de borda?
-   - **Se SIM (Aprovado)**: Registre a prova do RED e avance para o **ESTADO 3**.
-   - **Se NÃO (Falso Positivo, Teste Trivial ou Ausência de Casos de Borda)**: Interrompa a esteira e exija correção dos testes.
+2. Dispare em paralelo (fork concorrente via `invoke_subagent`) os subagentes `qa-engineer` e `coder`:
+   - **`qa-engineer` (Engenharia de Testes TDD)**:
+     - Lê o `implementation_plan.md` e a seção congelada `## Interface Contract`.
+     - Inicia a escrita dos testes de critérios de aceite estritamente na subpasta de domínio de `tests/features/<categoria>/` (`pipeline/`, `governance/`, `ui-ux/`, `wiki/`, `statusline/`).
+     - Estrutura os testes discriminando explicitamente cenários de **Happy Path** e cenários de **Edge Cases / Failure Modes** (cenários de borda e falha).
+     - Executa o runner `./tests/run.sh` e comprova o estado inicial de falha (**RED**) ou validação estrita das interfaces por ausência do código de produção.
+     - Respeita o confinamento: proibido tocar em `src/` e `tests/core/`.
+   - **`coder` (Implementação Contract-Driven)**:
+     - Lê o `implementation_plan.md`, a seção congelada `## Interface Contract` e, para tarefas visuais, consome os Design Tokens e o Spatial Blueprint da seção `## Visual & UI/UX Contract`.
+     - Inicia imediatamente a implementação em `src/` orientado exclusivamente pelo contrato técnico congelado, **sem aguardar passivamente a criação prévia dos testes pelo QA**.
+     - Garante que assinaturas, tipagens, parâmetros, retornos e tratamento de erros reflitam com fidelidade o contrato congelado.
+     - Respeita o confinamento e a Trava Anti-Fraude: proibido tocar em arquivos de `tests/`.
+3. **Ponto de Junção (Fork Join)**:
+   - O orquestrador aguarda a conclusão das entregas de ambos os subagentes e transita para o **ESTADO 3**.
 
 ---
 
-### 📍 ESTADO 3: CODING LOOP (TDD GREEN)
-1. Invoque o subagente `coder`:
-   - Instrua-o a implementar a solução estritamente dentro da pasta `src/`.
-   - Para tarefas visuais, obrigue o consumo rigoroso dos Design Tokens e Wireframe ASCII da seção `## Visual & UI/UX Contract`.
-   - Instrua-o a garantir e comprovar cobertura mínima de código $\ge 85\%$. Se a cobertura for inferior a 85% (< 85%), interrompa e bloqueie a esteira exigindo complementação.
-   - Lembre-o da **Trava Anti-Fraude**: é proibido tocar em arquivos da pasta `tests/`.
-   - Execute o loop de até 3 iterações (editar código ➔ rodar testes).
-2. **Validação do Portão de Implementação**:
-   - Todos os testes passaram (**GREEN**) e a cobertura é $\ge 85\%$?
-   - **Se NÃO (Estourou 3 tentativas sem passar ou cobertura < 85%)**: Interrompa a esteira imediatamente com status de falha e apresente o log de erro ao usuário.
-   - **Se SIM (Sucesso)**:
-     - Se `UI_UX_REQUIRED: true`: avance para o **ESTADO 3.5**.
-     - Se `UI_UX_REQUIRED: false`: faça bypass direto para o **ESTADO 4** (Zero Token Waste).
+### 📍 ESTADO 3: CONTRACT INTEGRATION GATE (JOIN POINT) & RECONCILIATION LOOP
+No ponto de integração (Join Point), o orquestrador unifica os testes construídos em `tests/features/` e a implementação em `src/`, executando a suíte para validar a convergência sob o contrato:
+
+1. **Execução do Portão de Integração**:
+   - O orquestrador executa o utilitário determinístico do Join Point:
+     ```bash
+     ./scripts/pipeline/contract-integration-gate.sh --iteration 1
+     ```
+     (o utilitário executa o runner `./tests/run.sh`, valida a conformidade das interfaces, audita a cobertura mínima $\ge 85\%$ e checa o confinamento anti-fraude).
+2. **Avaliação do Join Point**:
+   - **Cenário A: Sucesso Imediato (GREEN & Cobertura >= 85%)**:
+     - Se todos os testes passarem (**GREEN**) e a cobertura de código for $\ge 85\%$:
+       - O script emite `[JOIN_POINT: APPROVED]`.
+       - Se `UI_UX_REQUIRED: true`: avance para o **ESTADO 3.5**.
+       - Se `UI_UX_REQUIRED: false`: faça bypass direto para o **ESTADO 4** (Zero Token Waste).
+   - **Cenário B: Discrepâncias de Implementação & Loop de Reconciliação (<= 2 iterações)**:
+     - Se houver testes quebrando ou se a cobertura for inferior a 85% (< 85%), o script sinaliza `[JOIN_POINT: RECONCILE_REQUIRED]` (Exit Code 1).
+     - O orquestrador inicia o **Loop de Reconciliação** concedendo um teto de **até 2 iterações curtas de ajuste** (duas tentativas) para o subagente `coder`.
+     - Em cada iteração de reconciliação:
+       - O `coder` é invocado com as falhas reportadas pela suíte para ajustar a implementação em `src/`, mantendo aderência estrita ao `## Interface Contract` congelado.
+       - A **Trava Anti-Fraude** permanece inviolável: o `coder` é proibido de editar ou afrouxar arquivos da pasta `tests/`.
+       - O orquestrador reexecuta `./scripts/pipeline/contract-integration-gate.sh --iteration 2`.
+     - Se os testes passarem (**GREEN**) e a cobertura for $\ge 85\%$ dentro do teto de 2 iterações: o portão é aprovado e a esteira avança imediatamente (para ESTADO 3.5 se visual, ou ESTADO 4 se não).
+     - **Fail-Safe em Esgotamento**: Se após as 2 iterações a suíte não ficar 100% verde ou a cobertura permanecer abaixo de 85% (< 85%), o script emite `[JOIN_POINT: FAILED_CONTRACT_INTEGRATION]` (Exit Code 2). Interrompa a esteira imediatamente com status de falha, apresentando o log de discrepâncias para auditoria humana.
 
 ---
 

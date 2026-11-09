@@ -220,7 +220,44 @@ bash scripts/statusline/test-statusline.sh
 
 ---
 
-## 📚 8. Próximos Passos e Leituras Recomendadas
+## 🔄 8. Mecanismo de Atualização e Notificação na Statusline
+
+O `my-agents` conta com um sistema desacoplado de gestão de versões projetado para garantir que você sempre usufrua das regras, skills e guardrails mais recentes sem interromper seu fluxo de desenvolvimento:
+
+### 8.1. Notificação Visual Zero-Noise na Statusline
+A statusline modular monitora versões em segundo plano através do widget `widget_update` (`scripts/statusline/statusline-quota.sh`), consultando um cache local indexado (`~/.cache/antigravity/my-agents-update.json`):
+- **Estado A (Up to date)**: Quando o plugin estiver na versão mais recente ou o cache estiver ausente/expirado, o widget permanece **100% invisível** (Zero-Noise Invariant), sem renderizar espaços nem separadores órfãos.
+- **Estado B (Update Available)**: Quando uma nova tag ou versão for detectada no repositório remoto, o widget é ativado elegantemente na extrema direita do terminal exibindo `📦 Update: vX.Y.Z` em âmbar bold, indicando que uma atualização está disponível.
+
+### 8.2. Comandos de Gerenciamento (`update-plugin.sh`)
+O utilitário `scripts/pipeline/update-plugin.sh` encapsula as operações de inspeção e aplicação:
+
+```bash
+# 1. Verificação manual não bloqueante (atualiza o cache local via git ls-remote):
+./scripts/pipeline/update-plugin.sh --check
+
+# 2. Exibição do status detalhado da versão local, remota e validade do TTL:
+./scripts/pipeline/update-plugin.sh --status
+
+# 3. Aplicação segura da atualização:
+./scripts/pipeline/update-plugin.sh --apply
+```
+
+> [!IMPORTANT]
+> **Dirty Working Tree Fail-Safe**: Antes de realizar checkout ou pull da nova versão, o comando `--apply` verifica se o repositório local possui alterações não comitadas (`git status --porcelain`). Se a árvore estiver suja, o processo é abortado imediatamente com instruções de segurança para evitar perda acidental de trabalho em andamento.
+
+### 8.3. Atualização Automática Desassistida (Opt-in)
+Para ambientes de desenvolvimento ou estações onde se deseja atualização contínua e transparente, você pode ativar a atualização automática exportando a variável de ambiente:
+
+```bash
+export MY_AGENTS_AUTO_UPDATE=1
+```
+
+Com esta variável ativa, quando `update-plugin.sh` for acionado ou o ciclo de verificação for concluído, o plugin atualizará automaticamente para a versão mais recente caso a working tree esteja perfeitamente limpa.
+
+---
+
+## 📚 9. Próximos Passos e Leituras Recomendadas
 
 - [Catálogo de Subagentes (`docs/Subagents.md`)](./Subagents.md): Detalhamento das 7 personas, ferramentas concedidas e contratos de entrada/saída.
 - [Catálogo de Skills (`docs/Skills-Catalog.md`)](./Skills-Catalog.md): Documentação completa de todas as habilidades sob demanda e gatilhos de *Progressive Disclosure*.

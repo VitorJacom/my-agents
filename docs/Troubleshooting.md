@@ -16,6 +16,8 @@ Este guia consolida a matriz diagnóstica, as causas-raiz e as soluções determ
 | Conflito de tipagem / assinaturas no Join Point | QA & Coder Fork/Join | Divergência em relação ao `Interface Contract` congelado | [Seção 5](#5-divergências-no-interface-contract-forkjoin) |
 | `remote: GitHub Wiki is not initialized` | Wiki Sync Workflow | A aba Wiki do GitHub nunca foi criada na interface web | [Seção 6](#6-sincronização-da-github-wiki-wiki-syncyml) |
 | Colisão de arquivos na mesma Execution Wave | Maestro Orchestrator | Duas issues simultâneas compartilham `Target Files` | [Seção 7](#7-concorrência-do-maestro-e-colisão-de-target-files) |
+| `ERRO FAIL-SAFE: Working tree com alterações locais` | Gerenciador de Atualizações | Working tree suja impede aplicação segura de nova versão | [Seção 8.1](#81-working-tree-suja-dirty-tree-fail-safe) |
+| `Não foi possível obter o lock exclusivo para ...update.json.lock` | Gerenciador de Atualizações | Lockfile de atualização retido após encerramento forçado | [Seção 8.3](#83-lockfile-de-atualização-retido-lock-concorrente) |
 
 ---
 
@@ -198,3 +200,92 @@ Duas issues foram agrupadas na mesma onda de execução (*Execution Wave*), viol
      - Depends On: [#24]
    ```
 2. O Maestro escalonará automaticamente a Issue #27 para a **Wave 2**, garantindo execução sequencial sem conflito de merge.
+
+---
+
+## 🔄 8. Atualizações de Plugins e Notificações na Statusline
+
+### 8.1. Working Tree Suja (Dirty Tree Fail-Safe)
+- **Sintoma**:
+  Ao executar `./scripts/pipeline/update-plugin.sh --apply` (ou modo automático `MY_AGENTS_AUTO_UPDATE=1`), o processo é abortado com o seguinte erro:
+  ```text
+  ERRO FAIL-SAFE: Working tree com alterações locais não comitadas!
+  Para garantir a segurança do seu código e evitar perda de alterações,
+  por favor faça commit ou stash dos arquivos modificados antes de atualizar.
+  ```
+- **Causa-Raiz**: O fail-safe do gerenciador detectou modificações pendentes no Git (`git status --porcelain`). Para evitar conflitos de merge destrutivos ou perda de arquivos de trabalho, a atualização é bloqueada preventivamente.
+- **Solução Determinística**:
+  1. Verifique os arquivos pendentes:
+     ```bash
+     git status --short
+     ```
+  2. Guarde as alterações locais em stash ou faça o commit:
+     ```bash
+     git stash push -m "wip: antes da atualizacao do plugin"
+     ```
+  3. Reexecute a aplicação da versão atualizada:
+     ```bash
+     ./scripts/pipeline/update-plugin.sh --apply
+     ```
+  4. Restaure seu trabalho em andamento:
+     ```bash
+     git stash pop
+     ```
+
+### 8.2. Cache Desatualizado, Corrompido ou Expirado
+- **Sintoma**:
+  O comando `./scripts/pipeline/update-plugin.sh --status` exibe erros de leitura do JSON, ou a statusline exibe versão divergente da remota.
+- **Causa-Raiz**:
+  O arquivo de cache `${XDG_CACHE_HOME:-~/.cache}/antigravity/my-agents-update.json` foi gravado de maneira incompleta (ex: interrupção abrupta de energia) ou contém formato corrompido.
+- **Solução Determinística**:
+  1. Force uma nova consulta remota ignorando o cache existente:
+     ```bash
+     ./scripts/pipeline/update-plugin.sh --force-check
+     ```
+  2. Caso persista erro de decodificação JSON, exclua manualmente o arquivo de cache:
+     ```bash
+     rm -f "${XDG_CACHE_HOME:-$HOME/.cache}/antigravity/my-agents-update.json"
+     ./scripts/pipeline/update-plugin.sh --check
+     ```
+
+### 8.3. Lockfile de Atualização Retido (Lock Concorrente)
+- **Sintoma**:
+  ```text
+  ERRO: Não foi possível obter o lock exclusivo para ~/.cache/antigravity/my-agents-update.json.lock após 10s.
+  ```
+- **Causa-Raiz**:
+  Um processo anterior do `update-plugin.sh` ou uma checagem em background foi abortada com `SIGKILL` antes de liberar o descritor de arquivo do `flock`, mantendo o lockfile retido.
+- **Solução Determinística**:
+  1. Verifique se não há outra instância ativa executando em background:
+     ```bash
+     pgrep -f "update-plugin.sh" || true
+     ```
+  2. Se não houver nenhum processo ativo, remova o lockfile retido:
+     ```bash
+     rm -f "${XDG_CACHE_HOME:-$HOME/.cache}/antigravity/my-agents-update.json.lock"
+     ```
+  3. Reexecute a verificação:
+     ```bash
+     ./scripts/pipeline/update-plugin.sh --status
+     ```
+
+### 8.4. Desativação Manual ou Supressão da Notificação na Statusline
+- **Sintoma / Necessidade**:
+  O desenvolvedor deseja suprimir temporariamente ou desativar o aviso `📦 Update: vX.Y.Z` na statusline modular para gravações de tela, demos ou ambientes restritos.
+- **Solução Determinística**:
+  O widget `widget_update` (`scripts/statusline/statusline-quota.sh`) consulta estritamente o cache local. Para desativar a notificação:
+  1. **Atualizar para a versão mais recente (Solução Padrão)**:
+     ```bash
+     ./scripts/pipeline/update-plugin.sh --apply
+     ```
+     O cache será carimbado com `"update_available": false` e o widget retornará imediatamente ao **Estado A** (completamente invisível / zero-noise).
+  2. **Supressão via variável de ambiente**:
+     Aponte o caminho de cache para `/dev/null` no seu arquivo `~/.bashrc` ou sessão:
+     ```bash
+     export MY_AGENTS_CACHE_FILE="/dev/null"
+     ```
+  3. **Congelamento via TTL estendido**:
+     Defina um TTL elevado para suprimir novas checagens:
+     ```bash
+     export MY_AGENTS_CACHE_TTL=999999999
+     ```
