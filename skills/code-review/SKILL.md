@@ -52,3 +52,14 @@ Violações de boas práticas, ausência de testes em fluxos relevantes, complex
 Ajustes estéticos, clareza em nomes de variáveis ou pequenas otimizações de sintaxe.
 - **[Arquivo:Linha]**: Sugestão.
 ```
+
+---
+
+## 3. Integração com a Esteira de Pull Requests (`/review-pr`)
+
+Para auditorias automatizadas e revisões formais de Pull Requests abertas no GitHub com submissão de pareceres oficiais e geração de issues rastreadas no backlog, utilize a esteira complementar de PR:
+
+- **Skill Especializada**: [skills/review-pr/SKILL.md](../review-pr/SKILL.md)
+- **Comando de Invocação**: `/review-pr <#PR | URL>`
+
+A esteira `/review-pr` implementa uma máquina de estados de 5 fases (Inspeção & Diff, Auditoria de Integridade & Golden Rule, Revisão Heurística em 4 Dimensões, Gate de Validação Humana Mandatório e Despacho & Rastreabilidade via `scripts/pr-reviewer.sh`).

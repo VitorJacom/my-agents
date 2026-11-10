@@ -1,6 +1,6 @@
 # Catálogo Canônico de Skills (`Skills-Catalog.md`)
 
-Este documento apresenta a documentação exaustiva de todas as **10 skills sob demanda** integradas ao plugin `my-agents`, detalhando seus objetivos, gatilhos por *Progressive Disclosure*, exemplos práticos de invocação e os artefatos produzidos por cada uma.
+Este documento apresenta a documentação exaustiva de todas as **11 skills sob demanda** integradas ao plugin `my-agents`, detalhando seus objetivos, gatilhos por *Progressive Disclosure*, exemplos práticos de invocação e os artefatos produzidos por cada uma.
 
 ---
 
@@ -29,6 +29,7 @@ O Antigravity CLI impõe limites de contexto para regras globais para preservar 
 | [`game-dev-patterns`](#38-game-dev-patterns-padrões-e-física-para-jogos-2d) | Física 2D, FPS independence e cinemática | Jogos em Phaser, HTML5 Canvas, bugs de taxa de quadros | "Corrija a velocidade do pulo em 120Hz" |
 | [`publish-rule-issue`](#39-publish-rule-issue-publicação-global-de-regras) | Registro de regras aprendidas no repo central | Pós-ciclo de `/learn` ou solicitação explícita | `/publish-rule-issue` |
 | [`ui-ux-design`](#310-ui-ux-design-design-de-interface-motion-e-anti-slop) | Engenharia de interface, física de animação, ergonomia mobile e combate a clichês de IA | Tarefas com telas, interfaces web/mobile, motion, auditoria visual ou clichês de IA | "Audite esta UI com a skill ui-ux-design" |
+| [`review-pr`](#311-review-pr-orquestrador-de-revisão-de-pull-requests--gate-humano) | Revisão determinística de PRs em 5 fases com Gate Humano | Auditoria e revisão formal de PRs abertas no GitHub | `/review-pr <#PR \| URL>` |
 
 ---
 
@@ -209,6 +210,30 @@ O Antigravity CLI impõe limites de contexto para regras globais para preservar 
 - **Artefatos Produzidos**:
   - Especificações vivas de telas (Living Specs) em `docs/mockups/` e blueprints espaciais ASCII.
   - Checklists determinísticos de pré-entrega e auditoria automatizada via `python3 skills/ui-ux-design/scripts/skill_assistant.py audit`.
+
+---
+
+### 3.11. `review-pr` (Orquestrador de Revisão de Pull Requests & Gate Humano)
+- **Definição**: [skills/review-pr/SKILL.md](https://github.com/VitorJacom/my-agents/blob/main/skills/review-pr/SKILL.md)
+- **Objetivo**: Conduzir o ciclo determinístico completo de revisão e auditoria de Pull Requests no GitHub em 5 fases:
+  1. **Fase 1: Inspeção & Diff**: Extração estruturada de metadados da PR e diff unificado via `scripts/pr-reviewer.sh fetch-diff`.
+  2. **Fase 2: Auditoria de Integridade & Golden Rule**: Verificação anti-fraude via `scripts/pr-reviewer.sh audit-integrity` (circuit-breaker com exit code 3 em caso de alterações em `tests/core/`).
+  3. **Fase 3: Revisão Heurística & Severidade**: Auditoria em 4 dimensões (OWASP, SOLID, Robustez e Testabilidade) com classificação em 🚨 Crítico, ⚠️ Importante e 💡 Sugestão.
+  4. **Fase 4: Gate de Validação Humana Mandatório**: Apresentação dos achados e solicitação de confirmação explícita do desenvolvedor antes de qualquer ação no GitHub.
+  5. **Fase 5: Despacho & Rastreabilidade**: Submissão de parecer formal (`scripts/pr-reviewer.sh submit-review`) e criação de issues rastreadas no backlog (`scripts/pr-reviewer.sh create-issues`) com auto-reconciliação de governança.
+- **Gatilho de Progressive Disclosure**:
+  - Quando o desenvolvedor solicita a revisão ou auditoria de uma Pull Request no GitHub.
+  - Invocação explícita do comando `/review-pr`.
+- **Formas de Invocação**:
+  ```text
+  /review-pr #12
+  /review-pr 12
+  /review-pr https://github.com/VitorJacom/my-agents/pull/12
+  ```
+- **Artefatos Produzidos e Ações**:
+  - Parecer formal de code review publicado na Pull Request do GitHub.
+  - Issues rastreadas abertas no backlog com labels semânticas (`type:fix`, `type:refactor`, `status:planned`, `source:code-review`) e vinculação da PR de origem, branch head e commit SHA.
+  - Reconciliação automática no GitHub Project v2.
 
 ---
 
