@@ -16,6 +16,7 @@ DIM=$'\033[2m'
 
 # Variável global para armazenar o payload recebido do stdin
 INPUT_JSON="{}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # -----------------------------------------------------------------------------
 # Widget 1: Git Branch / VCS
@@ -245,8 +246,7 @@ widget_telemetry() {
 widget_update() {
   local cache_dir="${MY_AGENTS_CACHE_DIR:-${XDG_CACHE_HOME:-$HOME/.cache}/antigravity}"
   local cache_file="${MY_AGENTS_CACHE_FILE:-$cache_dir/my-agents-update.json}"
-  local script_dir
-  script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  local script_dir="${SCRIPT_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
 
   # Localizar script de atualização
   local update_script=""

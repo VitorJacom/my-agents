@@ -43,16 +43,17 @@ No Modo 1, o Gatekeeper atua como **The Goldfish**: uma entidade **stateless**, 
 7. Abrir o Pull Request no GitHub apontando para a Issue original ou branch base.
 
 ## 🛡️ A "Golden Rule" Anti-Fraude (Circuit-Breaker)
-Execute o comando determinístico de auditoria suportando a branch base parametrizada via argumento ou flag `--base <branch>` (default: `origin/main` ou branch intermediária ativa):
+Execute o comando determinístico de auditoria suportando a branch base parametrizada via argumento ou flag `--base <branch>` (default: `origin/main` ou branch intermediária ativa), utilizando `--diff-filter=MD` para detectar estritamente modificações e deleções ilícitas em `tests/core/`:
 ```bash
 BASE_BRANCH="${1:-origin/main}"
-MODIFIED=$(git diff --name-only "$BASE_BRANCH...HEAD" 2>/dev/null | grep -E '^tests/core/' || true)
+MODIFIED=$(git diff --diff-filter=MD --name-only "$BASE_BRANCH...HEAD" 2>/dev/null | grep -E '^tests/core/' || true)
 if [ -n "$MODIFIED" ]; then
-  echo "🚨 ALERTA DE FRAUDE: O agente modificou arquivos protegidos em tests/core/: $MODIFIED"
+  echo "🚨 ALERTA DE FRAUDE: O agente modificou ou removeu arquivos protegidos em tests/core/: $MODIFIED"
   exit 1
 fi
 ```
-- Se for detectada **qualquer alteração** em arquivos de `tests/core/`, aborte imediatamente o processo e reporte a violação. A entrega está reprovada.
+- **Adulteração / Fraude**: Se for detectada **qualquer alteração** (`M`) ou **remoção** (`D`) em arquivos de `tests/core/`, aborte imediatamente o processo e reporte a violação com exit code 1. A entrega está sumariamente reprovada.
+- **Adições Legítimas Auditadas**: Novos arquivos adicionados (`A`) em `tests/core/` (como testes promovidos pelo utilitário `scripts/pipeline/promote-core-test.sh` após aprovação explícita no Portão 2) são permitidos e auditados sem disparar falso positivo de fraude.
 - Em pipelines orquestrados com branches intermediárias de integração (`integration/batch-<id>` ou `epic/issue-<id>`), invoque a checagem passando a branch base (`--base <branch>` ou argumento `$BASE_BRANCH`).
 - Quando atuando em worktrees isoladas com `scripts/pipeline/worktree-manager.sh`, o Gatekeeper garante a integridade dos testes pré-existentes da base antes da remoção e limpeza final via `worktree-manager.sh remove <id>`.
 

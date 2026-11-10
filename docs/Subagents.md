@@ -150,14 +150,15 @@ O Manifesto AIDD estabelece que nenhum agente generalista deve executar tarefas 
     - **Bloqueio de Atomicidade**: Rejeita formalmente especificações que excedam 3 passos (> 3 passos) de execução.
     - Parecer formal `SPEC_AUDIT: APPROVED` ou `SPEC_AUDIT: REJECTED` com apontamentos para o loop de auto-healing (teto de 2 iterações).
   - **Modo 2: Auditoria de Código & PR (O Guardião Anti-Fraude)**:
-    - **Golden Rule Anti-Fraude**: Executar a verificação determinística via bash contra alterações em `tests/core/`:
+    - **Golden Rule Anti-Fraude**: Executar a verificação determinística via bash contra adulterações em `tests/core/` utilizando `--diff-filter=MD`:
       ```bash
-      MODIFIED=$(git diff --name-only origin/main...HEAD 2>/dev/null | grep -E '^tests/core/' || true)
+      MODIFIED=$(git diff --diff-filter=MD --name-only origin/main...HEAD 2>/dev/null | grep -E '^tests/core/' || true)
       if [ -n "$MODIFIED" ]; then
-        echo "ALERTA DE FRAUDE: O agente modificou arquivos protegidos em tests/core/!"
+        echo "ALERTA DE FRAUDE: O agente modificou ou removeu arquivos protegidos em tests/core/!"
         exit 1
       fi
       ```
+      Adulterações (`M`) ou remoções (`D`) de testes pré-existentes em `tests/core/` são sumariamente bloqueadas (exit code 1); adições legítimas (`A`) de novos testes promovidos pós-GREEN (`promote-core-test.sh`, ADR-0015) são autorizadas.
     - **Auditoria de Visual Gate**: Exigir `VISUAL_AUDIT: APPROVED` e screenshot anexado quando `UI_UX_REQUIRED: true`.
     - **Governança de Cobertura $\ge 85\%$** e discriminação de cenários de Happy Path e Edge Cases.
     - **Relatório `walkthrough.md`**: Gerar o documento de provas reais (comandos, logs de testes, git status e diff).

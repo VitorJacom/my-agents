@@ -72,7 +72,7 @@ Os utilitários do diretório `scripts/` são particionados em domínios operaci
   - `update-plugin.sh`: Mecanismo desacoplado de atualização de plugins e sincronização upstream (`--check`, `--status`, `--apply`), garantindo proteção preventiva com *dirty tree fail-safe* e escrita atômica em cache JSON (formalizado no [ADR-0016](#-4-índice-consolidado-de-decisões-de-arquitetura-adrs)).
   - `sync-project-context.py`: Sincronizador de `PROJECT_CONTEXT.md` com desacoplamento de estado Git volátil.
   - `reconcile-github-governance.sh`: Reconciliador idempotente de Milestones e campos de Projects v2.
-  - `promote-core-test.sh`: Promotor interativo de testes de regras de negócio aprovados para `tests/core/`.
+  - `promote-core-test.sh`: Promotor interativo de testes de regras de negócio aprovados para `tests/core/` com modernização da Golden Rule via `--diff-filter=MD` (formalizado no [ADR-0015](#-4-índice-consolidado-de-decisões-de-arquitetura-adrs)).
   - `metrics-collector.py`: Coletor de métricas concorrentes de tempo e concorrência no modo Maestro.
 - **Camada de Telemetria e Statusline (`scripts/statusline/`)**:
   - `statusline-quota.sh`: Renderizador polimórfico de telemetria sub-50ms integrando quotas (5h/semanal), contexto e o widget assíncrono `widget_update` para notificação zero-noise de novas versões.

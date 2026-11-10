@@ -252,7 +252,7 @@ cmd_rebase_sync() {
 
   # Auditoria Anti-Fraude
   local modified_files
-  modified_files=$(git -C "$wt_path" diff --name-only "$base_branch...HEAD" 2>/dev/null || echo "")
+  modified_files=$(git -C "$wt_path" diff --diff-filter=MD --name-only "$base_branch...HEAD" 2>/dev/null || echo "")
 
   if [ -n "$modified_files" ]; then
     # Verificação A: tests/core/ (Golden Rule)

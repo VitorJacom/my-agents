@@ -208,6 +208,15 @@ No ponto de integração (Join Point), o orquestrador unifica os testes constru�
      | ![Mockup Original](docs/assets/mockups/<slug>.png) | ![Implementação Renderizada](<caminho_ou_screenshot>) |
      ```
    - **Provas Demonstrativas Universais**: Exigir provas demonstrativas no `walkthrough.md` para todos os domínios (screenshots para UI; saídas reais formatadas de terminal, logs estruturados ou CLI para backend/infra).
+   - **Promoção Segura de Testes Core (Invariantes)**:
+     - Executar `./scripts/pipeline/promote-core-test.sh --list-candidates` para identificar testes de aceitação candidatos à suíte core (com marcadores `@core` ou metadados de `CORE_RULE: true`).
+     - Quando a issue indicar `CORE_RULE: true` ou quando houver testes candidatos identificados:
+       - Consultar interativamente o desenvolvedor antes da promoção (`ask_question` ou interação direta), discriminando cada teste individualmente na pergunta antes de promover (ex.: *"Deseja promover o teste `tests/features/.../test_exemplo.sh` para `tests/core/`?"*).
+       - Após confirmação do desenvolvedor, executar a promoção com validação automática:
+         ```bash
+         ./scripts/pipeline/promote-core-test.sh --promote <caminho_do_teste>
+         ```
+       - Se a validação da suíte core falhar, o script executa rollback automático, preservando o arquivo original em `tests/features/` sem quebrar a integridade do repositório.
    - Executar `./scripts/pipeline/sync-project-context.py .` para validar e manter o contexto arquitetural estável em `PROJECT_CONTEXT.md` (sem estado Git volátil, que é injetado dinamicamente pelo `session-start-context.sh`).
    - Executar `./scripts/pipeline/metrics-collector.py` para calcular o consumo de tokens da esteira.
    - Gerar o artefato consolidado `walkthrough.md`.

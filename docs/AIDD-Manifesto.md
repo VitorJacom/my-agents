@@ -121,15 +121,19 @@ flowchart LR
 - `tests/features/`: Onde o QA Engineer cria novos testes de aceitação específicos da issue ativa.
 
 ### 3.2. A "Golden Rule" via Bash (Gatekeeper & CI)
-Antes de comitar ou abrir PR, o Gatekeeper e os pipelines de CI executam a checagem determinística do Git:
+> [!NOTE]
+> **Evolução da Golden Rule (ADR-0015)**: A checagem determinística clássica `MODIFIED=$(git diff --name-only origin/main...HEAD 2>/dev/null | grep -E '^tests/core/' || true)` foi modernizada com a flag `--diff-filter=MD` para permitir a adição legítima de novos testes promovidos pós-GREEN sem disparar falsos positivos de fraude.
+
+Antes de comitar ou abrir PR, o Gatekeeper e os pipelines de CI executam a checagem determinística do Git com `--diff-filter=MD` para detectar estritamente modificações (`M`) e deleções (`D`) ilegais em `tests/core/`:
 ```bash
-MODIFIED=$(git diff --name-only origin/main...HEAD 2>/dev/null | grep -E '^tests/core/' || true)
+MODIFIED=$(git diff --diff-filter=MD --name-only origin/main...HEAD 2>/dev/null | grep -E '^tests/core/' || true)
 if [ -n "$MODIFIED" ]; then
-  echo "ALERTA DE FRAUDE: O agente modificou arquivos protegidos em tests/core/!"
+  echo "ALERTA DE FRAUDE: O agente modificou ou removeu arquivos protegidos em tests/core/!"
   exit 1
 fi
 ```
-Se houver **1 caractere alterado** em `tests/core/`, a esteira é abortada imediatamente com erro fatal.
+- **Adulteração / Fraude**: Se houver **1 caractere alterado** (`M`) ou qualquer arquivo excluído (`D`) em `tests/core/`, a esteira é abortada imediatamente com erro fatal (Circuit-Breaker).
+- **Adições Legítimas Auditadas**: Novos arquivos adicionados (`A`) em `tests/core/` (como testes promovidos via `promote-core-test.sh` após aprovação formal na ADR-0015) são permitidos e auditados sem disparar falso positivo.
 
 ### 3.3. Anti-Triviality & Mutation Testing
 - Proibido escrever testes vazios ou tautológicos (ex.: `expect(true).toBe(true)` ou `assert True`).
