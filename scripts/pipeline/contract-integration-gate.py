@@ -78,7 +78,10 @@ def evaluate_join_point(
     if not tests_passed and not coverage_passed:
         motivo = f"falha na suíte (exit code {test_exit_code}) e cobertura insuficiente ({coverage:.1f}% < {min_coverage:.1f}%)"
     elif not tests_passed:
-        motivo = f"falha na suíte de testes (exit code {test_exit_code})"
+        if test_exit_code == 124:
+            motivo = f"timeout na execução da suíte de testes (comando excedeu o tempo limite, exit code 124)"
+        else:
+            motivo = f"falha na suíte de testes (exit code {test_exit_code})"
     else:
         motivo = f"cobertura de código insuficiente ({coverage:.1f}% < {min_coverage:.1f}%)"
 
@@ -146,17 +149,25 @@ def verify_persona_confinement(
     return True, "Confinamento de escopo validado com sucesso (zero violação anti-fraude)."
 
 
-def run_test_command(cmd: str) -> tuple[int, str]:
-    """Executa o comando da suíte de testes em subprocesso com captura de saída."""
+def run_test_command(cmd: str, timeout: float = 60.0) -> tuple[int, str]:
+    """Executa o comando da suíte de testes em subprocesso com captura de saída e timeout rígido anti-hang."""
     try:
         proc = subprocess.run(
             cmd,
             shell=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
-            text=True
+            text=True,
+            timeout=timeout
         )
         return proc.returncode, proc.stdout
+    except subprocess.TimeoutExpired as te:
+        output = te.stdout or ""
+        if isinstance(output, bytes):
+            output = output.decode("utf-8", errors="replace")
+        msg = f"TIMEOUT: Comando de teste '{cmd}' excedeu o limite rígido de {timeout:.1f}s sem concluir (fail-fast)."
+        combined = f"{output}\n{msg}".strip() if output else msg
+        return 124, combined
     except Exception as e:
         return 127, f"Erro catastrófico ao invocar o comando de teste '{cmd}': {e}"
 
@@ -166,7 +177,8 @@ def main(argv: list[str] | None = None) -> int:
         description="Portão determinístico de integração do contrato (Join Point) - AIDD",
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument("--test-cmd", default="./tests/run.sh", help="Comando para executar a suíte de testes")
+    parser.add_argument("--test-cmd", default=None, help="Comando para executar a suíte de testes (obrigatório se --test-exit-code não for fornecido)")
+    parser.add_argument("--test-timeout", type=float, default=60.0, help="Timeout rígido em segundos para o comando de teste (default: 60s)")
     parser.add_argument("--test-exit-code", type=int, default=None, help="Código de saída simulado ou pré-executado")
     parser.add_argument("--iteration", type=int, default=1, help="Número da iteração ativa de reconciliação (>= 1)")
     parser.add_argument("--max-iterations", type=int, default=2, help="Teto máximo de iterações permitidas (default: 2)")
@@ -177,6 +189,15 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--json", action="store_true", help="Emite resultado em formato JSON")
 
     args = parser.parse_args(argv)
+
+    # Validação do parâmetro de timeout
+    if args.test_timeout is not None and args.test_timeout <= 0:
+        msg = "O valor de --test-timeout deve ser um número positivo maior que zero."
+        if args.json:
+            print(json.dumps({"status": "ERROR", "message": msg}, indent=2))
+        else:
+            print(f"❌ [JOIN_POINT: ERROR] {msg}", file=sys.stderr)
+        return 1
 
     # 1. Validação de Confinamento de Escopo (Anti-Fraude)
     qa_list = [f.strip() for f in args.qa_files.split(",") if f.strip()]
@@ -203,8 +224,18 @@ def main(argv: list[str] | None = None) -> int:
     output_log = ""
     if args.test_exit_code is not None:
         exit_code = args.test_exit_code
+    elif args.test_cmd:
+        exit_code, output_log = run_test_command(args.test_cmd, timeout=args.test_timeout)
     else:
-        exit_code, output_log = run_test_command(args.test_cmd)
+        msg = "Nenhum comando de teste fornecido via --test-cmd e nenhum --test-exit-code fornecido. O fallback pesado silencioso foi eliminado por segurança."
+        if args.json:
+            print(json.dumps({
+                "status": "ERROR",
+                "message": msg
+            }, indent=2))
+        else:
+            print(f"❌ [JOIN_POINT: ERROR] {msg}", file=sys.stderr)
+        return 1
 
     # 3. Avaliação do Join Point
     try:
@@ -221,6 +252,8 @@ def main(argv: list[str] | None = None) -> int:
 
     # 4. Formatação de Saída
     if args.json:
+        if output_log:
+            result["log"] = output_log
         print(json.dumps(result, indent=2))
     else:
         status_tag = result["status"]
@@ -229,8 +262,12 @@ def main(argv: list[str] | None = None) -> int:
             print(f"✅ [JOIN_POINT: APPROVED] {msg}")
         elif status_tag == "RECONCILE_REQUIRED":
             print(f"⚠️ [JOIN_POINT: RECONCILE_REQUIRED] {msg}")
+            if exit_code == 124 or "TIMEOUT:" in output_log:
+                print(f"🚨 [JOIN_POINT: TIMEOUT] {output_log}", file=sys.stderr)
         elif status_tag == "FAILED_CONTRACT_INTEGRATION":
             print(f"🚨 [JOIN_POINT: FAILED_CONTRACT_INTEGRATION] {msg}")
+            if exit_code == 124 or "TIMEOUT:" in output_log:
+                print(f"🚨 [JOIN_POINT: TIMEOUT] {output_log}", file=sys.stderr)
 
     # 5. Código de saída determinístico
     if result["status"] == "APPROVED":

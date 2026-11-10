@@ -67,13 +67,25 @@ Antes de gerar o commit:
 
 ---
 
-## 4. Template de Pull Request
+## 4. Template de Pull Request & Auto-Close de Issues
 
-Ao sugerir ou preparar a descrição de um Pull Request, use a seguinte estrutura:
+Ao sugerir ou preparar a descrição de um Pull Request (`walkthrough.md` ou template de PR):
+
+### 4.1. Vinculação com Issues (Closing Keywords em Texto Puro)
+Para que o GitHub encerre automaticamente a Issue vinculada ao mergear o Pull Request, utilize as palavras-chave suportadas (`Fixes #<numero>`, `Closes #<numero>` ou `Resolves #<numero>`) estritamente em **texto puro (plain text)**.
+
+> [!WARNING]
+> **Atenção ao Parser do GitHub**: Palavras-chave formatadas com crases inline (como `` `Fixes #123` ``) ou dentro de code blocks desativam o mecanismo nativo do GitHub e **não disparam o fechamento automático da issue** no merge. Use sempre texto puro fora de blocos de código.
+
+### 4.2. Estrutura do Template de PR
+
+Fixes #<issue-number>
 
 ```markdown
 ## Descrição
 Resumo sucinto das alterações e motivação técnica ou de negócio.
+
+Fixes #<issue-number>
 
 ## Tipo de Mudança
 - [ ] Nova feature (feat)

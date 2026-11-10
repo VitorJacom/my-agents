@@ -408,4 +408,43 @@ Para equilibrar a velocidade e economia de tokens da IA com a visibilidade de ge
   4. **Multi-Formato de Renderização**:
      - Formato Terminal com cores ANSI, formato Markdown estruturado para PRs e formato JSON padronizado para integração programática.
 
+---
+
+### Decisão 0018 (2026-11-09): Ciclo de Vida Reativo, Inicialização Idempotente e Reconciliação Contínua de Status no GitHub Projects v2
+* **Status**: Aprovada
+* **Contexto**:
+  - No ecossistema AIDD, o gerenciamento de issues e o acompanhamento visual do progresso de engenharia dependem do GitHub Projects v2 (Kanban Board / View 2).
+  - Anteriormente, a criação ou transição de issues pelo CLI (`gh issue create`) ou durante o fatiamento de épicos não garantia a inicialização imediata do campo de status, gerando o problema crônico de cartões órfãos na coluna *"No Status"* do Kanban.
+  - Além disso, a evolução do ciclo de vida das issues durante o desenvolvimento (do planejamento e confinamento em worktrees até a abertura de Pull Requests e merge/fechamento) dependia de intervenções manuais ou ficava assíncrona em relação ao quadro do projeto, sem reatividade a eventos nativos do GitHub.
+  - Havia a necessidade de consolidar uma arquitetura de sincronização resiliente que operasse tanto localmente via CLI nos subagentes (com degradação graciosa caso o token não possua privilégios em Projects v2) quanto remotamente no CI/CD via GitHub Actions com tratamento estrito de concorrência e fail-fast.
+* **Solução Adotada**:
+  1. **Taxonomia Canônica Unificada de Status (Planned, In Progress, In Review, Done)**:
+     - Mapeamento determinístico dos quatro estados canônicos do ciclo de vida AIDD para as colunas do Kanban View 2:
+       - `Planned`: Issue recém-criada, reaberta ou refinada no backlog, aguardando alocação e despacho de desenvolvimento.
+       - `In Progress`: Desenvolvimento ativo iniciado por subagentes (fase de planejamento, TDD em fork concorrente QA/Coder ou worker confinado em worktree isolada).
+       - `In Review`: Pull Request aberto e pronto para inspeção (estado pronto para auditoria/gatekeeping, excluindo rascunhos / *drafts*).
+       - `Done`: Issue resolvida e fechada, ou Pull Request integrado/mergeado com sucesso.
+     - Normalização inteligente e tolerante a sinônimos no sincronizador (mapeando termos comuns como `todo`, `doing`, `wip`, `review` e `completed` diretamente para os 4 valores canônicos).
+  2. **Auto-Inclusão Idempotente e Transição Resiliente (`scripts/pipeline/project-status-sync.sh`)**:
+     - Utilitário desacoplado de CLI que garante a auto-inclusão prévia da issue no Project v2 (`gh project item-add`) caso ela ainda não conste no quadro, prevenindo erros de item inexistente antes de aplicar a alteração de status (`gh project item-edit`).
+     - Resolução resiliente de metadados internos de schema (Project ID, Status Field ID e Option ID) via queries GraphQL e CLI, suportando nomes parametrizados de campos definidos em `PROJECT_CONTEXT.md` (fallback para `"Status"`).
+     - *Degradação Graciosa (Non-Blocking)*: Falhas decorrentes de falta de escopo no token (`project`), permissões insuficientes ou falha transitória de rede emitem avisos explicativos (`⚠️ [WARN]`) sem abortar o processo com erro fatal, preservando a continuidade operacional dos subagentes locais.
+  3. **Reconciliação Idempotente de Backlog e Encerramento (`scripts/pipeline/reconcile-github-governance.sh`)**:
+     - Utilitário central de governança e backfill idempotente, executado pós-planejamento em lote (`/plan-feature`) ou em auditorias periódicas.
+     - Inicialização preventiva: atribui automaticamente o status inicial `Planned` a todas as issues abertas sem status, erradicando cartões na coluna *"No Status"*.
+     - Preservação estrita de estado: issues abertas que já possuam qualquer status atribuído (`In Progress`, `In Review`, etc.) não têm seus valores sobrescritos.
+     - Suporte ao ciclo de encerramento (`--include-closed`): varre issues fechadas e transita seu status no Project v2 deterministicamente para `Done`.
+     - Suporte a `--dry-run` para auditoria e pré-visualização segura de mutações sem escrita na API do GitHub.
+  4. **Reatividade Orientada a Eventos no CI/CD (`.github/workflows/project-v2-automation.yml`)**:
+     - Workflow automatizado de GitHub Actions engatilhado reativamente por eventos de repositório:
+       - `issues: [opened, reopened, closed]`: Inclusão e transição imediata (`opened/reopened` $\rightarrow$ `Planned`; `closed` $\rightarrow$ `Done`).
+       - `pull_request: [opened, reopened, ready_for_review, closed]`: Transição automática (`opened/reopened/ready_for_review` $\rightarrow$ `In Review`, ignorando PRs marcados como draft; `closed` $\rightarrow$ `Done`).
+       - `workflow_dispatch`: Disparo manual sob demanda invocando a reconciliação completa via `reconcile-github-governance.sh`.
+     - Controle estrito de concorrência por issue/PR (`concurrency: group: project-v2-sync-...`, `cancel-in-progress: false`), prevenindo *race conditions* e execuções conflitantes.
+     - Condução com tolerância zero a falsos positivos: execução sob `set -euo pipefail` e diagnósticos com anotações de log do GitHub Actions (`::error::` e `::warning::`).
+* **Consequências Técnicas**:
+  - Elimina completamente o problema de cartões órfãos ("No Status") no Kanban View 2 do GitHub Projects v2.
+  - Visibilidade em tempo real do estado real de engenharia para observadores e stakeholders, sem necessidade de sincronização manual.
+  - Desacoplamento entre execução local e automação remota: scripts locais e workflows de CI compartilham a mesma taxonomia e regras idempotentes.
+  - Degradação graciosa no ambiente local evita que desenvolvedores e agentes sem tokens com escopo de escrita em projetos corporativos tenham seu fluxo de código bloqueado.
 

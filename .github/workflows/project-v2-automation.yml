@@ -1,0 +1,141 @@
+name: GitHub Projects v2 Automation
+
+on:
+  issues:
+    types:
+      - opened
+      - reopened
+      - closed
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - ready_for_review
+      - closed
+  workflow_dispatch:
+
+concurrency:
+  group: project-v2-sync-${{ github.event.issue.number || github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: false
+
+permissions:
+  issues: write
+  pull-requests: write
+  repository-projects: write # project: write access
+
+jobs:
+  sync-project-v2:
+    name: Sync GitHub Projects v2
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Synchronize Item with Project v2
+        env:
+          GH_TOKEN: ${{ secrets.PROJECT_ACCESS_TOKEN || secrets.GH_TOKEN || secrets.GITHUB_TOKEN }}
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_ACTION: ${{ github.event.action }}
+          ISSUE_URL: ${{ github.event.issue.html_url }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          IS_DRAFT: ${{ github.event.pull_request.draft }}
+        run: |
+          set -euo pipefail
+
+          echo "Iniciando automação de sincronização do GitHub Projects v2..."
+
+          # Validação de token de autenticação
+          if [ -z "${GH_TOKEN:-}" ]; then
+            echo "::error::Nenhum token de autenticação (PROJECT_ACCESS_TOKEN, GH_TOKEN ou GITHUB_TOKEN) disponível."
+            echo "::error::Configure o secret PROJECT_ACCESS_TOKEN com escopo 'project' para automação de Projects v2."
+            exit 1
+          fi
+
+          EVENT_NAME="${EVENT_NAME:-}"
+          EVENT_ACTION="${EVENT_ACTION:-}"
+
+          echo "Evento detectado: $EVENT_NAME (Ação: $EVENT_ACTION)"
+
+          # Extração de configurações de PROJECT_CONTEXT.md
+          CONTEXT_FILE="${PROJECT_CONTEXT_PATH:-"PROJECT_CONTEXT.md"}"
+          if [ ! -f "$CONTEXT_FILE" ]; then
+            echo "::warning::PROJECT_CONTEXT.md não encontrado ($CONTEXT_FILE). Abortando sincronização de governança."
+            exit 0
+          fi
+
+          extract_context_val() {
+            local key="$1"
+            grep -E "^\s*-\s*\*\*$key\*\*:" "$CONTEXT_FILE" 2>/dev/null | head -n 1 | sed -E 's/.*:\s*"?([^"#]*)"?.*/\1/' | tr -d '\r' | xargs || true
+          }
+
+          OWNER=$(extract_context_val "Owner")
+          PROJECT_NUM=$(extract_context_val "Project Number")
+          STATUS_FIELD=$(extract_context_val "Status Field")
+          if [ -z "$STATUS_FIELD" ] || [ "$STATUS_FIELD" = "None" ]; then
+            STATUS_FIELD="Status"
+          fi
+
+          if [ -z "$OWNER" ] || [ "$OWNER" = "None" ] || [ -z "$PROJECT_NUM" ] || [ "$PROJECT_NUM" = "None" ]; then
+            echo "::warning::GitHub Project v2 não configurado ou inativo em PROJECT_CONTEXT.md. Encerrando."
+            exit 0
+          fi
+
+          # 1. Disparo manual: Reconciliação completa
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            echo "Executando reconciliação sob demanda via reconcile-github-governance.sh..."
+            bash scripts/pipeline/reconcile-github-governance.sh
+            echo "Reconciliação manual concluída com sucesso."
+            exit 0
+          fi
+
+          # 2. Resolução do Item URL e Status Alvo
+          ITEM_URL=""
+          TARGET_STATUS=""
+
+          if [ "$EVENT_NAME" = "issues" ]; then
+            ITEM_URL="${ISSUE_URL:-}"
+            if [ "$EVENT_ACTION" = "opened" ] || [ "$EVENT_ACTION" = "reopened" ]; then
+              TARGET_STATUS="Planned"
+            elif [ "$EVENT_ACTION" = "closed" ]; then
+              TARGET_STATUS="Done"
+            fi
+          elif [ "$EVENT_NAME" = "pull_request" ]; then
+            ITEM_URL="${PR_URL:-}"
+            IS_DRAFT="${IS_DRAFT:-}"
+            if [ "$EVENT_ACTION" = "opened" ] || [ "$EVENT_ACTION" = "reopened" ] || [ "$EVENT_ACTION" = "ready_for_review" ]; then
+              if [ "$IS_DRAFT" = "true" ]; then
+                echo "Pull Request está em rascunho (draft). Ignorando transição para 'In Review'."
+                exit 0
+              fi
+              TARGET_STATUS="In Review"
+            elif [ "$EVENT_ACTION" = "closed" ]; then
+              TARGET_STATUS="Done"
+            fi
+          fi
+
+          if [ -z "$ITEM_URL" ] || [ -z "$TARGET_STATUS" ]; then
+            echo "Nenhuma ação de transição necessária para o evento $EVENT_NAME ($EVENT_ACTION)."
+            exit 0
+          fi
+
+          echo "Sincronizando item: $ITEM_URL -> Status: '$TARGET_STATUS'"
+
+          # Adicionar item ao Project v2 caso seja novo / aberto
+          if [ "$TARGET_STATUS" = "Planned" ] || [ "$TARGET_STATUS" = "In Review" ]; then
+            echo "Garantindo inclusão do item no Project $PROJECT_NUM ($OWNER)..."
+            if ! gh project item-add "$PROJECT_NUM" --owner "$OWNER" --url "$ITEM_URL" 2>err_add.log; then
+              ERR_MSG=$(cat err_add.log 2>/dev/null || echo "Desconhecido")
+              if echo "$ERR_MSG" | grep -qiE "(scope|permission|not accessible|unauthorized)"; then
+                echo "::warning::Falha de autorização ao adicionar item ao Project v2: $ERR_MSG"
+                echo "::warning::Certifique-se de configurar PROJECT_ACCESS_TOKEN com escopo 'project'."
+              else
+                echo "::warning::Aviso na adição ao Project v2: $ERR_MSG"
+              fi
+            fi
+          fi
+
+          # Atualizar status via script canônico
+          echo "Atualizando status para '$TARGET_STATUS' via project-status-sync.sh..."
+          bash scripts/pipeline/project-status-sync.sh "$ITEM_URL" "$TARGET_STATUS"
+
+          echo "Automação de sincronização concluída com sucesso."

@@ -34,14 +34,21 @@ O agente **não conversa em texto corrido para gerenciar estado**; ele é obriga
 ### 1.3. `walkthrough.md` (O Relatório de Provas Determinísticas)
 - É a substituição da inspeção manual no VS Code e a descrição oficial do Pull Request.
 - Contém a prova irrefutável de cumprimento da tarefa: comando exato executado (ex.: `pytest`, `npx vitest run`), logs de 100% de sucesso, saída de `git status --short` e diff dos arquivos modificados. Se o relatório estiver verde e sem desvios, o merge pode ser feito com segurança.
+- **Vinculação e Auto-Close de Issues (Closing Keywords em Texto Puro)**: O relatório DEVE referenciar explicitamente a Issue resolvida utilizando palavras-chave de fechamento suportadas pelo GitHub (`Fixes #<id>`, `Closes #<id>` ou `Resolves #<id>`) estritamente em **texto puro (plain text)**. É expressamente proibido envolver a closing keyword em crases inline (como `` `Fixes #123` ``) ou em blocos de código, pois o parser nativo do GitHub desativa o fechamento automático (auto-close) quando a keyword está formatada como código.
 - **Provas Demonstrativas Universais Mandatórias**: Nenhuma entrega é isenta de comprovação comprobatória real. O relatório DEVE conter evidências demonstrativas adequadas à natureza da tarefa:
   - **UIs e Front-end (Web, Mobile, Jogos 2D/3D ou UIs ricas de terminal)**: Testes unitários lógicos 100% verdes NÃO são suficientes. O relatório DEVE conter evidências visuais irrefutáveis (screenshot gerado via navegador headless como `chromium --headless`, logs de renderização do canvas ou prova gráfica visual), prevenindo interfaces quebradas, textos ilegíveis ou paletas sem contraste de luminância.
+    - **URLs Canônicas Absolutas Raw do GitHub (Proibição de Caminhos Relativos)**: É expressamente proibido o uso de caminhos relativos (como `docs/assets/mockups/<slug>.png`, `./docs/...` ou caminhos locais) para imagens, mockups e screenshots no `walkthrough.md` ou no corpo do Pull Request. Caminhos relativos não resolvem e quebram na descrição e preview do PR no GitHub. Todas as evidências visuais na tabela comparativa (`## 👁️ Visual Comparison Audit`) e no corpo do PR DEVEM obrigatoriamente utilizar URLs canônicas absolutas raw do GitHub (`https://raw.githubusercontent.com/<owner>/<repo>/<branch_or_commit>/<path>`), recomendando-se tags HTML `<img src="https://raw.githubusercontent.com/..." width="560" />` para garantir largura uniforme e visualização lado a lado responsiva.
   - **Backend, CLI, Scripts e Infraestrutura**: Tarefas puramente backend, CLI ou de infraestrutura NÃO são isentas de provas demonstrativas; o relatório DEVE conter evidências demonstrativas reais de execução (saída CLI formatada, snapshots de terminal ou logs estruturados), comprovando a integridade dos fluxos e discriminando cenários de Happy Path e Edge Cases / Failure Modes.
 
 ### 1.4. Tolerância Zero a Falsos Positivos em Automações (Fail-Fast Mandatório)
 - Scripts de automação, workflows de CI/CD, hooks e steps em bash NUNCA devem mascarar falhas de operações dependentes com `exit 0` (ex.: capturar erro de clone, push ou rede e sair com sucesso informativo).
 - Todo script de automação deve iniciar com `set -euo pipefail`.
 - Se uma dependência externa falhar (ex: clone da Wiki, API fora do ar, build ausente), o script DEVE emitir erro explícito e encerrar com `exit 1` (usando anotações `::error::` no GitHub Actions), garantindo que o pipeline fique vermelho (RED) imediatamente.
+
+### 1.5. Timeouts Rígidos Mandatórios em Testes, Anti-Hang e Mocks Determinísticos
+- **Timeouts Rígidos Mandatórios em Subprocessos**: Todo script, portão de integração ou esteira que executa comandos de teste em subprocessos DEVE impor timeout rígido mandatório finito (`timeout` explícito, padrão de 60s). Subprocessos sem timeout que podem travar indefinidamente são estritamente proibidos. Em caso de expiração (`subprocess.TimeoutExpired`), o script deve tratar a exceção com fail-fast imediato (código de erro e diagnóstico claro), impedindo hangs na esteira.
+- **Proibição de Fallback Pesado Silencioso**: É estritamente proibido criar scripts ou portões que executem suítes pesadas completas (ex.: `./tests/run.sh`) como fallback default implícito quando parâmetros não forem fornecidos. O comando de teste (`--test-cmd`) ou código pré-executado (`--test-exit-code`) deve ser fornecido explicitamente. Fallback implícito mascara erros e induz execuções recursivas e pesadas.
+- **Obrigatoriedade de Mocks em Testes de Esteira e CLI**: Suítes de teste automatizadas que validam infraestrutura, scripts de pipeline, portões de integração ou comandos CLI DEVEM utilizar mocks determinísticos explícitos (`--test-cmd "true"` ou similar) em vez de acionar a suíte real do projeto. Isso garante isolamento estrito, testes de milissegundos e blindagem contra recursão infinita.
 
 ---
 
@@ -191,5 +198,13 @@ Para repositórios governados pelo ecossistema AIDD e integrados ao GitHub Proje
 
 ### 9.4. Refinamento In-place e Reorganização de Backlog
 - **Atualização sem Duplicação**: Durante o planejamento ou reavaliação de prioridades, deve-se priorizar o refinamento in-place e reorganização de issues já existentes no backlog via `gh issue edit` (ajustando títulos, corpos, milestones ou campos de projeto), evitando a criação de issues redundantes ou duplicadas.
+
+### 9.5. Vinculação e Auto-Close de Issues em Pull Requests (Plain-Text Closing Keywords)
+- **Palavras-Chave Canônicas em Texto Puro**: Toda entrega que encerra uma issue deve declarar no corpo do PR (`walkthrough.md`) a diretiva de fechamento oficial do GitHub (`Fixes #<id>`, `Closes #<id>` ou `Resolves #<id>`) estritamente em texto puro (plain text).
+- **Proibição de Crases / Blocos de Código em Keywords**: O parser do GitHub desativa o fechamento automático (auto-close) se a diretiva estiver contida entre crases inline (como `` `Fixes #123` ``) ou dentro de blocos de código. A declaração da palavra-chave de fechamento sem crases em texto puro é mandatória para garantir que o fechamento ocorra automaticamente no merge para a branch padrão.
+
+### 9.6. URLs Canônicas Raw para Evidências Visuais e Mockups em PRs
+- **Proibição de Caminhos Relativos**: É expressamente proibido o uso de caminhos relativos (`docs/assets/mockups/...`) para imagens e mockups no corpo do PR e `walkthrough.md`. Caminhos relativos falham ou quebram na descrição e preview do PR no GitHub.
+- **Uso Obrigatório de URLs Canônicas Absolutas Raw**: Todas as referências visuais na tabela comparativa e no corpo do PR devem utilizar URLs absolutas no formato canônico `https://raw.githubusercontent.com/<owner>/<repo>/<branch_or_commit>/<path>` ou via tag `<img src="https://raw.githubusercontent.com/..." width="560" />` para assegurar diagramação lado a lado consistente.
 
 

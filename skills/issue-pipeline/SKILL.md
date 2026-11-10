@@ -97,7 +97,7 @@ O agente orquestrador guia a execução estado por estado, chamando os subagente
 
 ### 📍 ESTADO 1: PLANNING
 1. Identifique o número da Issue e seu contexto.
-2. Atualize o status da Issue no GitHub Projects v2 para 'In Progress' via script utilitário desacoplado:
+2. Atualize o status da Issue no GitHub Projects v2 para 'In Progress' via script utilitário desacoplado (com auto-inclusão idempotente e normalização de taxonomia canônica):
    ```bash
    ./scripts/pipeline/project-status-sync.sh "<numero_ou_url>" "In Progress"
    ```
@@ -153,11 +153,11 @@ Com a seção `## Interface Contract` congelada e validada no ESTADO 1, o orques
 No ponto de integração (Join Point), o orquestrador unifica os testes construídos em `tests/features/` e a implementação em `src/`, executando a suíte para validar a convergência sob o contrato:
 
 1. **Execução do Portão de Integração**:
-   - O orquestrador executa o utilitário determinístico do Join Point:
+   - O orquestrador executa o utilitário determinístico do Join Point com comando explícito e timeout rígido:
      ```bash
-     ./scripts/pipeline/contract-integration-gate.sh --iteration 1
+     ./scripts/pipeline/contract-integration-gate.sh --iteration 1 --test-cmd "./tests/run.sh"
      ```
-     (o utilitário executa o runner `./tests/run.sh`, valida a conformidade das interfaces, audita a cobertura mínima $\ge 85\%$ e checa o confinamento anti-fraude).
+     (o utilitário executa o runner `./tests/run.sh` com timeout anti-hang de 60s, valida a conformidade das interfaces, audita a cobertura mínima $\ge 85\%$ e checa o confinamento anti-fraude).
 2. **Avaliação do Join Point**:
    - **Cenário A: Sucesso Imediato (GREEN & Cobertura >= 85%)**:
      - Se todos os testes passarem (**GREEN**) e a cobertura de código for $\ge 85\%$:
@@ -170,7 +170,7 @@ No ponto de integração (Join Point), o orquestrador unifica os testes constru�
      - Em cada iteração de reconciliação:
        - O `coder` é invocado com as falhas reportadas pela suíte para ajustar a implementação em `src/`, mantendo aderência estrita ao `## Interface Contract` congelado.
        - A **Trava Anti-Fraude** permanece inviolável: o `coder` é proibido de editar ou afrouxar arquivos da pasta `tests/`.
-       - O orquestrador reexecuta `./scripts/pipeline/contract-integration-gate.sh --iteration 2`.
+       - O orquestrador reexecuta `./scripts/pipeline/contract-integration-gate.sh --iteration 2 --test-cmd "./tests/run.sh"`.
      - Se os testes passarem (**GREEN**) e a cobertura for $\ge 85\%$ dentro do teto de 2 iterações: o portão é aprovado e a esteira avança imediatamente (para ESTADO 3.5 se visual, ou ESTADO 4 se não).
      - **Fail-Safe em Esgotamento**: Se após as 2 iterações a suíte não ficar 100% verde ou a cobertura permanecer abaixo de 85% (< 85%), o script emite `[JOIN_POINT: FAILED_CONTRACT_INTEGRATION]` (Exit Code 2). Interrompa a esteira imediatamente com status de falha, apresentando o log de discrepâncias para auditoria humana.
 
@@ -200,12 +200,12 @@ No ponto de integração (Join Point), o orquestrador unifica os testes constru�
    - **Auditoria do Duplo Gate**: Comprovar conformidade estrutural contra o `PROJECT_CONTEXT.md` (zero alucinação de padrões).
    - **Auditoria de Cobertura e Casos**: Auditar que a cobertura de código é $\ge 85\%$ e que a suíte contempla separadamente cenários de Happy Path e Edge Cases / cenários de borda. Se a cobertura for inferior a 85% (< 85%), aborte e bloqueie a finalização.
    - **Auditoria Visual Mandatória**: Para issues com `UI_UX_REQUIRED: true`, exigir obrigatoriamente a auditoria visual aprovada com `VISUAL_AUDIT: APPROVED` e anexar a prova visual irrefutável (screenshot headless) no `walkthrough.md`.
-   - **Auditoria Visual Comparativa (Living Mockup Side-by-Side)**: Para issues com `UI_UX_REQUIRED: true`, embutir obrigatoriamente a seção `## 👁️ Visual Comparison Audit` no `walkthrough.md` e corpo do PR contendo a tabela comparativa:
+   - **Auditoria Visual Comparativa (Living Mockup Side-by-Side)**: Para issues com `UI_UX_REQUIRED: true`, embutir obrigatoriamente a seção `## 👁️ Visual Comparison Audit` no `walkthrough.md` e corpo do PR contendo a tabela comparativa. É estritamente proibido o uso de caminhos relativos (`docs/assets/mockups/...`) no corpo do PR e walkthrough; deve-se utilizar URLs canônicas absolutas raw do GitHub (`https://raw.githubusercontent.com/<owner>/<repo>/<branch_or_commit>/<path>`) ou tags `<img src="https://raw.githubusercontent.com/..." width="560" />` para garantir renderização lado a lado responsiva:
      ```markdown
      ## 👁️ Visual Comparison Audit
      | Mockup Original Aprovado | Implementação Renderizada |
      | :---: | :---: |
-     | ![Mockup Original](docs/assets/mockups/<slug>.png) | ![Implementação Renderizada](<caminho_ou_screenshot>) |
+     | <img src="https://raw.githubusercontent.com/<owner>/<repo>/<branch_or_commit>/docs/assets/mockups/<slug>.png" width="560" /> | <img src="https://raw.githubusercontent.com/<owner>/<repo>/<branch_or_commit>/<caminho_ou_screenshot>" width="560" /> |
      ```
    - **Provas Demonstrativas Universais**: Exigir provas demonstrativas no `walkthrough.md` para todos os domínios (screenshots para UI; saídas reais formatadas de terminal, logs estruturados ou CLI para backend/infra).
    - **Promoção Segura de Testes Core (Invariantes)**:
@@ -221,8 +221,19 @@ No ponto de integração (Join Point), o orquestrador unifica os testes constru�
    - Executar `./scripts/pipeline/metrics-collector.py` para calcular o consumo de tokens da esteira.
    - Gerar o artefato consolidado `walkthrough.md`.
    - Comitar as alterações e abrir o Pull Request no GitHub (via MCP ou `gh pr create`) vinculando a Issue (`Fixes #<numero>`).
+   - **Transição de Status no Project v2 ('In Review')**:
+     Transite o status da Issue e/ou Pull Request para `'In Review'` no Kanban View 2 via `project-status-sync.sh`:
+     ```bash
+     ./scripts/pipeline/project-status-sync.sh "<pr_url_ou_numero_da_issue>" "In Review"
+     ```
+     *(Nota: Se configurado, o workflow de automação `.github/workflows/project-v2-automation.yml` também realiza essa transição reativamente no GitHub Actions).*
 2. **Conclusão & Handoff**:
    - Apresente ao usuário o link do Pull Request aberto, a tabela de telemetria de consumo/cota e a documentação gerada em `walkthrough.md`.
+   - Após a aprovação e o merge do Pull Request (ou fechamento da issue), o status transita para `'Done'`, acionado automaticamente pelo CI ou pelo comando operacional:
+     ```bash
+     ./scripts/pipeline/project-status-sync.sh "<numero_ou_url>" "Done"
+     ```
+   - Em auditorias periódicas, execute a reconciliação com `./scripts/pipeline/reconcile-github-governance.sh --include-closed` para consolidar todas as issues concluídas.
 
 ---
 
@@ -253,7 +264,7 @@ Para cada issue pertencente à onda ativa:
    ```bash
    ./scripts/pipeline/worktree-manager.sh create <id> --base <branch_intermediaria>
    ```
-2. O Maestro despacha workers isolados realizando delegação via `invoke_subagent 'self'` mandatória (cada issue da onda ativa deve ser despachada para um subagente worker desacoplado).
+2. O Maestro atualiza o status de cada issue da onda para `'In Progress'` via `./scripts/pipeline/project-status-sync.sh "<id>" "In Progress"` e despacha workers isolados realizando delegação via `invoke_subagent 'self'` mandatória (cada issue da onda ativa deve ser despachada para um subagente worker desacoplado).
 3. Cada worker opera com contexto limpo em isolamento estrito, confinado à sua worktree estéril `.worktrees/issue-<id>`, executando seu planejamento, testes (RED), codificação (GREEN) e auditoria local sem interferir na raiz ou em worktrees simultâneas.
 
 ### 📍 M4 & M5. Merge Queue Sequencial & Validação da Suíte Acumulada
@@ -294,3 +305,31 @@ Ao finalizar todas as ondas de execução:
      --title "feat(epic): batch integration of issues #A, #B, #C" \
      --body-file walkthrough.md
    ```
+3. **Transição de Status e Reconciliação Contínua**:
+   - Atualiza o status de cada issue do lote para `'In Review'` no Kanban View 2 via `./scripts/pipeline/project-status-sync.sh "<id>" "In Review"` (ou deixa o workflow de CI sincronizar reativamente).
+   - Após o merge do PR consolidado na branch `main`, execute a reconciliação final de encerramento para transitar todas as issues para `'Done'`:
+     ```bash
+     ./scripts/pipeline/reconcile-github-governance.sh --include-closed
+     ```
+
+---
+
+## 📊 Governança de Status no GitHub Projects v2 (Kanban View 2)
+
+O ecossistema AIDD mantém a rastreabilidade contínua do ciclo de desenvolvimento no GitHub Projects v2 fundamentando-se em 4 estados canônicos de Kanban:
+- **`Planned`**: Issue criada, decomposta ou refinada, aguardando início de execução.
+- **`In Progress`**: Desenvolvimento ativo em andamento (planejamento, testes TDD e implementação por workers em worktrees isoladas).
+- **`In Review`**: Pull Request aberto e pronto para inspeção, acionando o portão de gatekeeping.
+- **`Done`**: Issue fechada e Pull Request integrado com sucesso.
+
+### 🛠️ Utilitários de Sincronização e Reconciliação
+1. **Transição Pontual e Resiliente (`scripts/pipeline/project-status-sync.sh`)**:
+   - Acionado a cada transição de estado no pipeline local.
+   - Auto-inclui o item no Project v2 se ainda não existir (`gh project item-add`) antes da mutação de status.
+   - Aplica degradação graciosa não-bloqueante se o token não possuir privilégios de projeto.
+2. **Reconciliação Idempotente de Backlog (`scripts/pipeline/reconcile-github-governance.sh`)**:
+   - Inicializa issues abertas sem status como `'Planned'`, eliminando cartões órfãos em *"No Status"*.
+   - Transita issues fechadas para `'Done'` via `--include-closed`.
+   - Suporta `--dry-run` para auditoria sem mutações reais.
+3. **Reatividade Orientada a Eventos (`.github/workflows/project-v2-automation.yml`)**:
+   - CI/CD no GitHub Actions que reage instantaneamente aos eventos de `issues` e `pull_request`, sincronizando o quadro Kanban sem intervenção manual.

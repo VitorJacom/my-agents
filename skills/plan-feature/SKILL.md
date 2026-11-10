@@ -158,10 +158,15 @@ flowchart TD %% Ciclo Elephant-Goldfish com Decisão Condicional por Interface V
      ```
    > [!NOTE]
    > Adapte a label `type:*` para a natureza da issue fatiada (`type:feat`, `type:fix`, `type:docs`, `type:refactor`, `type:chore`, `type:test`).
-3. **Vinculação a GitHub Projects v2 e Atribuição de Release (Degradação Graciosa)**:
+3. **Vinculação a GitHub Projects v2, Status Inicial e Atribuição de Release (Degradação Graciosa)**:
    - Se `GitHub Project v2` estiver configurado em `PROJECT_CONTEXT.md` com `Owner` e `Project Number` válidos (diferentes de `None`), adicione cada issue criada ao quadro do projeto:
      ```bash
      gh project item-add "<project_number>" --owner "<owner>" --url "<issue_url>" || echo "⚠️ [WARN] Falha não-bloqueante ao adicionar issue ao GitHub Project v2 (<project_number>). Prosseguindo esteira."
+     ```
+   - **Inicialização de Status no Kanban View (Status Inicial Canônico "Planned")**:
+     Para evitar cartões órfãos na coluna *"No Status"*, inicialize o status inicial como `"Planned"` utilizando `scripts/pipeline/project-status-sync.sh`:
+     ```bash
+     ./scripts/pipeline/project-status-sync.sh "<issue_url>" "Planned"
      ```
    - **Atribuição do Campo Release no GitHub Project v2**: Se `Release Field` estiver configurado em `PROJECT_CONTEXT.md` (ex.: `"Release"`), atribua a versão planejada utilizando `gh project item-edit`:
      ```bash
@@ -171,7 +176,7 @@ flowchart TD %% Ciclo Elephant-Goldfish com Decisão Condicional por Interface V
 4. **Inclusão Obrigatória de Interface Contract e UI/UX Contract**: Todas as issues fatiadas devem conter obrigatoriamente a seção `## Interface Contract` (Signatures, Types & Interfaces, Inputs, Outputs, Errors) devidamente tipada, permitindo que QA e Coder atuem em paralelo. Para tarefas com interface visual, inclua adicionalmente a seção `## Visual & UI/UX Contract` (Spatial Blueprint ASCII, Design Tokens & Luminance Contract) e a seção `## 🎨 Mockup & Living Visual Spec` (contendo o preview visual embedado `![Mockup Preview](docs/assets/mockups/<slug>.png)` e o link para a especificação viva `[docs/mockups/<slug>.md](docs/mockups/<slug>.md)`) diretamente no corpo (`--body`) do comando `gh issue create`.
 5. Caso seja um Épico, vincule as sub-issues criadas à issue principal utilizando a flag `--parent <numero_do_epico>` (se suportado pelo repositório) ou adicione a checklist de links na descrição do Épico.
 6. Apresente ao desenvolvedor o sumário com os links de todas as Issues criadas no GitHub e a matriz consolidada de **Execution Waves**, prontas para serem executadas com `/run-issue #<numero>`.
-7. **Reconciliação e Auditoria de Backlog**: Execute o utilitário determinístico `scripts/pipeline/reconcile-github-governance.sh` para reconciliar as issues recém-criadas com a Milestone ativa e o GitHub Project v2, garantindo que o fatiamento reflita nas Views Kanban e de Roadmap sem deriva de governança:
+7. **Reconciliação e Auditoria de Backlog**: Execute o utilitário determinístico `scripts/pipeline/reconcile-github-governance.sh` para reconciliar as issues recém-criadas com a Milestone ativa e o GitHub Project v2, garantindo status inicial `"Planned"`, integridade das Views Kanban e Roadmap sem deriva de governança:
    ```bash
    ./scripts/pipeline/reconcile-github-governance.sh
    ```
@@ -183,9 +188,16 @@ flowchart TD %% Ciclo Elephant-Goldfish com Decisão Condicional por Interface V
 Para manter o backlog do repositório e o GitHub Projects v2 íntegros, organizados e sem deriva de governança, o ecossistema AIDD disponibiliza o utilitário determinístico `scripts/pipeline/reconcile-github-governance.sh`.
 
 ### 🎯 Casos de Uso
-1. **Pós-Planejamento em Lote**: Após o fatiamento de épicos ou criação de múltiplas issues via `/plan-feature`, garantindo que todas as sub-issues do breakdown sejam inseridas no Project v2 e na Active Milestone.
-2. **Backfill de Backlog Legado**: Inclusão retroativa de issues preexistentes criadas antes da configuração de Milestones ou Projects v2 em `PROJECT_CONTEXT.md`.
+1. **Pós-Planejamento em Lote**: Após o fatiamento de épicos ou criação de múltiplas issues via `/plan-feature`, garantindo que todas as sub-issues do breakdown sejam inseridas no Project v2, na Active Milestone e com status inicial `"Planned"`.
+2. **Backfill de Backlog Legado**: Inclusão retroativa de issues preexistentes criadas antes da configuração de Milestones ou Projects v2 em `PROJECT_CONTEXT.md`, eliminando cartões órfãos na coluna *"No Status"*.
 3. **Auditoria e Sincronização Periódica**: Execução idempotente para certificar que nenhuma issue aberta esteja desalinhada das políticas do repositório, mantendo views, labels e status sincronizados.
+
+### 🔄 Ciclo Canônico de Status no Kanban View 2
+O ciclo de vida de desenvolvimento AIDD é refletido diretamente nas colunas do quadro de governança:
+- **`Planned`**: Issue criada ou refinada, pronta para entrar no pipeline de execução.
+- **`In Progress`**: Execução ativa iniciada (planejamento, testes TDD ou codificação por workers).
+- **`In Review`**: Pull Request aberto ou em revisão (ready for review), aguardando gatekeeping e aprovação.
+- **`Done`**: Issue fechada ou Pull Request integrado com sucesso.
 
 ### ⚙️ Execução do Utilitário
 
@@ -196,9 +208,15 @@ Para manter o backlog do repositório e o GitHub Projects v2 íntegros, organiza
   ```
 
 - **Reconciliação Efetiva (Idempotente)**:
-  Lê a `Active Milestone` e os metadados do `GitHub Project v2` em `PROJECT_CONTEXT.md` e aplica as atualizações necessárias:
+  Lê a `Active Milestone` e os metadados do `GitHub Project v2` em `PROJECT_CONTEXT.md` e aplica as atualizações necessárias (vinculação à milestone e inicialização com `"Planned"`):
   ```bash
   ./scripts/pipeline/reconcile-github-governance.sh
+  ```
+
+- **Reconciliação com Issues Fechadas (`--include-closed`)**:
+  Processa também as issues fechadas no repositório, garantindo que seu status no Project v2 seja atualizado para `"Done"`:
+  ```bash
+  ./scripts/pipeline/reconcile-github-governance.sh --include-closed
   ```
 
 - **Execução com Repositório Remoto Específico**:
@@ -216,6 +234,7 @@ Para manter o backlog do repositório e o GitHub Projects v2 íntegros, organiza
 1. **Idempotência Estrita**:
    - Issues que já possuem a milestone ativa correspondente não sofrem alterações nem geram chamadas desnecessárias à API.
    - Issues com outras milestones explicitamente definidas são respeitadas e mantidas.
+   - Issues que já possuem status definido no Project v2 (`In Progress`, `In Review`, `Done`) têm seus valores preservados.
 2. **Degradação Graciosa (Non-Blocking)**:
    - Caso a vinculação ao GitHub Projects v2 falhe (por exemplo, ausência de escopo `project` no `GITHUB_TOKEN` ou projeto inacessível), o utilitário emite um aviso (`⚠️ [WARN]`) e conclui com status `0`, prevenindo que bloqueios de infraestrutura quebrem o pipeline do desenvolvedor.
 3. **Consistência de Views & Taxonomia**:
