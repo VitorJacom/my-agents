@@ -54,7 +54,21 @@ Analisa os logs dos transcripts (`transcript.jsonl`) e calcula o consumo determi
 ./scripts/pipeline/metrics-collector.py --issue 58 --agents '{"Planner": "<cid>", "Coder": "<cid>"}' --markdown
 ```
 
-### 2.3. `sync-project-context.py`
+### 2.3. `audit-token-efficiency.py`
+Analisa telemetria, transcripts do Antigravity CLI e dados de execução dos agentes, mapeando o consumo de tokens por fase (Planning, QA, Coding, Gatekeeper) e operações (tool calls), identificando hotspots de tokens e anomalias de cache com cálculo determinístico de score (0-100) e quality gate.
+```bash
+# Auditoria de transcript individual
+./scripts/audit-token-efficiency.py --transcript ~/.gemini/antigravity-cli/brain/<cid>/.system_generated/logs/transcript.jsonl
+
+# Auditoria multi-agente por fase com quality gate de score mínimo (fail-fast)
+./scripts/audit-token-efficiency.py --agents '{"Planner": "<cid1>", "QA": "<cid2>", "Coder": "<cid3>", "Gatekeeper": "<cid4>"}' --min-score 80
+
+# Emissão em JSON ou Markdown
+./scripts/audit-token-efficiency.py --transcript transcript.jsonl --markdown
+./scripts/audit-token-efficiency.py --transcript transcript.jsonl --json
+```
+
+### 2.4. `sync-project-context.py`
 Remove seções voláteis e dinâmicas (como estado efêmero do Git) do `PROJECT_CONTEXT.md`, assegurando que apenas o contexto arquitetural estável permaneça commitado no repositório.
 ```bash
 ./scripts/pipeline/sync-project-context.py .
@@ -90,17 +104,17 @@ cat planning_proposal.md | ./scripts/pipeline/validate-interface-contract.sh
 ### 2.7. `contract-integration-gate.sh`
 Valida o ponto de convergência (Join Point) entre os testes em `tests/features/` (criados pelo `qa-engineer`) e o código em `src/` (implementado pelo `coder`), gerenciando o loop de reconciliação de até 2 iterações e o fail-safe determinístico (ADR-0005).
 ```bash
-# Executar validação padrão do Join Point (executa ./tests/run.sh)
-./scripts/pipeline/contract-integration-gate.sh
+# Executar validação padrão do Join Point com comando explícito e timeout anti-hang (padrão 60s)
+./scripts/pipeline/contract-integration-gate.sh --test-cmd "./tests/run.sh"
 
-# Avaliar tentativa de reconciliação específica com cobertura
-./scripts/pipeline/contract-integration-gate.sh --iteration 2 --coverage 88.5
+# Avaliar tentativa de reconciliação específica com cobertura e timeout customizado
+./scripts/pipeline/contract-integration-gate.sh --iteration 2 --test-cmd "./tests/run.sh" --test-timeout 30 --coverage 88.5
 
-# Simulação determinística com código de saída injetado
+# Simulação determinística com código de saída injetado (dispensa --test-cmd)
 ./scripts/pipeline/contract-integration-gate.sh --test-exit-code 0 --coverage 92.0
 
-# Validação estrita de confinamento anti-fraude de personas
-./scripts/pipeline/contract-integration-gate.sh --qa-files "tests/features/test_foo.sh" --coder-files "src/foo.py"
+# Validação estrita de confinamento anti-fraude de personas com mock determinístico
+./scripts/pipeline/contract-integration-gate.sh --test-cmd "true" --qa-files "tests/features/test_foo.sh" --coder-files "src/foo.py"
 ```
 
 ---

@@ -36,6 +36,10 @@ Sua missão é materializar os critérios de aceite e o contrato técnico congel
 - **Mandatório incluir cenários de borda**: É proibido limitar-se apenas ao caminho feliz. É mandatório incluir testes para **Edge Cases & Failure Modes** (entradas anômalas, valores limítrofes e cenários de erro).
 - O teste **DEVE falhar** na primeira execução (`RED`). Se o teste passar imediatamente antes de qualquer código ser escrito, reavalie a asserção ou informe que o requisito já se encontra implementado.
 
+## ⏱️ Timeouts Rígidos Mandatórios e Isolamento com Mocks Determinísticos
+- **Prevenção de Hangs (Anti-Hang)**: Qualquer script de teste, utilitário ou portão executado deve impor timeouts rígidos e finitos (ex.: 60s) em chamadas de subprocesso. Subprocessos que travam ou executam sem tempo limite são terminantemente rejeitados.
+- **Mocks Determinísticos em Testes de Infra/Pipeline**: Ao testar scripts de pipeline, portões de contrato ou esteiras de execução, NUNCA execute a suíte pesada completa ou recursiva como dependência de teste. Utilize sempre mocks rápidos e determinísticos (ex.: `--test-cmd "true"` ou comandos pontuais) garantindo isolamento determinístico, eliminação de fallback pesado silencioso e testes rápidos em milissegundos.
+
 ## 📄 Contrato de Saída
 Retorne:
 1. Caminho completo dos arquivos de teste criados em `tests/features/<categoria>/` (`pipeline/`, `governance/`, `ui-ux/`, `wiki/`, `statusline/`).

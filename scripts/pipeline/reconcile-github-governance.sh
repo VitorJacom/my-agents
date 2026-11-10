@@ -7,6 +7,7 @@ set -euo pipefail
 # =============================================================================
 
 DRY_RUN=false
+INCLUDE_CLOSED=false
 REPO=""
 CONTEXT_FILE="${PROJECT_CONTEXT_PATH:-}"
 
@@ -16,6 +17,7 @@ Uso: scripts/pipeline/reconcile-github-governance.sh [OPÇÕES]
 
 Opções:
   --dry-run               Simula as alterações sem executá-las via GitHub CLI
+  --include-closed        Processa também issues fechadas atualizando status para 'Done' no Project v2
   --repo, -R <owner/repo> Especifica o repositório GitHub alvo
   --context-file <path>   Caminho para o arquivo PROJECT_CONTEXT.md
   -h, --help              Exibe esta mensagem de ajuda
@@ -27,6 +29,10 @@ while [ $# -gt 0 ]; do
   case "$1" in
     --dry-run)
       DRY_RUN=true
+      shift
+      ;;
+    --include-closed)
+      INCLUDE_CLOSED=true
       shift
       ;;
     --repo)
@@ -85,6 +91,8 @@ fi
 ACTIVE_MILESTONE="$ACTIVE_EPIC"
 OWNER=$(extract_context_val "Owner")
 PROJECT_NUM=$(extract_context_val "Project Number")
+STATUS_FIELD=$(extract_context_val "Status Field")
+DEFAULT_STATUS=$(extract_context_val "Default Status")
 RELEASE_FIELD=$(extract_context_val "Release Field")
 DEFAULT_RELEASE=$(extract_context_val "Default Release")
 
@@ -99,6 +107,14 @@ fi
 
 if [ "$PROJECT_NUM" = "None" ] || [ "$PROJECT_NUM" = "none" ] || [ "$PROJECT_NUM" = "null" ]; then
   PROJECT_NUM=""
+fi
+
+if [ "$STATUS_FIELD" = "None" ] || [ "$STATUS_FIELD" = "none" ] || [ "$STATUS_FIELD" = "null" ]; then
+  STATUS_FIELD=""
+fi
+
+if [ -z "$DEFAULT_STATUS" ] || [ "$DEFAULT_STATUS" = "None" ] || [ "$DEFAULT_STATUS" = "none" ] || [ "$DEFAULT_STATUS" = "null" ]; then
+  DEFAULT_STATUS="Planned"
 fi
 
 if [ "$RELEASE_FIELD" = "None" ] || [ "$RELEASE_FIELD" = "none" ] || [ "$RELEASE_FIELD" = "null" ]; then
@@ -128,25 +144,81 @@ try:
         m_title = m.get("title", "") if isinstance(m, dict) else (m or "")
         url = item.get("url", "")
         title = item.get("title", "")
-        print(f"{num}\x1f{m_title}\x1f{url}\x1f{title}")
+        state = item.get("state", "OPEN")
+        print(f"{num}\x1f{m_title}\x1f{url}\x1f{title}\x1f{state}")
 except Exception:
     sys.exit(0)
 '
   elif command -v jq >/dev/null 2>&1; then
-    jq -r '.[] | "\(.number)\u001f\(.milestone.title // "")\u001f\(.url // "")\u001f\(.title // "")"' 2>/dev/null || true
+    jq -r '.[] | "\(.number)\u001f\(.milestone.title // "")\u001f\(.url // "")\u001f\(.title // "")\u001f\(.state // "OPEN")"' 2>/dev/null || true
   fi
 }
 
-ISSUES_JSON=$(gh issue list "${GH_REPO_ARGS[@]}" --state open --json number,title,milestone,url --limit 100 2>/dev/null || echo "[]")
+STATE_FILTER="open"
+if [ "$INCLUDE_CLOSED" = "true" ]; then
+  STATE_FILTER="all"
+fi
+
+ISSUES_JSON=$(gh issue list "${GH_REPO_ARGS[@]}" --state "$STATE_FILTER" --json number,title,milestone,url,state --limit 100 2>/dev/null || echo "[]")
 ISSUES_DATA=$(echo "$ISSUES_JSON" | parse_issues)
 
 if [ -z "$ISSUES_DATA" ]; then
-  echo "[INFO] Nenhuma issue aberta encontrada para reconciliação."
+  echo "[INFO] Nenhuma issue encontrada para reconciliação."
   exit 0
 fi
 
-while IFS=$'\x1f' read -r NUM MILESTONE_TITLE URL TITLE; do
+# Mapeamento prévio de status de itens no Project v2
+declare -A PROJECT_STATUS_MAP=()
+STATUS_SYNC_ENABLED=false
+
+if [ -n "$OWNER" ] && [ -n "$PROJECT_NUM" ]; then
+  if [ -z "$STATUS_FIELD" ]; then
+    echo "⚠️ [WARN] Status Field não configurado ou inativo em PROJECT_CONTEXT.md. Pulando sincronização de status."
+  else
+    STATUS_SYNC_ENABLED=true
+    ERR_LIST_LOG=$(mktemp)
+    if PROJECT_ITEMS_RAW=$(gh project item-list "$PROJECT_NUM" --owner "$OWNER" --format json --limit 100 2>"$ERR_LIST_LOG"); then
+      STATUS_MAP_DATA=$(echo "$PROJECT_ITEMS_RAW" | python3 -c '
+import json, sys
+try:
+    data = json.load(sys.stdin)
+    items = data.get("items", []) if isinstance(data, dict) else []
+    sf = sys.argv[1].lower() if len(sys.argv) > 1 else "status"
+    for item in items:
+        content = item.get("content", {})
+        url = content.get("url", "")
+        num = str(content.get("number", ""))
+        val = ""
+        for k, v in item.items():
+            if k.lower() == sf:
+                if isinstance(v, dict):
+                    val = v.get("name", "")
+                else:
+                    val = str(v)
+                break
+        if val:
+            if url:
+                print(f"{url}\x1f{val}")
+            if num:
+                print(f"{num}\x1f{val}")
+except Exception:
+    sys.exit(0)
+' "$STATUS_FIELD" 2>/dev/null || true)
+      while IFS=$'\x1f' read -r K V; do
+        [ -z "$K" ] && continue
+        PROJECT_STATUS_MAP["$K"]="$V"
+      done <<< "$STATUS_MAP_DATA"
+    else
+      ERR_MSG=$(tr '\n' ' ' < "$ERR_LIST_LOG" | xargs || echo "Erro desconhecido")
+      echo "⚠️ [WARN] Falha não-bloqueante ao listar itens do Project v2 ($PROJECT_NUM): $ERR_MSG"
+    fi
+    rm -f "$ERR_LIST_LOG"
+  fi
+fi
+
+while IFS=$'\x1f' read -r NUM MILESTONE_TITLE URL TITLE STATE; do
   [ -z "$NUM" ] && continue
+  STATE=$(echo "${STATE:-OPEN}" | tr '[:lower:]' '[:upper:]')
 
   # 1. Reconciliação de Milestone
   if [ -n "$ACTIVE_MILESTONE" ]; then
@@ -177,6 +249,7 @@ while IFS=$'\x1f' read -r NUM MILESTONE_TITLE URL TITLE; do
       fi
     fi
 
+    # 2.1 Adição ao Project v2
     if [ "$DRY_RUN" = "true" ]; then
       echo "[DRY-RUN] Adicionando issue #$NUM ao Project v2 $PROJECT_NUM ($OWNER) via URL: $TARGET_URL"
       if [ -n "$RELEASE_FIELD" ] && [ -n "$DEFAULT_RELEASE" ]; then
@@ -194,6 +267,55 @@ while IFS=$'\x1f' read -r NUM MILESTONE_TITLE URL TITLE; do
           echo "[OK] Campo $RELEASE_FIELD configurado como '$DEFAULT_RELEASE' para issue #$NUM no Project v2."
         else
           echo "⚠️ [WARN] Falha não-bloqueante ao atualizar campo $RELEASE_FIELD para issue #$NUM no Project v2 ($PROJECT_NUM)."
+        fi
+      fi
+    fi
+
+    # 2.2 Sincronização e Idempotência de Status (Issue #70)
+    if [ "$STATUS_SYNC_ENABLED" = "true" ]; then
+      CURRENT_STATUS="${PROJECT_STATUS_MAP["$TARGET_URL"]:-}"
+      if [ -z "$CURRENT_STATUS" ]; then
+        CURRENT_STATUS="${PROJECT_STATUS_MAP["$NUM"]:-}"
+      fi
+
+      if [ "$STATE" = "CLOSED" ]; then
+        if [ "$CURRENT_STATUS" = "Done" ]; then
+          echo "[OK] Issue #$NUM já possui status 'Done' no Project v2 (idempotente)."
+        else
+          if [ "$DRY_RUN" = "true" ]; then
+            echo "[DRY-RUN] Atualizando status para 'Done' da issue fechada #$NUM no Project v2 $PROJECT_NUM"
+          else
+            ERR_EDIT_LOG=$(mktemp)
+            if gh project item-edit "$PROJECT_NUM" --owner "$OWNER" --url "$TARGET_URL" --field "$STATUS_FIELD" --value "Done" >/dev/null 2>"$ERR_EDIT_LOG"; then
+              echo "[OK] Status da issue fechada #$NUM atualizado para 'Done' no Project v2."
+              PROJECT_STATUS_MAP["$TARGET_URL"]="Done"
+              PROJECT_STATUS_MAP["$NUM"]="Done"
+            else
+              ERR_MSG=$(tr '\n' ' ' < "$ERR_EDIT_LOG" | xargs || echo "Erro desconhecido")
+              echo "⚠️ [WARN] Falha não-bloqueante ao atualizar status para 'Done' na issue #$NUM no Project v2 ($PROJECT_NUM): $ERR_MSG"
+            fi
+            rm -f "$ERR_EDIT_LOG"
+          fi
+        fi
+      else
+        # Issue OPEN
+        if [ -n "$CURRENT_STATUS" ]; then
+          echo "[INFO] Issue #$NUM já possui status '$CURRENT_STATUS' no Project v2. Mantendo."
+        else
+          if [ "$DRY_RUN" = "true" ]; then
+            echo "[DRY-RUN] Atribuindo status '$DEFAULT_STATUS' à issue #$NUM no Project v2 $PROJECT_NUM"
+          else
+            ERR_EDIT_LOG=$(mktemp)
+            if gh project item-edit "$PROJECT_NUM" --owner "$OWNER" --url "$TARGET_URL" --field "$STATUS_FIELD" --value "$DEFAULT_STATUS" >/dev/null 2>"$ERR_EDIT_LOG"; then
+              echo "[OK] Status da issue #$NUM configurado como '$DEFAULT_STATUS' no Project v2."
+              PROJECT_STATUS_MAP["$TARGET_URL"]="$DEFAULT_STATUS"
+              PROJECT_STATUS_MAP["$NUM"]="$DEFAULT_STATUS"
+            else
+              ERR_MSG=$(tr '\n' ' ' < "$ERR_EDIT_LOG" | xargs || echo "Erro desconhecido")
+              echo "⚠️ [WARN] Falha não-bloqueante ao atualizar status para '$DEFAULT_STATUS' na issue #$NUM no Project v2 ($PROJECT_NUM): $ERR_MSG"
+            fi
+            rm -f "$ERR_EDIT_LOG"
+          fi
         fi
       fi
     fi

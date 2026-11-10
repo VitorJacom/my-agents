@@ -70,11 +70,21 @@ while [[ $# -gt 0 ]]; do
         exit 1
       fi
       CATEGORY="$2"
+      CATEGORY="${CATEGORY#\"}"
+      CATEGORY="${CATEGORY%\"}"
+      CATEGORY="${CATEGORY#\'}"
+      CATEGORY="${CATEGORY%\'}"
+      CATEGORY="${CATEGORY%/}"
       MODE="category"
       shift 2
       ;;
-    --category=*)
+    -c=*|--category=*)
       CATEGORY="${1#*=}"
+      CATEGORY="${CATEGORY#\"}"
+      CATEGORY="${CATEGORY%\"}"
+      CATEGORY="${CATEGORY#\'}"
+      CATEGORY="${CATEGORY%\'}"
+      CATEGORY="${CATEGORY%/}"
       if [[ -z "$CATEGORY" || "$CATEGORY" == -* ]]; then
         echo -e "${C_RED}Erro: --category requer um nome de categoria.${C_RESET}" >&2
         exit 1
@@ -88,10 +98,18 @@ while [[ $# -gt 0 ]]; do
         exit 1
       fi
       FILTER="$2"
+      FILTER="${FILTER#\"}"
+      FILTER="${FILTER%\"}"
+      FILTER="${FILTER#\'}"
+      FILTER="${FILTER%\'}"
       shift 2
       ;;
-    --filter=*)
+    -f=*|--filter=*)
       FILTER="${1#*=}"
+      FILTER="${FILTER#\"}"
+      FILTER="${FILTER%\"}"
+      FILTER="${FILTER#\'}"
+      FILTER="${FILTER%\'}"
       if [[ -z "$FILTER" || "$FILTER" == -* ]]; then
         echo -e "${C_RED}Erro: --filter requer uma expressão de filtro.${C_RESET}" >&2
         exit 1
