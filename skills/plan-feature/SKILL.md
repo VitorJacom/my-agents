@@ -139,9 +139,9 @@ flowchart TD %% Ciclo Elephant-Goldfish com Decisão Condicional por Interface V
      - **Errors**: <excecoes_tipadas_e_cenarios_de_falha>
 
      ## 🎨 Mockup & Living Visual Spec
-     ![Mockup Preview](docs/assets/mockups/<slug>.png)
+     ![Mockup Preview](https://github.com/<owner>/<repo>/blob/aidd-assets/docs/assets/mockups/<slug>.png?raw=true)
 
-     - **Living Spec**: [docs/mockups/<slug>.md](docs/mockups/<slug>.md)
+     - **Living Spec**: [docs/mockups/<slug>.md](https://github.com/<owner>/<repo>/blob/aidd-assets/docs/mockups/<slug>.md)
 
      ## Target Files & Dependencies
      - Target Files: <caminhos_dos_arquivos>
@@ -173,7 +173,9 @@ flowchart TD %% Ciclo Elephant-Goldfish com Decisão Condicional por Interface V
      gh project item-edit "<project_number>" --owner "<owner>" --url "<issue_url>" --field "Release" --value "<release>" || echo "⚠️ [WARN] Falha não-bloqueante ao atualizar campo Release no GitHub Project v2. Prosseguindo esteira."
      ```
    - Em caso de erro (ex.: 403, permissões insuficientes ou projeto inexistente), o pipeline emite a mensagem `⚠️ [WARN]` e conclui sem bloquear a esteira (Princípio da Degradação Graciosa).
-4. **Inclusão Obrigatória de Interface Contract e UI/UX Contract**: Todas as issues fatiadas devem conter obrigatoriamente a seção `## Interface Contract` (Signatures, Types & Interfaces, Inputs, Outputs, Errors) devidamente tipada, permitindo que QA e Coder atuem em paralelo. Para tarefas com interface visual, inclua adicionalmente a seção `## Visual & UI/UX Contract` (Spatial Blueprint ASCII, Design Tokens & Luminance Contract) e a seção `## 🎨 Mockup & Living Visual Spec` (contendo o preview visual embedado `![Mockup Preview](docs/assets/mockups/<slug>.png)` e o link para a especificação viva `[docs/mockups/<slug>.md](docs/mockups/<slug>.md)`) diretamente no corpo (`--body`) do comando `gh issue create`.
+4. **Publicação Isolada e Inclusão de UI/UX Contract e Living Mockup**: Para tarefas com interface visual (`UI_UX_REQUIRED: YES`):
+   - Publique `docs/assets/mockups/<slug>.png`, `docs/mockups/<slug>.md` e `docs/mockups/README.md` na branch dedicada `aidd-assets` (usando um `git worktree` temporário a partir de `origin/aidd-assets` ou `HEAD` e fazendo push para `origin/aidd-assets`, **sem commitar na `main`**).
+   - Inclua obrigatoriamente a seção `## Visual & UI/UX Contract` (Spatial Blueprint ASCII, Design Tokens & Luminance Contract) e a seção `## 🎨 Mockup & Living Visual Spec` no `--body` do `gh issue create` usando URLs absolutas apontando para `aidd-assets` (`https://github.com/<owner>/<repo>/blob/aidd-assets/docs/assets/mockups/<slug>.png?raw=true` e `https://github.com/<owner>/<repo>/blob/aidd-assets/docs/mockups/<slug>.md`), garantindo renderização tanto em repositórios públicos quanto privados.
 5. Caso seja um Épico, vincule as sub-issues criadas à issue principal utilizando a flag `--parent <numero_do_epico>` (se suportado pelo repositório) ou adicione a checklist de links na descrição do Épico.
 6. Apresente ao desenvolvedor o sumário com os links de todas as Issues criadas no GitHub e a matriz consolidada de **Execution Waves**, prontas para serem executadas com `/run-issue #<numero>`.
 7. **Reconciliação e Auditoria de Backlog**: Execute o utilitário determinístico `scripts/pipeline/reconcile-github-governance.sh` para reconciliar as issues recém-criadas com a Milestone ativa e o GitHub Project v2, garantindo status inicial `"Planned"`, integridade das Views Kanban e Roadmap sem deriva de governança:
