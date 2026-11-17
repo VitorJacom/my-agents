@@ -181,8 +181,9 @@ No ponto de integração (Join Point), o orquestrador unifica os testes constru�
 > Este portão condicional só é ativado quando `UI_UX_REQUIRED: true`. Demandas puramente lógicas ou backend realizam bypass automático direto para o ESTADO 4.
 
 1. Invoque o subagente `uiux-designer` operando em **Modo 2 (Auditoria Visual Headless)**:
-   - Instrua o subagente a capturar a tela renderizada da UI/componente implementado via navegador headless (`chromium --headless` ou canvas/headless).
+   - Instrua o subagente a capturar a tela renderizada da UI/componente implementado via navegador headless (`chromium --headless` ou canvas/headless), salvando a captura oficial em `docs/screenshots/<slug>-preview.png`.
    - O designer audita o resultado confrontando a imagem da implementação contra o mockup aprovado em `docs/assets/mockups/<slug>.png` e com o Spatial Blueprint e os Design Tokens acordados no `implementation_plan.md` (hierarquia tipográfica, contraste de luminância, affordance e espaçamentos).
+   - Quando aprovado, o designer documenta a tela implementada em `docs/screenshots/<slug>.md` e atualiza o catálogo `docs/screenshots/README.md` (espelhado na GitHub Wiki como `Implemented-Screens-Catalog`).
 2. **Avaliação do Veredito Visual**:
    - Se o parecer for `VISUAL_AUDIT: REJECTED`:
      - Retorne imediatamente ao **ESTADO 3 (Coder)** fornecendo o relatório detalhado de desvios visuais para correção no código em `src/`.
@@ -199,7 +200,7 @@ No ponto de integração (Join Point), o orquestrador unifica os testes constru�
    - Validar que nenhum teste fora da nova feature foi modificado ou relaxado (Golden Rule).
    - **Auditoria do Duplo Gate**: Comprovar conformidade estrutural contra o `PROJECT_CONTEXT.md` (zero alucinação de padrões).
    - **Auditoria de Cobertura e Casos**: Auditar que a cobertura de código é $\ge 85\%$ e que a suíte contempla separadamente cenários de Happy Path e Edge Cases / cenários de borda. Se a cobertura for inferior a 85% (< 85%), aborte e bloqueie a finalização.
-   - **Auditoria Visual Mandatória**: Para issues com `UI_UX_REQUIRED: true`, exigir obrigatoriamente a auditoria visual aprovada com `VISUAL_AUDIT: APPROVED` e anexar a prova visual irrefutável (screenshot headless) no `walkthrough.md`.
+   - **Auditoria Visual Mandatória**: Para issues com `UI_UX_REQUIRED: true`, exigir obrigatoriamente a auditoria visual aprovada com `VISUAL_AUDIT: APPROVED`, o registro atualizado no catálogo de telas implementadas (`docs/screenshots/README.md` ➔ `Implemented-Screens-Catalog`, com `docs/screenshots/<slug>.md` e `docs/screenshots/<slug>-preview.png`) e anexar a prova visual irrefutável (screenshot headless) no `walkthrough.md`.
    - **Auditoria Visual Comparativa (Living Mockup Side-by-Side)**: Para issues com `UI_UX_REQUIRED: true`, embutir obrigatoriamente a seção `## 👁️ Visual Comparison Audit` no `walkthrough.md` e corpo do PR contendo a tabela comparativa. É estritamente proibido o uso de caminhos relativos (`docs/assets/mockups/...`) no corpo do PR e walkthrough; deve-se utilizar URLs canônicas absolutas raw do GitHub (`https://raw.githubusercontent.com/<owner>/<repo>/<branch_or_commit>/<path>`) ou tags `<img src="https://raw.githubusercontent.com/..." width="560" />` para garantir renderização lado a lado responsiva:
      ```markdown
      ## 👁️ Visual Comparison Audit
