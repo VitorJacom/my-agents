@@ -71,7 +71,7 @@ flowchart TD %% Ciclo Elephant-Goldfish com Decisão Condicional por Interface V
         ```bash
         chromium --headless --screenshot=docs/assets/mockups/<slug>.png --window-size=1280,720 .mockup-preview.html
         ```
-   - **Persistência da Living Spec**: O subagente cria a especificação viva em `docs/mockups/<slug>.md` baseada no template canônico [docs/mockups/TEMPLATE.md](docs/mockups/TEMPLATE.md), salvando o screenshot em `docs/assets/mockups/<slug>.png` e registrando a nova tela no catálogo `docs/mockups/README.md`.
+   - **Persistência da Living Spec e Catálogo de Mockups (`Mockups-Catalog`)**: O subagente cria a especificação viva em `docs/mockups/<slug>.md` baseada no template canônico [docs/mockups/TEMPLATE.md](docs/mockups/TEMPLATE.md), salvando o screenshot em `docs/assets/mockups/<slug>.png` e registrando a nova tela no catálogo `docs/mockups/README.md` (espelhado na GitHub Wiki como `Mockups-Catalog`). Garanta que o projeto possua o portal Wiki estruturado (`docs/Home.md`, `docs/_Sidebar.md`, `docs/_Footer.md` e `.github/workflows/wiki-sync.yml` com normalização Dual-Context segura).
    - O subagente consolida e entrega o bloco formal `## Visual & UI/UX Contract` (Camadas 1 e 2), a referência à especificação viva em `docs/mockups/<slug>.md` e o link/asset para visualização da captura em `docs/assets/mockups/<slug>.png` (ou `.mockup-preview.png`).
 2. Encaminhe o `## Visual & UI/UX Contract` e os artefatos de mockup (`docs/mockups/<slug>.md` e `docs/assets/mockups/<slug>.png`) para o Arquiteto no ESTADO 2.
 

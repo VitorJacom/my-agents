@@ -207,4 +207,34 @@ Para repositórios governados pelo ecossistema AIDD e integrados ao GitHub Proje
 - **Proibição de Caminhos Relativos**: É expressamente proibido o uso de caminhos relativos (`docs/assets/mockups/...`) para imagens e mockups no corpo do PR e `walkthrough.md`. Caminhos relativos falham ou quebram na descrição e preview do PR no GitHub.
 - **Uso Obrigatório de URLs Canônicas Absolutas Raw**: Todas as referências visuais na tabela comparativa e no corpo do PR devem utilizar URLs absolutas no formato canônico `https://raw.githubusercontent.com/<owner>/<repo>/<branch_or_commit>/<path>` ou via tag `<img src="https://raw.githubusercontent.com/..." width="560" />` para assegurar diagramação lado a lado consistente.
 
+### 9.7. Governança de GitHub Wiki e Duplo Catálogo de Telas (Mockups vs. Telas Implementadas)
+Todo projeto governado pelo ecossistema AIDD que possua interfaces visuais (`UI_UX_REQUIRED: true`) DEVE manter documentação viva em `docs/` sincronizada continuamente com a **GitHub Wiki** via `.github/workflows/wiki-sync.yml` (Fail-Fast com `set -euo pipefail`, `concurrency` e `timeout-minutes`), contemplando obrigatoriamente:
+
+1. **Portal Estrutural da Wiki em `docs/`**:
+   - `docs/Home.md`: Visão executiva do projeto, arquitetura e links diretos para os dois catálogos de telas.
+   - `docs/_Sidebar.md`: Navegação global contendo as seções **🎨 Catálogo de Telas (Mockups)** (`Mockups-Catalog`) e **🖥️ Telas Implementadas** (`Implemented-Screens-Catalog`), além dos links individuais para cada tela.
+   - `docs/_Footer.md`: Rodapé institucional declarando governança *Docs-as-Code* e sincronização via `.github/workflows/wiki-sync.yml`.
+
+2. **Os Dois Catálogos Obrigatórios de Telas do Projeto**:
+   - **Catálogo 1 — Telas Planejadas / Mockup Living Specs (`docs/mockups/README.md` ➔ Wiki: `Mockups-Catalog`)**:
+     - Alimentado pelo `uiux-designer` no **Modo 1 (`/plan-feature` ou fallback de concepção)**.
+     - Contém o `docs/mockups/TEMPLATE.md` (3 camadas) e lista cada especificação viva `docs/mockups/<slug>.md` com sua captura `docs/assets/mockups/<slug>.png`.
+   - **Catálogo 2 — Telas Implementadas em Produção (`docs/screenshots/README.md` ➔ Wiki: `Implemented-Screens-Catalog`)**:
+     - Alimentado e auditado pelo `uiux-designer` e `gatekeeper` no **Modo 2 (`/run-issue` — Estado 3.5 e Estado 4)**.
+     - Registra cada tela construída e aprovada em produção em `docs/screenshots/<slug>.md` com sua captura real `docs/screenshots/<slug>-preview.png` gerada via navegador headless (`chromium --headless`).
+
+3. **Normalização Dual-Context Segura para o Motor Gollum (`.github/workflows/wiki-sync.yml`)**:
+   - Geração automática de `wiki-temp/Mockups-Catalog.md` (a partir de `docs/mockups/README.md`) e `wiki-temp/Implemented-Screens-Catalog.md` (a partir de `docs/screenshots/README.md`).
+   - Reescrita de caminhos de imagens com **pontos literais obrigatoriamente escapados** no `sed` (para não corromper ocorrências como `docs/assets/mockups/` ou `docs/screenshots/`):
+     ```bash
+     sed -i 's|\.\./assets/mockups/|assets/mockups/|g' wiki-temp/mockups/*.md wiki-temp/Mockups-Catalog.md
+     sed -i 's|\.\./screenshots/|screenshots/|g' wiki-temp/screenshots/*.md wiki-temp/Implemented-Screens-Catalog.md
+     ```
+   - Normalização de links relativos Markdown para slugs sem `.md` no Gollum:
+     ```bash
+     sed -i 's|(\.\./mockups/README\.md)|(Mockups-Catalog)|g' wiki-temp/screenshots/*.md wiki-temp/Implemented-Screens-Catalog.md
+     sed -i -E 's|\(([^)[:space:]/]+)\.md\)|(\1)|g' wiki-temp/Mockups-Catalog.md wiki-temp/Implemented-Screens-Catalog.md wiki-temp/mockups/README.md wiki-temp/screenshots/README.md
+     ```
+
+
 

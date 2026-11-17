@@ -72,19 +72,21 @@ Elimina a dependência de ferramentas externas proprietárias (Figma/Sketch) est
 #### Persistência da Living Spec (Mockup-as-Code em docs/)
 - Criação e versionamento da especificação viva persistente em `docs/mockups/<slug>.md`, utilizando a estrutura canônica de [docs/mockups/TEMPLATE.md](docs/mockups/TEMPLATE.md).
 - Salvamento da imagem renderizada final em `docs/assets/mockups/<slug>.png`.
-- Registro da nova tela na tabela de índice do catálogo em `docs/mockups/README.md`.
+- Registro da nova tela na tabela de índice do catálogo `docs/mockups/README.md` (publicado na GitHub Wiki como `Mockups-Catalog`), garantindo que o projeto mantenha a estrutura de portal Wiki (`docs/Home.md`, `docs/_Sidebar.md`, `docs/_Footer.md` e `.github/workflows/wiki-sync.yml`).
 
 ---
 
 ### Modo 2: Auditoria Visual Headless Pós-Implementação (Visual Gate)
 Atua como o portão de controle visual antes da aprovação final pelo Gatekeeper, inspecionando o resultado gerado pelo Coder em comparação direta com o Blueprint e Design Tokens acordados.
 
-1. **Inspeção de Captura Real**: Executa captura da UI real implementada usando `chromium --headless` (ou rotina equivalente de canvas/headless).
+1. **Inspeção de Captura Real**: Executa captura da UI real implementada usando `chromium --headless` (ou rotina equivalente de canvas/headless), salvando a captura oficial de produção em `docs/screenshots/<slug>-preview.png`.
 2. **Checagem de Conformidade**:
    - Respeito à escala tipográfica e espaçamentos do grid.
    - Verificação de contraste de valor e luminância (sem textos apagados ou bordas invisíveis).
    - Preservação da affordance e microinterações táteis.
-3. **Emissão de Veredito Determinístico Obrigatório**:
+3. **Atualização do Catálogo de Telas Implementadas (`Implemented-Screens-Catalog`)**:
+   - Se aprovado, registre/atualize a especificação da tela em produção em `docs/screenshots/<slug>.md` (referenciando `docs/screenshots/<slug>-preview.png` e o mockup correspondente em `../mockups/README.md`) e indexe a nova entrada em `docs/screenshots/README.md` (publicado na GitHub Wiki como `Implemented-Screens-Catalog`).
+4. **Emissão de Veredito Determinístico Obrigatório**:
    - Se todos os critérios visuais e de contraste forem atendidos:
      `VISUAL_AUDIT: APPROVED`
    - Se houver desalinhamento, contraste insuficiente ou regressão visual:
@@ -100,5 +102,5 @@ Atua como o portão de controle visual antes da aprovação final pelo Gatekeepe
 
 ## 📄 Contrato de Entrega (Output)
 Sempre que acionado, forneça:
-1. **No Modo 1 (Concepção)**: Wireframe ASCII (Camada 1), Tabela de Design Tokens & Luminance Contract (Camada 2), arquivos de protótipo (`.mockup-preview.html` e `.mockup-preview.png`), a especificação viva persistente em `docs/mockups/<slug>.md` e o asset renderizado salvo em `docs/assets/mockups/<slug>.png`.
-2. **No Modo 2 (Auditoria / Visual Gate)**: Parecer técnico detalhado comparativo e veredito explícito (`VISUAL_AUDIT: APPROVED` ou `VISUAL_AUDIT: REJECTED`).
+1. **No Modo 1 (Concepção)**: Wireframe ASCII (Camada 1), Tabela de Design Tokens & Luminance Contract (Camada 2), arquivos de protótipo (`.mockup-preview.html` e `.mockup-preview.png`), a especificação viva persistente em `docs/mockups/<slug>.md`, o asset renderizado salvo em `docs/assets/mockups/<slug>.png` e a atualização do catálogo `docs/mockups/README.md` (`Mockups-Catalog`).
+2. **No Modo 2 (Auditoria / Visual Gate)**: Parecer técnico detalhado comparativo, captura de produção em `docs/screenshots/<slug>-preview.png`, documentação em `docs/screenshots/<slug>.md` registrada em `docs/screenshots/README.md` (`Implemented-Screens-Catalog`) e veredito explícito (`VISUAL_AUDIT: APPROVED` ou `VISUAL_AUDIT: REJECTED`).
