@@ -48,9 +48,9 @@ Para manter Wikis escaláveis e de fácil navegação:
 
 ---
 
-## 3. Padrão de Diagramas Mermaid (Wiki & Terminal)
+## 3. Padrão de Diagramas Mermaid (Wiki)
 
-Todo diagrama Mermaid em documentação da Wiki ou exibido no chat do terminal DEVE seguir estas convenções:
+Todo diagrama Mermaid em documentação da Wiki DEVE seguir estas convenções:
 
 1. **Invocação Explícita de Subagentes (Sem Subtítulos)**:
    - Sempre que um passo acionar um subagente, o nó DEVE declarar explicitamente a ferramenta nativa do Antigravity e apenas o nome canônico do agente, sem subtítulos ou descrições extras:
@@ -58,11 +58,26 @@ Todo diagrama Mermaid em documentação da Wiki ou exibido no chat do terminal D
      <passo>. invoke_subagent: <nome-do-subagente>
      ```
    - Exemplo: `PO["1. invoke_subagent: product-owner"]`, `Arch["2. invoke_subagent: system-architect"]`.
-   - O detalhamento de responsabilidades de cada agente pertence à tabela textual abaixo do diagrama, nunca ao rótulo do nó.
+   - O detalhamento de responsabilidades pertence à tabela textual abaixo do diagrama, nunca ao rótulo do nó.
 
-2. **Linguagem de Processo nos Demais Nós**:
+2. **Linguagem de Processo e Decisões Explícitas**:
    - Evitar flags de CLI (`--parent`, `--milestone`) ou nomes crus de scripts no diagrama; descrever de forma objetiva **o que a etapa realiza**.
+   - Quando o fluxo variar conforme o tipo de entrada ou triagem (ex.: Nova Issue vs. Issue Existente vs. Épico), explicitar no diagrama **quem** classifica e **quais** critérios distinguem cada caminho.
 
-3. **Largura Compacta na Wiki & Preview em Texto Simples no Chat**:
-   - Nos arquivos `.md` da Wiki, manter blocos `mermaid` em orientação vertical (`flowchart TD`), quebrando linhas com `<br/>` (~35 caracteres por linha), arestas curtas (`"YES"`, `"NO"`, `"APPROVED"`, `"REJECTED"`, `"<= 2"`, `"> 2"`) e consolidando classificações em um único nó vertical (sem múltiplas arestas paralelas longas entre o mesmo par de nós).
-   - **No chat do terminal (CLI)**: ao apresentar ou revisar fluxos com o usuário, **não** usar blocos ` ```mermaid ` (que frequentemente excedem a largura do terminal). Exibir o fluxo em **texto simples (ASCII compacto em bloco ` ```text `)**.
+3. **Layout Compacto na Wiki e Proibição de Diagramas no Chat**:
+   - Nos arquivos `.md` da Wiki, manter blocos `mermaid` em orientação vertical (`flowchart TD`), quebrando linhas com `<br/>` (~35 caracteres por linha), usando arestas curtas (`"YES"`, `"NO"`, `"APPROVED"`, `"REJECTED"`) e consolidando classificações em um único nó vertical.
+   - **No chat do terminal (CLI)**: **não** renderizar blocos `mermaid` nem desenhos ASCII para revisar fluxos com o usuário (quebram facilmente na largura do terminal). Apresentar revisões de fluxo no chat usando **lista numerada simples**.
+
+---
+
+## 4. Redação de Páginas Dedicadas (Alto Nível & Cross-Linking)
+
+Ao redigir ou refatorar páginas dedicadas da Wiki (`docs/skills/`, `docs/agents/`, `docs/scripts/`, `docs/tests/`):
+
+1. **Comunicação em Alto Nível (Sem Jargão Fora do Foco)**:
+   - Explicar claramente **o que acontece** em cada etapa em linguagem direta e acessível.
+   - Não vazar detalhes técnicos profundos ou métricas de nicho de outros componentes quando o foco da página for orquestração/visão geral (ex.: na página de uma skill, não detalhar regras internas de contraste WCAG ou algoritmos específicos de um subagente — esses detalhes pertencem à página dedicada do próprio subagente).
+
+2. **Cross-Linking Obrigatório na Wiki**:
+   - Sempre que uma página mencionar outro componente que já possua página dedicada na Wiki — subagentes (`Agent-<nome>`), skills (`Skill-<nome>`), scripts (`Script-<categoria>`), testes (`Test-<categoria>`) ou documentos estruturais (`ARCHITECTURE`, `System-Architecture`, `AIDD-Manifesto`) — DEVE incluir hyperlink clicável usando o slug plano do Gollum.
+   - Validar obrigatoriamente a integridade dos links com `./tests/run.sh --category wiki`.
