@@ -116,7 +116,7 @@ flowchart TD
 
 ## ⚡ Execução & Diagnóstico
 
-Utilize o executor canônico [`tests/run.sh`](https://github.com/VitorJacom/my-agents/blob/main/tests/run.sh) (ou a skill [`test-runner`](Skill-test-runner)) para validar a camada invariante:
+Utilize o executor canônico [`tests/run.sh`](https://github.com/VitorJacom/my-agents/blob/main/tests/run.sh) para validar a camada invariante:
 
 ```bash
 # Executar todas as 4 suítes da camada core

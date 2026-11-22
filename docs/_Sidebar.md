@@ -30,15 +30,13 @@
 </details>
 
 <details>
-<summary><a href="Skills-Catalog"><strong>🧰 Skills (10)</strong></a></summary>
+<summary><a href="Skills-Catalog"><strong>🧰 Skills (8)</strong></a></summary>
 
 - [`plan-feature`](Skill-plan-feature)
 - [`issue-pipeline`](Skill-issue-pipeline)
 - [`pr`](Skill-pr)
-- [`test-runner`](Skill-test-runner)
 - [`git-workflow`](Skill-git-workflow)
-- [`architecture-decision`](Skill-architecture-decision)
-- [`docker-dev`](Skill-docker-dev)
+- [`docker-dev` (DEPRECATED)](Skill-docker-dev)
 - [`game-dev-patterns`](Skill-game-dev-patterns)
 - [`publish-rule-issue`](Skill-publish-rule-issue)
 - [`ui-ux-design`](Skill-ui-ux-design)

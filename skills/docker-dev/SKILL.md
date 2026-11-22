@@ -1,8 +1,12 @@
 ---
 name: docker-dev
+deprecated: true
 description: >-
-  Diagnóstico, gerenciamento e validação de containers locais e configurações Docker / Docker Compose.
+  [DEPRECATED] Diagnóstico, gerenciamento e validação de containers locais e configurações Docker / Docker Compose.
 ---
+
+> [!WARNING]
+> ⚠️ **DEPRECATED**: Esta skill está obsoleta e será removida em versão futura.
 
 # Docker Dev & Container Troubleshooting
 

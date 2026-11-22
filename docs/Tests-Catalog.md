@@ -72,7 +72,7 @@ Todo teste adicionado em `tests/features/` deve obedecer:
 ## 📚 5. Leituras Complementares
 
 - [Manifesto AIDD (`AIDD-Manifesto`)](AIDD-Manifesto): Regras de cobertura $\ge 85\%$, *Golden Rule* e *Mutation Testing*.
-- [Skill `test-runner`](Skill-test-runner): Fluxo cirúrgico de execução, diagnóstico e validação *Clean Room*.
+- [Subagente `qa-engineer`](Agent-qa-engineer): Fluxo cirúrgico de execução, diagnóstico e validação *Clean Room*.
 - [Troubleshooting (`Troubleshooting`)](Troubleshooting): Diagnóstico de falhas comuns na suíte e locks de worktree.
 
 ---
