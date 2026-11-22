@@ -19,28 +19,7 @@ O Antigravity CLI impõe limites de contexto para regras globais para preservar 
 
 ---
 
-## 📊 2. Tabela Resumo das 11 Skills
-
-Clique no nome de qualquer skill para acessar sua **página dedicada**:
-
-| # | Skill | Categoria | Resumo do Propósito | Gatilho / Invocação | Definição |
-| ---: | :--- | :--- | :--- | :--- | :--- |
-| 1 | **[`plan-feature`](Skill-plan-feature)** | Esteiras AIDD | Planejamento funcional, UI/UX e design técnico sob o ciclo *Elephant-Goldfish* antes de codificar. | `/plan-feature <ideia ou #issue>` | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/plan-feature/SKILL.md) |
-| 2 | **[`issue-pipeline`](Skill-issue-pipeline)** | Esteiras AIDD | Esteira TDD determinística em Modo Unitário (1 issue) ou Modo Maestro (multi-issue com Worktrees e Merge Queue). | `/run-issue <#ID>` ou `/run-issue --epic <#ID>` | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/issue-pipeline/SKILL.md) |
-| 3 | **[`review-pr`](Skill-review-pr)** | Qualidade & Revisão | Revisão determinística de Pull Requests em 5 fases com *Golden Rule*, Gate Humano e criação de issues. | `/review-pr <#PR \| URL>` | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/review-pr/SKILL.md) |
-| 4 | **[`code-review`](Skill-code-review)** | Qualidade & Revisão | Auditoria rigorosa de código local em 4 dimensões (OWASP, SOLID, Robustez e Testabilidade). | `/code-review` | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/code-review/SKILL.md) |
-| 5 | **[`test-runner`](Skill-test-runner)** | Qualidade & Revisão | Execução cirúrgica de testes (Node/TS, Python, Go), diagnóstico de falhas e validação *Clean Room*. | `/test` | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/test-runner/SKILL.md) |
-| 6 | **[`git-workflow`](Skill-git-workflow)** | Engenharia & Infra | Branches semânticas, *Conventional Commits*, checklist pré-commit e PRs com *auto-close* em texto puro. | Contextual (commits, branches e PRs) | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/git-workflow/SKILL.md) |
-| 7 | **[`architecture-decision`](Skill-architecture-decision)** | Engenharia & Infra | Registro formal de ADRs (template Michael Nygard) documentando contexto, alternativas e trade-offs. | Contextual ("Registre uma ADR...") | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/architecture-decision/SKILL.md) |
-| 8 | **[`docker-dev`](Skill-docker-dev)** | Engenharia & Infra | Diagnóstico de containers/Compose, gestão local e boas práticas de segurança em `Dockerfile`. | Contextual (Docker / Compose) | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/docker-dev/SKILL.md) |
-| 9 | **[`publish-rule-issue`](Skill-publish-rule-issue)** | Engenharia & Infra | Publica aprendizados de `/learn` como issues atômicas no repositório central `VitorJacom/my-agents`. | `/publish-rule-issue` | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/publish-rule-issue/SKILL.md) |
-| 10 | **[`game-dev-patterns`](Skill-game-dev-patterns)** | Domínios Especializados | Física 2D independente de FPS, debounce de colisões, preservação dimensional de sprites e alcance cinemático. | Contextual (Phaser, Canvas, jogos 2D) | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/game-dev-patterns/SKILL.md) |
-| 11 | **[`ui-ux-design`](Skill-ui-ux-design)** | Domínios Especializados | Hub executivo de UI/UX com 48 técnicas, 7 módulos, física de movimento (Apple) e assistente CLI anti-slop. | Contextual / `uiux-designer` | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/ui-ux-design/SKILL.md) |
-| **Total** | **11 Skills** | **4 Categorias** | **100% sob demanda (Zero Token Waste)** | **6 comandos slash • 5 contextuais** | **11/11 ativas** |
-
----
-
-## 🗂️ 3. Guia Rápido por Categoria
+## 🗂️ 2. Guia Rápido por Categoria
 
 ### 🔄 Esteiras & Orquestração AIDD (2)
 - **[`plan-feature`](Skill-plan-feature)** — Transforma ideias ou issues macro em especificações auditadas (*The Elephant* ➔ *UI/UX* ➔ *Architect* ➔ *The Goldfish*), congelando `## Interface Contract` e particionando em *Execution Waves*.
@@ -60,6 +39,27 @@ Clique no nome de qualquer skill para acessar sua **página dedicada**:
 ### 🎨 Domínios Especializados (2)
 - **[`ui-ux-design`](Skill-ui-ux-design)** — 48 técnicas de UI/UX em 7 módulos de carregamento progressivo, fórmulas de molas e CLI `skill_assistant.py` para receitas, checklists e auditoria anti-slop.
 - **[`game-dev-patterns`](Skill-game-dev-patterns)** — 4 invariantes de física e renderização para jogos 2D (Phaser, Canvas, PixiJS) com *Zero Token Waste* fora do nicho de jogos.
+
+---
+
+## 📊 3. Tabela Resumo das 11 Skills
+
+Clique no nome de qualquer skill para acessar sua **página dedicada**:
+
+| # | Skill | Categoria | Resumo do Propósito | Gatilho / Invocação | Definição |
+| ---: | :--- | :--- | :--- | :--- | :--- |
+| 1 | **[`plan-feature`](Skill-plan-feature)** | Esteiras AIDD | Planejamento funcional, UI/UX e design técnico sob o ciclo *Elephant-Goldfish* antes de codificar. | `/plan-feature <ideia ou #issue>` | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/plan-feature/SKILL.md) |
+| 2 | **[`issue-pipeline`](Skill-issue-pipeline)** | Esteiras AIDD | Esteira TDD determinística em Modo Unitário (1 issue) ou Modo Maestro (multi-issue com Worktrees e Merge Queue). | `/run-issue <#ID>` ou `/run-issue --epic <#ID>` | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/issue-pipeline/SKILL.md) |
+| 3 | **[`review-pr`](Skill-review-pr)** | Qualidade & Revisão | Revisão determinística de Pull Requests em 5 fases com *Golden Rule*, Gate Humano e criação de issues. | `/review-pr <#PR \| URL>` | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/review-pr/SKILL.md) |
+| 4 | **[`code-review`](Skill-code-review)** | Qualidade & Revisão | Auditoria rigorosa de código local em 4 dimensões (OWASP, SOLID, Robustez e Testabilidade). | `/code-review` | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/code-review/SKILL.md) |
+| 5 | **[`test-runner`](Skill-test-runner)** | Qualidade & Revisão | Execução cirúrgica de testes (Node/TS, Python, Go), diagnóstico de falhas e validação *Clean Room*. | `/test` | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/test-runner/SKILL.md) |
+| 6 | **[`git-workflow`](Skill-git-workflow)** | Engenharia & Infra | Branches semânticas, *Conventional Commits*, checklist pré-commit e PRs com *auto-close* em texto puro. | Contextual (commits, branches e PRs) | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/git-workflow/SKILL.md) |
+| 7 | **[`architecture-decision`](Skill-architecture-decision)** | Engenharia & Infra | Registro formal de ADRs (template Michael Nygard) documentando contexto, alternativas e trade-offs. | Contextual ("Registre uma ADR...") | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/architecture-decision/SKILL.md) |
+| 8 | **[`docker-dev`](Skill-docker-dev)** | Engenharia & Infra | Diagnóstico de containers/Compose, gestão local e boas práticas de segurança em `Dockerfile`. | Contextual (Docker / Compose) | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/docker-dev/SKILL.md) |
+| 9 | **[`publish-rule-issue`](Skill-publish-rule-issue)** | Engenharia & Infra | Publica aprendizados de `/learn` como issues atômicas no repositório central `VitorJacom/my-agents`. | `/publish-rule-issue` | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/publish-rule-issue/SKILL.md) |
+| 10 | **[`game-dev-patterns`](Skill-game-dev-patterns)** | Domínios Especializados | Física 2D independente de FPS, debounce de colisões, preservação dimensional de sprites e alcance cinemático. | Contextual (Phaser, Canvas, jogos 2D) | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/game-dev-patterns/SKILL.md) |
+| 11 | **[`ui-ux-design`](Skill-ui-ux-design)** | Domínios Especializados | Hub executivo de UI/UX com 48 técnicas, 7 módulos, física de movimento (Apple) e assistente CLI anti-slop. | Contextual / `uiux-designer` | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/ui-ux-design/SKILL.md) |
+| **Total** | **11 Skills** | **4 Categorias** | **100% sob demanda (Zero Token Waste)** | **6 comandos slash • 5 contextuais** | **11/11 ativas** |
 
 ---
 

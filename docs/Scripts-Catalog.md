@@ -18,7 +18,16 @@ Todos os scripts de automação seguem as diretrizes do [Manifesto AIDD](AIDD-Ma
 
 ---
 
-## 📊 2. Tabela Resumo das Categorias de Scripts
+## 🗂️ 2. Mapa Rápido de Acesso
+
+- **Operação Diária & Esteira**: [`worktree-manager.sh`](Script-pipeline), [`validate-interface-contract.sh`](Script-pipeline), [`contract-integration-gate.sh`](Script-pipeline), [`update-plugin.sh`](Script-pipeline)
+- **Governança GitHub**: [`project-status-sync.sh`](Script-pipeline), [`reconcile-github-governance.sh`](Script-pipeline), [`promote-core-test.sh`](Script-pipeline)
+- **Code Review & Telemetria**: [`pr-reviewer.sh`](Script-pr-reviewer), [`audit-token-efficiency.py`](Script-pr-reviewer), [`metrics-collector.py`](Script-pipeline)
+- **Ambiente Local & CLI**: [`safety-guard.sh`](Script-hooks), [`session-start-context.sh`](Script-hooks), [`install-statusline.sh`](Script-statusline), [`statusline-quota.sh`](Script-statusline)
+
+---
+
+## 📊 3. Tabela Resumo das Categorias de Scripts
 
 Clique em qualquer categoria para acessar sua **página dedicada**:
 
@@ -30,15 +39,6 @@ Clique em qualquer categoria para acessar sua **página dedicada**:
 | 4 | **[⚡ Statusline & Quota CLI](Script-statusline)** | `scripts/statusline/` | 3 | 14.3% | Instalador idempotente, barra de status sub-50ms com quota Gemini e widget de atualização (`statusline-quota.sh`). |
 | 5 | **[🏛️ Migrações Históricas](Script-migrations)** | `scripts/migrations/` | 2 | 9.5% | Utilitários *one-off* para migração de issues ao GitHub Projects v2 e reclassificação de Épicos/Releases. |
 | **Total** | **5 Categorias** | **`scripts/`** | **21** | **100.0%** | **100% conformidade Fail-Fast & CLI canônico** |
-
----
-
-## 🗂️ 3. Mapa Rápido de Acesso
-
-- **Operação Diária & Esteira**: [`worktree-manager.sh`](Script-pipeline), [`validate-interface-contract.sh`](Script-pipeline), [`contract-integration-gate.sh`](Script-pipeline), [`update-plugin.sh`](Script-pipeline)
-- **Governança GitHub**: [`project-status-sync.sh`](Script-pipeline), [`reconcile-github-governance.sh`](Script-pipeline), [`promote-core-test.sh`](Script-pipeline)
-- **Code Review & Telemetria**: [`pr-reviewer.sh`](Script-pr-reviewer), [`audit-token-efficiency.py`](Script-pr-reviewer), [`metrics-collector.py`](Script-pipeline)
-- **Ambiente Local & CLI**: [`safety-guard.sh`](Script-hooks), [`session-start-context.sh`](Script-hooks), [`install-statusline.sh`](Script-statusline), [`statusline-quota.sh`](Script-statusline)
 
 ---
 
