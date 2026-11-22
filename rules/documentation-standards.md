@@ -91,7 +91,7 @@ Ao redigir ou refatorar páginas dedicadas da Wiki (`docs/skills/`, `docs/agents
    - Toda máquina de estados ou modo de operação documentado com diagrama DEVE possuir sua própria tabela `Responsabilidades por Estado` (`Estado | Responsável | O que acontece nesta etapa`) em linguagem de alto nível e com cross-linking.
 
 4. **Comandos Canônicos de Invocação de Skills (`/<skill-name>`)**:
-   - Ao documentar o comando de invocação ou exemplos de uso de qualquer skill na Wiki, utilizar **estritamente o nome canônico da skill** (`/<name>`, conforme o campo `name:` do `SKILL.md` e o diretório `skills/<name>/` no Antigravity CLI — ex.: `/issue-pipeline`, `/plan-feature`, `/review-pr`).
+   - Ao documentar o comando de invocação ou exemplos de uso de qualquer skill na Wiki, utilizar **estritamente o nome canônico da skill** (`/<name>`, conforme o campo `name:` do `SKILL.md` e o diretório `skills/<name>/` no Antigravity CLI — ex.: `/issue-pipeline`, `/plan-feature`, `/pr`).
    - É proibido inventar ou propagar aliases legados/fictícios (como `/run-issue`) que não correspondam ao padrão real de invocação do Antigravity CLI.
 
 5. **Sem Título `# H1` Redundante nas Páginas Dedicadas da GitHub Wiki**:

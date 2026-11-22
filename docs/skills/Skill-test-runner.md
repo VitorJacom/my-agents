@@ -67,4 +67,4 @@ Navegar explicitamente para dentro do `sandbox` e disparar uma nova instância d
 
 ## 🔗 Navegação
 
-[← Anterior: `code-review`](Skill-code-review) | [Sumário de Skills](Skills-Catalog) | [Próxima Skill: `git-workflow` →](Skill-git-workflow)
+[← Anterior: `pr`](Skill-pr) | [Sumário de Skills](Skills-Catalog) | [Próxima Skill: `git-workflow` →](Skill-git-workflow)

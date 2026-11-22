@@ -1,44 +1,94 @@
 ---
-name: review-pr
+name: pr
 description: >-
-  Orquestra a esteira determinística de revisão de Pull Requests no GitHub em 5 fases:
-  inspeção de diff, auditoria de integridade (Golden Rule), revisão heurística em 4 dimensões,
-  gate de validação humana mandatório e despacho rastreável com abertura de issues no backlog.
+  Auditoria rigorosa de código-fonte (OWASP, SOLID, Robustez, Testabilidade) e
+  esteira determinística de revisão de Pull Requests no GitHub em 5 fases:
+  inspeção de diff, auditoria de integridade (Golden Rule), revisão heurística,
+  gate de validação humana mandatório e despacho rastreável com abertura de issues.
 ---
 
-# Pull Request Reviewer Orchestrator (`/review-pr`)
+# Code Review & Pull Request Orchestrator (`/pr`)
 
-Esta Skill orquestra a máquina de estados determinística de revisão aprofundada de Pull Requests no GitHub. A esteira integra auditoria automatizada de conformidade, verificação estrita da Golden Rule, avaliação heurística de código em 4 dimensões (OWASP, SOLID, Robustez e Testabilidade), um **Gate de Validação Humana mandatório** e despacho com geração automática de issues rastreadas no backlog.
+Esta Skill unifica a auditoria heurística de qualidade de código e a máquina de estados determinística de revisão aprofundada de Pull Requests no GitHub. Ela opera em dois modos complementares:
+
+1. **Modo Auditoria Local (`/pr` ou `/pr local`)**: Revisão crítica de alterações na working tree, arquivos específicos ou branch local antes de commits e abertura de PR.
+2. **Modo Esteira de Pull Request (`/pr <#PR | URL>`)**: Orquestração determinística em 5 fases via `scripts/pr-reviewer.sh`, com verificação estrita da Golden Rule, **Gate de Validação Humana mandatório**, submissão oficial via `gh pr review` e abertura automática de issues rastreadas no backlog.
 
 ---
 
 ## 🚀 Como Invocar
 
-O comando `/review-pr` aceita identificadores de PR em múltiplos formatos:
-
 ```text
-# Sintaxe canônica:
-/review-pr <#PR | URL>
+# Modo 1: Auditoria Local (working tree, branch atual ou módulo)
+/pr
+/pr local
+/pr Revise as alterações da branch atual contra vulnerabilidades OWASP
 
-# Exemplos com número precedido de hash:
-/review-pr #12
-/review-pr #54
-
-# Exemplos com número direto:
-/review-pr 12
-/review-pr 54
-
-# Exemplo com URL completa da Pull Request no GitHub:
-/review-pr https://github.com/VitorJacom/my-agents/pull/12
+# Modo 2: Esteira de Pull Request no GitHub
+/pr <#PR | URL>
+/pr #12
+/pr 54
+/pr https://github.com/VitorJacom/my-agents/pull/12
 ```
 
 ---
 
-## 🔄 Máquina de Estados Determinística (5 Fases)
+## 🔍 1. Critérios Heurísticos de Avaliação (4 Dimensões)
+
+Aplicados tanto no **Modo Auditoria Local** quanto na **Fase 3 do Modo Pull Request**:
+
+### 1.1. Segurança (Security & OWASP)
+- **Injection**: Consultas SQL dinâmicas não sanitizadas, comandos de shell interpolados.
+- **Exposição de Dados**: Logs contendo tokens, senhas, CPFs ou dados pessoais sensíveis.
+- **Validação de Inputs**: Ausência de schemas ou validações de payloads em endpoints de API.
+
+### 1.2. Arquitetura e Clean Code
+- **SOLID**: Violação de responsabilidade única (funções/classes inchadas com muitas obrigações).
+- **Acoplamento**: Dependências fortes e diretas em vez de interfaces ou injeção de dependências.
+- **Complexidade Ciclomática**: Loops e condicionais aninhados excessivos (recomenda-se *early return*).
+
+### 1.3. Robustez e Tratamento de Erros
+- Blocos `try/catch` vazios ou que apenas suprimem exceções sem log nem rethrow.
+- Ausência de tratamento para timeouts e falhas em chamadas de rede ou IO.
+- Riscos de Null Pointer / `undefined` sem checagem adequada.
+
+### 1.4. Testabilidade & Integridade
+- Código difícil de isolar para teste unitário devido a dependências estáticas ou globais.
+- Efeitos colaterais ocultos dentro de funções de cálculo ou getters.
+- Ausência de testes de regressão, testes tautológicos ou falta de cobertura de *Happy Path* e *Edge Cases / Failure Modes*.
+
+---
+
+## 📋 2. Formato do Relatório & Taxonomia de Severidade
+
+Organize o feedback em três níveis objetivos de severidade:
+
+```markdown
+### 🚨 Crítico (Bloqueia Merge)
+Vulnerabilidades de segurança, falhas de lógica graves, quebra de contratos de API ou vazamento de dados.
+- Mapeia para `request-changes` na PR e gera issues com label `type:fix`.
+- **[Arquivo:Linha]**: Descrição objetiva da vulnerabilidade ou defeito crítico.
+  - *Sugestão de correção*: Código ou abordagem recomendada.
+
+### ⚠️ Importante (Refatoração Recomendada)
+Violações de boas práticas, arquitetura/SOLID, ausência de testes em fluxos relevantes ou complexidade excessiva.
+- Gera issues com label `type:refactor`.
+- **[Arquivo:Linha]**: Descrição da melhoria técnica.
+
+### 💡 Sugestão (Melhoria Opcional)
+Ajustes estéticos, clareza em nomes de variáveis ou pequenas micro-otimizações de sintaxe.
+- **[Arquivo:Linha]**: Sugestão.
+```
+
+---
+
+## 🔄 3. Modo Esteira de Pull Request — Máquina de Estados (5 Fases)
+
+Quando invocada com um identificador de PR (`/pr <#PR | URL>`), a skill executa a máquina de estados determinística abaixo:
 
 ```mermaid
 flowchart TD
-    Start["[Invocação: /review-pr &lt;#PR | URL&gt;]"] --> F1["Fase 1: Inspeção &amp; Diff<br/>(scripts/pr-reviewer.sh fetch-diff)"]
+    Start["[Invocação: /pr &lt;#PR | URL&gt;]"] --> F1["Fase 1: Inspeção &amp; Diff<br/>(scripts/pr-reviewer.sh fetch-diff)"]
     F1 --> F2["Fase 2: Auditoria de Integridade &amp; Golden Rule<br/>(scripts/pr-reviewer.sh audit-integrity)"]
     F2 --> CheckGolden{"tests/core/ modificado?<br/>(Golden Rule Check)"}
     CheckGolden -- "Sim (Exit code 3)" --> CircuitBreaker["🚨 Circuit Breaker: Alerta de Fraude<br/>(Abortar Imediatamente)"]
@@ -50,10 +100,6 @@ flowchart TD
     F5 --> EndReview["[ Review Submetido &amp; Issues Rastreadas no Backlog ]"]
 ```
 
----
-
-## 📋 Protocolo de Execução por Fase
-
 ### 📍 Fase 1: Inspeção & Diff
 - **Papel / Subagente**: Orquestrador / `planner`
 - **Comando**:
@@ -63,10 +109,8 @@ flowchart TD
 - **Ações**:
   1. Valida se a PR informada existe e possui status `OPEN` no GitHub CLI (`gh pr view`).
   2. Extrai metadados estruturados: número da PR, autor, título, branch head, branch base e commit SHA (`headRefOid`).
-  3. Obtém o diff unificado completo via GitHub CLI com parsing resiliente (jq com fallback em Python3).
-  4. Falha imediatamente com código 1 caso a PR não exista, esteja fechada ou ocorra erro de rede.
-
----
+  3. Obtém o diff unificado completo via GitHub CLI com parsing resiliente (`jq` com fallback em `python3`).
+  4. Falha imediatamente com código `1` caso a PR não exista, esteja fechada ou ocorra erro de rede.
 
 ### 📍 Fase 2: Auditoria de Integridade & Golden Rule
 - **Papel / Subagente**: `gatekeeper` (The Goldfish / Auditor Anti-Fraude)
@@ -78,21 +122,10 @@ flowchart TD
   - Verifica estritamente se qualquer arquivo protegido sob o diretório `tests/core/` foi adicionado, modificado ou removido no diff da PR.
   - **Circuit-Breaker e Fail-Fast**: Se for detectada qualquer alteração em `tests/core/`, o comando encerra imediatamente com **exit code 3** (`ALERTA DE FRAUDE: Violação da Golden Rule`). O orquestrador aborta imediatamente o pipeline, sem avançar para as fases de revisão, aprovação humana ou submissão.
 
----
-
 ### 📍 Fase 3: Revisão Heurística & Severidade
-- **Papel / Subagente**: `gatekeeper` (Modo 2: Auditoria de Código & PR) em colaboração com os padrões da skill `code-review`.
-- **Dimensões Críticas de Avaliação**:
-  1. **Segurança (OWASP & Data Protection)**: Injeção de SQL ou Shell, dados sensíveis em logs ou variáveis expostas, ausência de sanitização de inputs.
-  2. **Arquitetura & Clean Code**: Violação de SOLID, complexidade ciclomática excessiva, acoplamento indevido, nomenclatura ambígua.
-  3. **Robustez & Tratamento de Erros**: Blocos `try/catch` vazios ou mascaradores de erros, tratamento de timeouts em IO/rede, riscos de Null Pointer ou undefined.
-  4. **Testabilidade & Integridade**: Ausência de testes de regressão, testes tautológicos ou incompletos, cobertura de Happy Path e Edge Cases / Failure Modes.
-- **Taxonomia de Severidade**:
-  - **🚨 Crítico (Bloqueia Merge)**: Vulnerabilidades de segurança, quebra de contratos fundamentais ou bugs bloqueantes. Mapeia para o parecer `request-changes` e gera issues com label `type:fix`.
-  - **⚠️ Importante (Refatoração Recomendada)**: Oportunidades relevantes de melhoria de qualidade ou arquitetura. Gera issues com label `type:refactor`.
-  - **💡 Sugestão (Melhoria Opcional)**: Pequenos ajustes estéticos, nomes de variáveis ou micro-otimizações.
-
----
+- **Papel / Subagente**: `gatekeeper` (Modo 2: Auditoria de Código & PR)
+- **Ações**:
+  - Avalia integralmente o diff coletado aplicando as **4 Dimensões de Avaliação** (Seção 1) e classifica todos os achados na **Taxonomia de Severidade** (Seção 2).
 
 ### 📍 Fase 4: Gate de Validação Humana Mandatório
 - **Papel / Subagente**: Orquestrador
@@ -109,8 +142,6 @@ flowchart TD
   3. **Regra de Bloqueio**:
      - **Sem confirmação expressa do desenvolvedor, é estritamente proibido publicar comentários oficiais ou criar issues.**
      - Se o desenvolvedor rejeitar ou solicitar ajustes, o orquestrador refina os apontamentos localmente ou encerra o atendimento sem efetuar mutações remotas no GitHub.
-
----
 
 ### 📍 Fase 5: Despacho & Rastreabilidade
 - **Papel / Subagente**: Orquestrador / `gatekeeper`

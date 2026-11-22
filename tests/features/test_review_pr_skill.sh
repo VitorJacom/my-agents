@@ -17,8 +17,7 @@ set -euo pipefail
 # =============================================================================
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-REVIEW_PR_SKILL="$REPO_ROOT/skills/review-pr/SKILL.md"
-CODE_REVIEW_SKILL="$REPO_ROOT/skills/code-review/SKILL.md"
+PR_SKILL="$REPO_ROOT/skills/pr/SKILL.md"
 SKILLS_CATALOG="$REPO_ROOT/docs/Skills-Catalog.md"
 
 FAILED=0
@@ -45,42 +44,45 @@ check() {
 }
 
 echo "========================================================================"
-echo " [TEST] Issue #54: Orquestrador da Skill /review-pr com Gate Humano"
+echo " [TEST] Issue #54: Orquestrador da Skill /pr com Gate Humano"
 echo "========================================================================"
 
 # =============================================================================
-# SEÇÃO 1: [HAPPY PATH] Estrutura Canônica de skills/review-pr/SKILL.md
+# SEÇÃO 1: [HAPPY PATH] Estrutura Canônica de skills/pr/SKILL.md
 # =============================================================================
 echo ""
-echo "--- 1. [HAPPY PATH] Estrutura e Metadados da Skill review-pr ---"
+echo "--- 1. [HAPPY PATH] Estrutura e Metadados da Skill pr ---"
 
-check "skills/review-pr/SKILL.md existe no repositório" test -f "$REVIEW_PR_SKILL"
-check "skills/review-pr/SKILL.md não está vazio" test -s "$REVIEW_PR_SKILL"
+check "skills/pr/SKILL.md existe no repositório" test -f "$PR_SKILL"
+check "skills/pr/SKILL.md não está vazio" test -s "$PR_SKILL"
 
 # Validação do Frontmatter YAML
 check "Frontmatter possui delimitador de abertura '---'" \
-  bash -c "head -n 1 '$REVIEW_PR_SKILL' | grep -q '^---'"
+  bash -c "head -n 1 '$PR_SKILL' | grep -q '^---'"
 
-check "Frontmatter declara 'name: review-pr'" \
-  bash -c "grep -E '^name:\s*review-pr\b' '$REVIEW_PR_SKILL'"
+check "Frontmatter declara 'name: pr'" \
+  bash -c "grep -E '^name:\s*pr\b' '$PR_SKILL'"
 
 check "Frontmatter declara campo 'description:'" \
-  bash -c "grep -E '^description:' '$REVIEW_PR_SKILL'"
+  bash -c "grep -E '^description:' '$PR_SKILL'"
 
 # =============================================================================
 # SEÇÃO 2: [HAPPY PATH] Protocolo de Invocação e Parâmetros
 # =============================================================================
 echo ""
-echo "--- 2. [HAPPY PATH] Protocolo de Invocação (/review-pr) ---"
+echo "--- 2. [HAPPY PATH] Protocolo de Invocação (/pr) ---"
 
-check "Documenta sintaxe de invocação '/review-pr <#PR | URL>'" \
-  bash -c "grep -E '/review-pr <#PR \| URL>' '$REVIEW_PR_SKILL'"
+check "Documenta sintaxe de invocação '/pr <#PR | URL>'" \
+  bash -c "grep -E '/pr <#PR \| URL>' '$PR_SKILL'"
 
 check "Documenta suporte a identificador numérico (#12 ou 12)" \
-  bash -c "grep -E '/review-pr #?[0-9]+' '$REVIEW_PR_SKILL'"
+  bash -c "grep -E '/pr #?[0-9]+' '$PR_SKILL'"
 
 check "Documenta suporte a URL completa de Pull Request" \
-  bash -c "grep -E 'https://github\.com/[^ ]+/pull/[0-9]+' '$REVIEW_PR_SKILL'"
+  bash -c "grep -E 'https://github\.com/[^ ]+/pull/[0-9]+' '$PR_SKILL'"
+
+check "Documenta modo de auditoria local (/pr local) e 4 dimensões (OWASP, SOLID)" \
+  bash -c "grep -q '/pr local' '$PR_SKILL' && grep -qi 'OWASP' '$PR_SKILL' && grep -qi 'SOLID' '$PR_SKILL'"
 
 # =============================================================================
 # SEÇÃO 3: [HAPPY PATH] Máquina de Estados de 5 Fases
@@ -89,22 +91,22 @@ echo ""
 echo "--- 3. [HAPPY PATH] Máquina de Estados de 5 Fases e Subcomandos ---"
 
 check "Fase 1: Inspeção & Diff documentada com fetch-diff" \
-  bash -c "grep -qi 'Fase 1' '$REVIEW_PR_SKILL' && grep -q 'fetch-diff' '$REVIEW_PR_SKILL'"
+  bash -c "grep -qi 'Fase 1' '$PR_SKILL' && grep -q 'fetch-diff' '$PR_SKILL'"
 
 check "Fase 2: Auditoria de Integridade & Golden Rule documentada com audit-integrity" \
-  bash -c "grep -qi 'Fase 2' '$REVIEW_PR_SKILL' && grep -q 'audit-integrity' '$REVIEW_PR_SKILL'"
+  bash -c "grep -qi 'Fase 2' '$PR_SKILL' && grep -q 'audit-integrity' '$PR_SKILL'"
 
 check "Fase 3: Revisão Heurística & Severidade documentada em 4 dimensões" \
-  bash -c "grep -qi 'Fase 3' '$REVIEW_PR_SKILL' && grep -qi 'Severidade' '$REVIEW_PR_SKILL'"
+  bash -c "grep -qi 'Fase 3' '$PR_SKILL' && grep -qi 'Severidade' '$PR_SKILL'"
 
 check "Fase 3 categoriza severidades: Crítico, Importante e Sugestão" \
-  bash -c "grep -q 'Crítico' '$REVIEW_PR_SKILL' && grep -q 'Importante' '$REVIEW_PR_SKILL' && grep -q 'Sugestão' '$REVIEW_PR_SKILL'"
+  bash -c "grep -q 'Crítico' '$PR_SKILL' && grep -q 'Importante' '$PR_SKILL' && grep -q 'Sugestão' '$PR_SKILL'"
 
 check "Fase 4: Gate de Validação Humana Mandatório claramente definido" \
-  bash -c "grep -qi 'Fase 4' '$REVIEW_PR_SKILL' && grep -qi 'Gate de Validação Humana' '$REVIEW_PR_SKILL'"
+  bash -c "grep -qi 'Fase 4' '$PR_SKILL' && grep -qi 'Gate de Validação Humana' '$PR_SKILL'"
 
 check "Fase 5: Despacho & Rastreabilidade documentada com submit-review e create-issues" \
-  bash -c "grep -qi 'Fase 5' '$REVIEW_PR_SKILL' && grep -q 'submit-review' '$REVIEW_PR_SKILL' && grep -q 'create-issues' '$REVIEW_PR_SKILL'"
+  bash -c "grep -qi 'Fase 5' '$PR_SKILL' && grep -q 'submit-review' '$PR_SKILL' && grep -q 'create-issues' '$PR_SKILL'"
 
 # =============================================================================
 # SEÇÃO 4: [HAPPY PATH] Gate Humano e Rastreabilidade de Subagentes
@@ -113,37 +115,28 @@ echo ""
 echo "--- 4. [HAPPY PATH] Gate de Validação Humana e Papéis de Subagentes ---"
 
 check "Gate Humano exige confirmação explícita antes de mutações remotas" \
-  bash -c "grep -qi 'confirmação' '$REVIEW_PR_SKILL' && grep -qi 'desenvolvedor' '$REVIEW_PR_SKILL'"
+  bash -c "grep -qi 'confirmação' '$PR_SKILL' && grep -qi 'desenvolvedor' '$PR_SKILL'"
 
 check "Documenta bloqueio de submissão quando confirmação não for concedida" \
-  bash -c "grep -E -i '(sem aprovação|sem confirmação|proibido publicar|não submete)' '$REVIEW_PR_SKILL'"
+  bash -c "grep -E -i '(sem aprovação|sem confirmação|proibido publicar|não submete)' '$PR_SKILL'"
 
 check "Documenta o papel do subagente gatekeeper na auditoria e fechamento" \
-  bash -c "grep -qi 'gatekeeper' '$REVIEW_PR_SKILL'"
+  bash -c "grep -qi 'gatekeeper' '$PR_SKILL'"
 
 check "Documenta o papel do subagente planner ou orchestrator na triagem inicial" \
-  bash -c "grep -E -i '(planner|orquestrador|orchestrator)' '$REVIEW_PR_SKILL'"
+  bash -c "grep -E -i '(planner|orquestrador|orchestrator)' '$PR_SKILL'"
 
 # =============================================================================
-# SEÇÃO 5: [HAPPY PATH] Links Cruzados e Catálogo na GitHub Wiki
+# SEÇÃO 5: [HAPPY PATH] Catálogo na GitHub Wiki
 # =============================================================================
 echo ""
-echo "--- 5. [HAPPY PATH] Links Cruzados e Atualização na Wiki ---"
+echo "--- 5. [HAPPY PATH] Atualização na Wiki ---"
 
-check "skills/code-review/SKILL.md referencia a esteira /review-pr" \
-  bash -c "grep -q '/review-pr' '$CODE_REVIEW_SKILL'"
+check "docs/Skills-Catalog.md cataloga a skill pr na tabela resumo" \
+  bash -c "grep -q 'Skill-pr' '$SKILLS_CATALOG' && grep -q '/pr' '$SKILLS_CATALOG'"
 
-check "skills/code-review/SKILL.md contém link cruzado para review-pr" \
-  bash -c "grep -E '(skills/review-pr|review-pr)' '$CODE_REVIEW_SKILL'"
-
-check "docs/Skills-Catalog.md cataloga a skill review-pr na tabela resumo" \
-  bash -c "grep -q 'review-pr' '$SKILLS_CATALOG' && grep -q '/review-pr' '$SKILLS_CATALOG'"
-
-check "docs/Skills-Catalog.md possui seção detalhada para a skill review-pr" \
-  bash -c "grep -E -i '### [0-9]+\.[0-9]+\..*review-pr' '$SKILLS_CATALOG'"
-
-check "docs/Skills-Catalog.md referencia o arquivo skills/review-pr/SKILL.md" \
-  bash -c "grep -q 'skills/review-pr/SKILL.md' '$SKILLS_CATALOG'"
+check "docs/Skills-Catalog.md referencia o arquivo skills/pr/SKILL.md" \
+  bash -c "grep -q 'skills/pr/SKILL.md' '$SKILLS_CATALOG'"
 
 # =============================================================================
 # SEÇÃO 6: [EDGE CASES & FAILURE MODES] Tolerância a Falhas e Circuit-Breakers
@@ -152,15 +145,15 @@ echo ""
 echo "--- 6. [EDGE CASES & FAILURE MODES] Resiliência e Fail-Fast ---"
 
 check "Fase 2 documenta interrupção imediata por Golden Rule (exit code 3 / circuit-breaker)" \
-  bash -c "grep -E '(exit.*3|circuit-breaker|Golden Rule)' '$REVIEW_PR_SKILL' && grep -qi 'abort' '$REVIEW_PR_SKILL'"
+  bash -c "grep -E '(exit.*3|circuit-breaker|Golden Rule)' '$PR_SKILL' && grep -qi 'abort' '$PR_SKILL'"
 
 check "Fase 4 documenta comportamento em caso de recusa humana ou cancelamento" \
-  bash -c "grep -E -i '(rejei|cancela|ajust)' '$REVIEW_PR_SKILL'"
+  bash -c "grep -E -i '(rejei|cancela|ajust)' '$PR_SKILL'"
 
 check "Fase 5 documenta que dry-run e simulação preservam estado sem mutações" \
-  bash -c "grep -q '\-\-dry-run' '$REVIEW_PR_SKILL'"
+  bash -c "grep -q '\-\-dry-run' '$PR_SKILL'"
 
-check "Wiki Docs possui zero links quebrados após adição de review-pr" \
+check "Wiki Docs possui zero links quebrados após unificação para pr" \
   bash "$REPO_ROOT/tests/features/wiki/test_wiki_structure_and_links.sh"
 
 # =============================================================================

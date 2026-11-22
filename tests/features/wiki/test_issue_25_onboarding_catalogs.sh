@@ -80,11 +80,11 @@ check "Documenta regras de UI/UX (Value Contrast, Monocromático, WCAG)" \
   bash -c "grep -qi 'Value Contrast' '$SUBAGENTS' && grep -qi 'WCAG' '$SUBAGENTS'"
 
 echo ""
-echo "--- 4. Validação de Conteúdo: docs/Skills-Catalog.md (9 Skills) ---"
+echo "--- 4. Validação de Conteúdo: docs/Skills-Catalog.md (Skills) ---"
 SKILLS=(
   "plan-feature"
   "issue-pipeline"
-  "code-review"
+  "pr"
   "test-runner"
   "git-workflow"
   "architecture-decision"

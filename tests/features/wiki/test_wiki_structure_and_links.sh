@@ -69,8 +69,7 @@ AGENT_DOCS=(
 SKILL_DOCS=(
   "skills/Skill-plan-feature.md"
   "skills/Skill-issue-pipeline.md"
-  "skills/Skill-review-pr.md"
-  "skills/Skill-code-review.md"
+  "skills/Skill-pr.md"
   "skills/Skill-test-runner.md"
   "skills/Skill-git-workflow.md"
   "skills/Skill-architecture-decision.md"

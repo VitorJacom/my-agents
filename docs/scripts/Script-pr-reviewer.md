@@ -10,7 +10,7 @@
 
 Disponibiliza os pontos de entrada de alto nível na raiz de `scripts/` para duas frentes críticas da governança do [`AIDD-Manifesto`](AIDD-Manifesto):
 
-1. **Esteira de Revisão de Pull Requests ([`/review-pr`](Skill-review-pr))**: O motor `pr-reviewer.sh` automatiza validação de PR aberta, extração de diff, proteção anti-fraude (*Golden Rule*), submissão de parecer e abertura de issues rastreadas com reconciliação via [`Script-pipeline`](Script-pipeline).
+1. **Esteira de Revisão de Pull Requests ([`/pr`](Skill-pr))**: O motor `pr-reviewer.sh` automatiza validação de PR aberta, extração de diff, proteção anti-fraude (*Golden Rule*), submissão de parecer e abertura de issues rastreadas com reconciliação via [`Script-pipeline`](Script-pipeline).
 2. **Telemetria & Eficiência de Tokens**: O wrapper `audit-token-efficiency.py` expõe na raiz a auditoria determinística de *transcripts* multiagente, detecção de *hotspots* e *quality gate* de score mínimo (`--min-score`).
 
 A confiabilidade desses utilitários é verificada continuamente pelas suítes [`Test-pr-review`](Test-pr-review) e [`Test-governance`](Test-governance).
@@ -45,11 +45,11 @@ flowchart TD
 
 ### 1. `scripts/pr-reviewer.sh`
 
-Motor CLI determinístico em Bash (`set -euo pipefail`) que executa as operações remotas e de auditoria da skill [`review-pr`](Skill-review-pr) sobre o GitHub CLI (`gh`). Utiliza `jq` como parser primário de JSON com *fallback* automático para `python3`.
+Motor CLI determinístico em Bash (`set -euo pipefail`) que executa as operações remotas e de auditoria da skill [`pr`](Skill-pr) sobre o GitHub CLI (`gh`). Utiliza `jq` como parser primário de JSON com *fallback* automático para `python3`.
 
 Todos os subcomandos exigem o número da PR (`<pr_number>`) e validam previamente que a Pull Request existe e está no estado `OPEN`.
 
-| Subcomando | Fase `/review-pr` | Flags & Parâmetros | Comportamento & Regras |
+| Subcomando | Fase `/pr` | Flags & Parâmetros | Comportamento & Regras |
 | :--- | :--- | :--- | :--- |
 | **`fetch-diff`** | Fase 1 | `<pr_number>` | Extrai metadados (`Number`, `Title`, `State`, `Author`, `Head -> Base`, `URL`) e o diff unificado completo (`=== PR #<id> METADATA ===` e `=== UNIFIED DIFF ===`). |
 | **`audit-integrity`** | Fase 2 | `<pr_number>` | Aplica a *Golden Rule* do [`AIDD-Manifesto`](AIDD-Manifesto): inspeciona cabeçalhos de diff (`diff --git`, `---`, `+++`) sob [`tests/core/`](Test-core). Qualquer adição, modificação ou remoção aborta imediatamente com **exit code 3**. |
@@ -113,7 +113,7 @@ O score parte de **100 pontos** (limitado ao intervalo `0–100`) e consolida o 
 ## 💻 Exemplos Práticos
 
 ```bash
-# 1. Consultar metadados e diff de uma PR aberta (Fase 1 de /review-pr)
+# 1. Consultar metadados e diff de uma PR aberta (Fase 1 de /pr)
 ./scripts/pr-reviewer.sh fetch-diff 54
 
 # 2. Verificar integridade da Golden Rule em tests/core/ (Fase 2; exit 3 se violada)
