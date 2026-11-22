@@ -3,7 +3,7 @@
 > **Diagnóstico e Reparo Cirúrgico de Testes**  
 > **Definição Canônica**: [`skills/test-runner/SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/test-runner/SKILL.md)  
 > **Categoria**: Qualidade, Testes & Revisão  
-> **Comando de Invocação**: `/test` ou solicitação de execução/diagnóstico de testes
+> **Comando de Invocação**: `/test-runner` ou solicitação de execução/diagnóstico de testes
 
 ---
 
@@ -24,7 +24,7 @@ A skill **`test-runner`** orienta a execução inteligente de suítes de testes 
 ## 🚀 Exemplos de Invocação
 
 ```text
-/test
+/test-runner
 Execute apenas os testes de autenticação e diagnostique as falhas
 Valide o plugin no sandbox em modo Clean Room
 ```

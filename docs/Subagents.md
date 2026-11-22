@@ -1,5 +1,3 @@
-# 🤖 Sumário de Subagentes (`Subagents`)
-
 > **Cabeçalho de Controle (Pressman / Sommerville)**  
 > - **Escopo / Filtros Aplicados**: `agents/*/agent.md` • Status: `Ativos` • Ordenação: `Ciclo AIDD (Planejamento ➔ Execução)`  
 > - **Data/Hora de Emissão**: `2026-11-22 15:33 BRT` *(sincronizado via `.github/workflows/wiki-sync.yml`)*  

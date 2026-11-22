@@ -1,5 +1,3 @@
-# Guia de Troubleshooting & Resolução de Problemas
-
 Este guia consolida a matriz diagnóstica, as causas-raiz e as soluções determinísticas para incidentes comuns encontrados durante a execução de agentes, pipelines de CI/CD e rotinas operacionais no ecossistema `my-agents`.
 
 ---

@@ -1,5 +1,3 @@
-# Manifesto AIDD (AI-Driven Development) & Diretrizes de Governança
-
 O **Manifesto AIDD** (*AI-Driven Development*) define a filosofia, os padrões operacionais e os guardrails inegociáveis que regem o desenvolvimento de software conduzido por agentes autônomos de Inteligência Artificial no ecossistema `my-agents` e em projetos consumidores.
 
 ---

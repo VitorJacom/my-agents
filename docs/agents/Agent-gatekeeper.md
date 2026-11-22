@@ -14,27 +14,54 @@ Atuar como o **portão final de integridade** do ecossistema ([`AIDD-Manifesto`]
 
 ---
 
-## 🔄 Os Dois Modos de Operação
+## 🔄 Roteamento & Modos de Operação
+
+```mermaid
+flowchart TD
+    Entry["Acionamento do gatekeeper"] --> Mode{"Em qual esteira<br/>foi acionado?"}
+    Mode -- "Planejamento (/plan-feature)" --> M1["Modo 1: Cold Audit (The Goldfish)<br/>Auditoria fria da especificação"]
+    Mode -- "Finalização (/issue-pipeline)" --> M2["Modo 2: Golden Rule & PR<br/>Auditoria de código e publicação"]
+```
 
 ### Modo 1 — Auditoria de Especificação (*The Goldfish Reviewer* / Cold Audit)
-- Opera sem estado prévio (*stateless*), avaliando o `planning_proposal.md` pelo teste do **olhar frio**.
-- **Interface Contract Gate**: Rejeita imediatamente (`SPEC_AUDIT: REJECTED`) planos sem `## Interface Contract` explícito ou com termos vagos/placeholders.
-- **Bloqueio de Atomicidade**: Rejeita qualquer issue com mais de **3 passos**.
-- **Bloqueio Anti-Premissas**: Rejeita premissas implícitas ou especulativas ("supõe-se", "obviamente", "deve funcionar").
-- Controla o loop de auto-healing com teto rígido de **2 iterações** antes de disparar o Circuit Breaker.
+
+```mermaid
+flowchart TD
+    G1["1. Leitura Fria (Stateless)<br/>Avaliar planning_proposal.md<br/>sem histórico prévio"] --> G2["2. Checagem de Contratos<br/>Interface Contract, atomicidade (<= 3)<br/>e zero premissas implícitas"]
+    G2 --> GV{"Especificação<br/>Aprovada?"}
+    GV -- "REJECTED" --> Heal{"Auto-Healing<br/>(Máx. 2)"}
+    Heal -- "<= 2" --> Back["Devolver para ajuste<br/>do system-architect"]
+    Heal -- "> 2" --> CB["🚨 Circuit Breaker"]
+    GV -- "APPROVED" --> Pass["Emitir SPEC_AUDIT: APPROVED<br/>Liberar para Gate Humano"]
+```
+
+#### 📋 Responsabilidades por Estado (Modo 1)
+
+| Estado | Responsável | O que acontece nesta etapa |
+| :--- | :--- | :--- |
+| **1. Leitura Fria (*Stateless*)** | [`gatekeeper`](Agent-gatekeeper) | Avalia o `planning_proposal.md` de forma isolada, sem depender do histórico da conversa do [`product-owner`](Agent-product-owner) ou do [`system-architect`](Agent-system-architect). |
+| **2. Checagem de Contratos** | [`gatekeeper`](Agent-gatekeeper) | Barra planos sem `## Interface Contract` completo, tarefas com mais de 3 passos ou premissas vagas/especulativas ("supõe-se", "obviamente"). |
+| **3. Veredito & Auto-Healing** | [`gatekeeper`](Agent-gatekeeper) | Emite `SPEC_AUDIT: REJECTED` (acionando até 2 tentativas de reparo antes do *Circuit Breaker*) ou `SPEC_AUDIT: APPROVED` para avançar ao Gate Humano do [`plan-feature`](Skill-plan-feature). |
 
 ### Modo 2 — Auditoria de Código, Golden Rule & PR
-- **Golden Rule Anti-Fraude (`--diff-filter=MD`)**:
-  ```bash
-  MODIFIED=$(git diff --diff-filter=MD --name-only origin/main...HEAD 2>/dev/null | grep -E '^tests/core/' || true)
-  if [ -n "$MODIFIED" ]; then
-    echo "ALERTA DE FRAUDE: O agente modificou ou removeu arquivos protegidos em tests/core/!"
-    exit 1
-  fi
-  ```
-  Bloqueia modificações (`M`) e remoções (`D`) em [`tests/core/`](Test-core), permitindo adições legítimas (`A`) promovidas via [`promote-core-test.sh`](Script-pipeline).
-- **Auditoria Visual & Wiki**: Quando `UI_UX_REQUIRED: true`, exige parecer `VISUAL_AUDIT: APPROVED` do [`uiux-designer`](Agent-uiux-designer), URLs canônicas `raw.githubusercontent.com` na tabela comparativa e atualização de `Implemented-Screens-Catalog`.
-- **Relatório `walkthrough.md` & PR**: Seguindo a skill [`git-workflow`](Skill-git-workflow), compila logs reais de testes, cobertura $\ge 85\%$, `git status`, `Fixes #<id>` em texto puro e abre o PR com `gh pr create --body-file walkthrough.md`.
+
+```mermaid
+flowchart TD
+    C1["1. Golden Rule Anti-Fraude<br/>Verificar modificações ou deleções<br/>em tests/core/"] --> CCheck{"tests/core/<br/>adulterado?"}
+    CCheck -- "YES" --> CB2["🚨 Circuit Breaker<br/>ALERTA DE FRAUDE"]
+    CCheck -- "NO" --> C2["2. Provas, Cobertura & Visual<br/>Validar GREEN, >= 85%<br/>e auditoria visual (se UI)"]
+    C2 --> C3["3. Compilar walkthrough.md<br/>Logs, diff, métricas e<br/>closing keyword em texto puro"]
+    C3 --> C4["4. Publicar Pull Request<br/>Commit padronizado, PR e<br/>status In Review"]
+```
+
+#### 📋 Responsabilidades por Estado (Modo 2)
+
+| Estado | Responsável | O que acontece nesta etapa |
+| :--- | :--- | :--- |
+| **1. Golden Rule Anti-Fraude** | [`gatekeeper`](Agent-gatekeeper) | Executa checagem Git com `--diff-filter=MD` bloqueando qualquer modificação (`M`) ou remoção (`D`) em [`tests/core/`](Test-core), permitindo adições legítimas (`A`) promovidas via [`promote-core-test.sh`](Script-pipeline). |
+| **2. Provas, Cobertura & Visual** | [`gatekeeper`](Agent-gatekeeper) | Confirma suíte 100% verde com cobertura $\ge 85\%$ (Happy Path + Edge Cases). Quando `UI_UX_REQUIRED: true`, exige `VISUAL_AUDIT: APPROVED` do [`uiux-designer`](Agent-uiux-designer), URLs absolutas `raw.githubusercontent.com` e `Implemented-Screens-Catalog` atualizado. |
+| **3. Compilar `walkthrough.md`** | [`gatekeeper`](Agent-gatekeeper) | Consolida evidências reais de execução, `git status`, telemetria de tokens e a diretiva `Fixes #<id>` em texto puro (sem crases). |
+| **4. Publicar Pull Request** | [`gatekeeper`](Agent-gatekeeper) + [`git-workflow`](Skill-git-workflow) | Realiza commit padronizado, publica o Pull Request no GitHub usando o `walkthrough.md` como corpo oficial e atualiza o status no Project v2 para **`In Review`**. |
 
 ---
 

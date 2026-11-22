@@ -1,5 +1,3 @@
-# 🧪 Sumário de Testes (`Tests-Catalog`)
-
 > **Cabeçalho de Controle (Pressman / Sommerville)**  
 > - **Escopo / Filtros Aplicados**: `tests/core/*.sh` + `tests/features/**/*.sh` • Runner: `./tests/run.sh` • Ordenação: `Camada ➔ Volume de Suítes`  
 > - **Data/Hora de Emissão**: `2026-11-22 15:33 BRT` *(sincronizado via `.github/workflows/wiki-sync.yml`)*  

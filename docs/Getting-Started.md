@@ -1,5 +1,3 @@
-# Guia de Introdução e Onboarding (`Getting-Started.md`)
-
 Bem-vindo ao **`my-agents`**! Este guia fornece instruções passo a passo para configurar e utilizar o ecossistema de governança, personas especializadas e esteiras determinísticas do Manifesto AIDD (*AI-Driven Development*) com o **Antigravity CLI** (`agy`).
 
 ---

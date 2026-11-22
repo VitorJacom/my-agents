@@ -1,5 +1,3 @@
-# 🧰 Sumário de Skills (`Skills-Catalog`)
-
 > **Cabeçalho de Controle (Pressman / Sommerville)**  
 > - **Escopo / Filtros Aplicados**: `skills/*/SKILL.md` • Carregamento: `Progressive Disclosure` • Ordenação: `Categoria ➔ Fluxo AIDD`  
 > - **Data/Hora de Emissão**: `2026-11-22 15:33 BRT` *(sincronizado via `.github/workflows/wiki-sync.yml`)*  
@@ -52,7 +50,7 @@ Clique no nome de qualquer skill para acessar sua **página dedicada**:
 | 2 | **[`issue-pipeline`](Skill-issue-pipeline)** | Esteiras AIDD | Esteira TDD determinística em Modo Unitário (1 issue) ou Modo Maestro (multi-issue com Worktrees e Merge Queue). | `/issue-pipeline <#ID>` ou `/issue-pipeline --epic <#ID>` | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/issue-pipeline/SKILL.md) |
 | 3 | **[`review-pr`](Skill-review-pr)** | Qualidade & Revisão | Revisão determinística de Pull Requests em 5 fases com *Golden Rule*, Gate Humano e criação de issues. | `/review-pr <#PR \| URL>` | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/review-pr/SKILL.md) |
 | 4 | **[`code-review`](Skill-code-review)** | Qualidade & Revisão | Auditoria rigorosa de código local em 4 dimensões (OWASP, SOLID, Robustez e Testabilidade). | `/code-review` | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/code-review/SKILL.md) |
-| 5 | **[`test-runner`](Skill-test-runner)** | Qualidade & Revisão | Execução cirúrgica de testes (Node/TS, Python, Go), diagnóstico de falhas e validação *Clean Room*. | `/test` | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/test-runner/SKILL.md) |
+| 5 | **[`test-runner`](Skill-test-runner)** | Qualidade & Revisão | Execução cirúrgica de testes (Node/TS, Python, Go), diagnóstico de falhas e validação *Clean Room*. | `/test-runner` | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/test-runner/SKILL.md) |
 | 6 | **[`git-workflow`](Skill-git-workflow)** | Engenharia & Infra | Branches semânticas, *Conventional Commits*, checklist pré-commit e PRs com *auto-close* em texto puro. | Contextual (commits, branches e PRs) | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/git-workflow/SKILL.md) |
 | 7 | **[`architecture-decision`](Skill-architecture-decision)** | Engenharia & Infra | Registro formal de ADRs (template Michael Nygard) documentando contexto, alternativas e trade-offs. | Contextual ("Registre uma ADR...") | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/architecture-decision/SKILL.md) |
 | 8 | **[`docker-dev`](Skill-docker-dev)** | Engenharia & Infra | Diagnóstico de containers/Compose, gestão local e boas práticas de segurança em `Dockerfile`. | Contextual (Docker / Compose) | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/docker-dev/SKILL.md) |

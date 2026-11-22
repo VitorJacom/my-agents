@@ -1,5 +1,3 @@
-# 🛠️ Sumário de Scripts (`Scripts-Catalog`)
-
 > **Cabeçalho de Controle (Pressman / Sommerville)**  
 > - **Escopo / Filtros Aplicados**: `scripts/**/*.(sh|py)` • Modo: `Fail-Fast (set -euo pipefail)` • Ordenação: `Categoria Funcional`  
 > - **Data/Hora de Emissão**: `2026-11-22 15:33 BRT` *(sincronizado via `.github/workflows/wiki-sync.yml`)*  

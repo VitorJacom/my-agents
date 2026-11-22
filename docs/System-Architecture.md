@@ -1,5 +1,3 @@
-# Arquitetura do Sistema `my-agents`
-
 Esta página apresenta a visão sistêmica, o modelo de decomposição em camadas, as máquinas de estado de execução multiagente e o índice consolidado de Decisões de Arquitetura (ADRs) do ecossistema `my-agents`.
 
 ---
