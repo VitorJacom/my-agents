@@ -1,244 +1,64 @@
-# Catálogo Canônico de Skills (`Skills-Catalog.md`)
+# 🧰 Sumário de Skills (`Skills-Catalog`)
 
-Este documento apresenta a documentação exaustiva de todas as **11 skills sob demanda** integradas ao plugin `my-agents`, detalhando seus objetivos, gatilhos por *Progressive Disclosure*, exemplos práticos de invocação e os artefatos produzidos por cada uma.
-
----
-
-## 🎯 1. O Princípio de Progressive Disclosure e Zero Token Waste
-
-O Antigravity CLI impõe limites de contexto para regras globais para preservar a memória de trabalho do modelo. A injeção de padrões de domínios específicos (como física de jogos 2D, orquestração de containers ou fluxos extensos de planejamento) diretamente em regras globais consumiria tokens desnecessariamente e causaria viés cognitivo em projetos irrelevantes.
-
-### Por que Skills?
-- **Zero Token Waste**: As skills permanecem adormecidas e só são injetadas no contexto quando o desenvolvedor as convoca expressamente ou quando uma intenção compatível é detectada.
-- **Progressive Disclosure**: O agente carrega apenas a instrução necessária no momento exato em que vai executar a tarefa.
-- **Modularidade e Reutilização**: Cada skill possui seu próprio ciclo de vida em `skills/<nome>/SKILL.md`.
+Este documento é o **índice central e resumo executivo** das **11 skills sob demanda** integradas ao plugin `my-agents`. Cada skill possui agora sua própria **página dedicada na Wiki** com diagramas, protocolo de execução, comandos e artefatos.
 
 ---
 
-## 📊 2. Tabela Resumo das Skills Disponíveis
+## 🎯 1. Progressive Disclosure & Zero Token Waste
 
-| Skill | Domínio / Propósito | Gatilho (*Progressive Disclosure*) | Comando / Invocação |
-| :--- | :--- | :--- | :--- |
-| [`plan-feature`](#31-plan-feature-esteira-de-planejamento-e-design) | Planejamento funcional e técnico de requisitos | Início de novas funcionalidades, épicos ou refinamento de issues | `/plan-feature <ideia ou #issue>` |
-| [`issue-pipeline`](#32-issue-pipeline-esteira-tdd-unitária-e-maestro) | Orquestração da esteira determinística TDD | Implementação e resolução de issues do GitHub | `/run-issue <#ID>` ou `/run-issues <#1, #2>` |
-| [`code-review`](#33-code-review-auditoria-de-qualidade-e-segurança) | Revisão rigorosa em 4 dimensões (OWASP, SOLID) | Pré-merge, auditoria de PR ou solicitação de revisão | `/code-review` ou "Revise o código" |
-| [`test-runner`](#34-test-runner-diagnóstico-e-reparo-de-testes) | Execução inteligente e reparo cirúrgico de testes | Falhas na suíte de testes, quebras de build | `/test` ou "Conserte os testes quebrados" |
-| [`git-workflow`](#35-git-workflow-branches-semânticas-e-commits) | Padronização de branches e Conventional Commits | Criação de commits, novas branches ou abertura de PR | "Prepare o commit" ou "Crie a branch" |
-| [`architecture-decision`](#36-architecture-decision-registros-de-adr) | Documentação formal de decisões e trade-offs | Seleção de tecnologias, bancos de dados e padrões | "Registre uma ADR sobre a escolha de X" |
-| [`docker-dev`](#37-docker-dev-diagnóstico-e-containers) | Gestão e troubleshooting de Docker e Compose | Containers falhando, portas ocupadas, montagens | "Diagnostique a falha do container Docker" |
-| [`game-dev-patterns`](#38-game-dev-patterns-padrões-e-física-para-jogos-2d) | Física 2D, FPS independence e cinemática | Jogos em Phaser, HTML5 Canvas, bugs de taxa de quadros | "Corrija a velocidade do pulo em 120Hz" |
-| [`publish-rule-issue`](#39-publish-rule-issue-publicação-global-de-regras) | Registro de regras aprendidas no repo central | Pós-ciclo de `/learn` ou solicitação explícita | `/publish-rule-issue` |
-| [`ui-ux-design`](#310-ui-ux-design-design-de-interface-motion-e-anti-slop) | Engenharia de interface, física de animação, ergonomia mobile e combate a clichês de IA | Tarefas com telas, interfaces web/mobile, motion, auditoria visual ou clichês de IA | "Audite esta UI com a skill ui-ux-design" |
-| [`review-pr`](#311-review-pr-orquestrador-de-revisão-de-pull-requests--gate-humano) | Revisão determinística de PRs em 5 fases com Gate Humano | Auditoria e revisão formal de PRs abertas no GitHub | `/review-pr <#PR \| URL>` |
+O Antigravity CLI impõe limites de contexto para regras globais para preservar a memória de trabalho do modelo. Em vez de injetar convenções de nicho (como física de jogos 2D, Docker ou esteiras completas de planejamento) em todas as sessões:
+
+- **Zero Token Waste**: As skills permanecem adormecidas até serem acionadas expressamente ou por intenção compatível.
+- **Progressive Disclosure**: O agente carrega apenas o `skills/<nome>/SKILL.md` necessário no momento exato da tarefa.
+- **Modularidade Canônica**: Cada skill tem ciclo de vida próprio, independente das regras globais em `rules/AGENTS.md`.
 
 ---
 
-## 🛠️ 3. Detalhamento Exaustivo das Skills
+## 📊 2. Tabela Resumo das 11 Skills
 
-### 3.1. `plan-feature` (Esteira de Planejamento, Design & Ciclo Elephant-Goldfish)
-- **Definição**: [skills/plan-feature/SKILL.md](https://github.com/VitorJacom/my-agents/blob/main/skills/plan-feature/SKILL.md)
-- **Objetivo**: Conduzir o ciclo completo de planejamento e refinamento arquitetural sob o modelo **Elephant-Goldfish** antes de qualquer linha de código de produção ser escrita. Orquestra a colaboração entre `product-owner` (The Elephant: descoberta socrática e contexto cumulativo), `uiux-designer` (mockups visuais), `system-architect` (design técnico atômico <= 3 passos) e `gatekeeper` (The Goldfish Reviewer: Cold Audit stateless com loop de auto-healing de no máximo 2 iterações).
-- **Gatilho de Progressive Disclosure**:
-  - Quando o usuário deseja desenhar uma nova funcionalidade do zero.
-  - Quando há uma issue macro/épico que precisa de fatiamento atômico e análise de Blast Radius.
-- **Formas de Invocação**:
-  ```text
-  /plan-feature Sistema de notificações push com suporte a WebSockets
-  /plan-feature Refinar a issue #14 adicionando suporte a autenticação multifator
-  ```
-- **Artefatos Produzidos**:
-  - `planning_proposal.md`: Contém a visão funcional socrática, Personas, Critérios Gherkin, Contrato Visual (Mockup ASCII e Tokens), Mapeamento de Blast Radius, Matriz de Execution Waves e parecer `SPEC_AUDIT: APPROVED` do Goldfish.
-  - Atualização viva em `docs/ARCHITECTURE.md` (Decisão Técnica).
-  - Criação automática de Milestones e Issues no GitHub após aprovação explícita do usuário.
+Clique no nome de qualquer skill para acessar sua **página dedicada**:
 
----
-
-### 3.2. `issue-pipeline` (Esteira TDD Unitária e Maestro)
-- **Definição**: [skills/issue-pipeline/SKILL.md](https://github.com/VitorJacom/my-agents/blob/main/skills/issue-pipeline/SKILL.md)
-- **Objetivo**: Executar a máquina de estados determinística AIDD para implementar issues do GitHub garantindo integridade de testes, TDD rigoroso e proteção anti-fraude.
-- **Dois Modos de Trabalho**:
-  1. **Modo Unitário**: Execução atômica de uma única issue via subagentes (`planner` ➔ `qa-engineer` ➔ `coder` ➔ `gatekeeper`).
-  2. **Modo Maestro (Multi-Issue)**: Pre-flight de governança, particionamento em Git Worktrees isolados (`scripts/pipeline/worktree-manager.sh`), paralelização por Execution Waves com arquivos disjuntos, Merge Queue sequencial com rebase-sync e Auto-Reconciliação.
-- **Gatilho de Progressive Disclosure**:
-  - Solicitação de resolução ou implementação de issues no GitHub.
-- **Formas de Invocação**:
-  ```text
-  # Modo Unitário
-  /run-issue #12
-  /run-issue 12
-
-  # Modo Maestro Multi-Issue
-  /run-issues #12, #13, #14
-  /run-issues 12 13 14 --base integration/wave-1
-  ```
-- **Artefatos Produzidos**:
-  - `task.md` e `implementation_plan.md` (efêmeros locais).
-  - Testes de critérios de aceite em `tests/features/`.
-  - Código de produção em `src/`.
-  - `walkthrough.md` com provas completas de testes, cobertura e diff.
-  - Pull Request no GitHub criado pelo `gatekeeper`.
+| Skill | Categoria | Resumo do Propósito | Gatilho / Invocação | Definição |
+| :--- | :--- | :--- | :--- | :--- |
+| **[`plan-feature`](Skill-plan-feature)** | Esteiras AIDD | Planejamento funcional, UI/UX e design técnico sob o ciclo *Elephant-Goldfish* antes de codificar. | `/plan-feature <ideia ou #issue>` | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/plan-feature/SKILL.md) |
+| **[`issue-pipeline`](Skill-issue-pipeline)** | Esteiras AIDD | Esteira TDD determinística em Modo Unitário (1 issue) ou Modo Maestro (multi-issue com Worktrees e Merge Queue). | `/run-issue <#ID>` ou `/run-issue --epic <#ID>` | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/issue-pipeline/SKILL.md) |
+| **[`review-pr`](Skill-review-pr)** | Qualidade & Revisão | Revisão determinística de Pull Requests em 5 fases com *Golden Rule*, Gate Humano e criação de issues. | `/review-pr <#PR \| URL>` | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/review-pr/SKILL.md) |
+| **[`code-review`](Skill-code-review)** | Qualidade & Revisão | Auditoria rigorosa de código local em 4 dimensões (OWASP, SOLID, Robustez e Testabilidade). | `/code-review` | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/code-review/SKILL.md) |
+| **[`test-runner`](Skill-test-runner)** | Qualidade & Revisão | Execução cirúrgica de testes (Node/TS, Python, Go), diagnóstico de falhas e validação *Clean Room*. | `/test` | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/test-runner/SKILL.md) |
+| **[`git-workflow`](Skill-git-workflow)** | Engenharia & Infra | Branches semânticas, *Conventional Commits*, checklist pré-commit e PRs com *auto-close* em texto puro. | Contextual (commits, branches e PRs) | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/git-workflow/SKILL.md) |
+| **[`architecture-decision`](Skill-architecture-decision)** | Engenharia & Infra | Registro formal de ADRs (template Michael Nygard) documentando contexto, alternativas e trade-offs. | Contextual ("Registre uma ADR...") | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/architecture-decision/SKILL.md) |
+| **[`docker-dev`](Skill-docker-dev)** | Engenharia & Infra | Diagnóstico de containers/Compose, gestão local e boas práticas de segurança em `Dockerfile`. | Contextual (Docker / Compose) | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/docker-dev/SKILL.md) |
+| **[`publish-rule-issue`](Skill-publish-rule-issue)** | Engenharia & Infra | Publica aprendizados de `/learn` como issues atômicas no repositório central `VitorJacom/my-agents`. | `/publish-rule-issue` | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/publish-rule-issue/SKILL.md) |
+| **[`game-dev-patterns`](Skill-game-dev-patterns)** | Domínios Especializados | Física 2D independente de FPS, debounce de colisões, preservação dimensional de sprites e alcance cinemático. | Contextual (Phaser, Canvas, jogos 2D) | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/game-dev-patterns/SKILL.md) |
+| **[`ui-ux-design`](Skill-ui-ux-design)** | Domínios Especializados | Hub executivo de UI/UX com 48 técnicas, 7 módulos, física de movimento (Apple) e assistente CLI anti-slop. | Contextual / `uiux-designer` | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/ui-ux-design/SKILL.md) |
 
 ---
 
-### 3.3. `code-review` (Auditoria de Qualidade e Segurança)
-- **Definição**: [skills/code-review/SKILL.md](https://github.com/VitorJacom/my-agents/blob/main/skills/code-review/SKILL.md)
-- **Objetivo**: Auditoria aprofundada de código-fonte antes de merges ou submissões de PR, avaliando 4 dimensões críticas:
-  1. **Segurança (OWASP)**: Injeção de SQL/Shell, exposição de dados sensíveis e sanitização de inputs.
-  2. **Arquitetura & Clean Code**: Aderência ao SOLID, injeção de dependências e complexidade ciclomática.
-  3. **Performance & Recursos**: Vazamentos de memória, queries N+1 e bloqueio do event loop.
-  4. **Testabilidade & Integridade**: Ausência de falsos positivos e cobertura de edge cases.
-- **Gatilho de Progressive Disclosure**:
-  - Solicitação de revisão de PR ou auditoria de arquivos modificados na branch.
-- **Formas de Invocação**:
-  ```text
-  /code-review
-  Revise as alterações da branch atual contra vulnerabilidades de segurança
-  ```
-- **Artefatos Produzidos**:
-  - Parecer estruturado com categorização por severidade (Crítico, Médio, Baixo) e sugestões de refatoração imediata.
+## 🗂️ 3. Guia Rápido por Categoria
 
----
+### 🔄 Esteiras & Orquestração AIDD
+- **[`plan-feature`](Skill-plan-feature)** — Transforma ideias ou issues macro em especificações auditadas (*The Elephant* ➔ *UI/UX* ➔ *Architect* ➔ *The Goldfish*), congelando `## Interface Contract` e particionando em *Execution Waves*.
+- **[`issue-pipeline`](Skill-issue-pipeline)** — Executa issues do GitHub com *Concurrent Fork* (`qa-engineer` + `coder` sob contrato), cobertura $\ge 85\%$, *Visual Audit Gate* e *Golden Rule* via `gatekeeper`.
 
-### 3.4. `test-runner` (Diagnóstico e Reparo de Testes)
-- **Definição**: [skills/test-runner/SKILL.md](https://github.com/VitorJacom/my-agents/blob/main/skills/test-runner/SKILL.md)
-- **Objetivo**: Diagnóstico inteligente de falhas em suítes de testes automatizados e reparo cirúrgico de código quebrado em múltiplos ecossistemas (Node/TS, Python, Go, Rust).
-- **Gatilho de Progressive Disclosure**:
-  - Falha na execução de testes, pipelines de CI vermelhos ou quebras de regressão.
-- **Formas de Invocação**:
-  ```text
-  /test
-  Execute a suíte de testes e corrija as falhas em tests/features/
-  ```
-- **Artefatos Produzidos**:
-  - Relatório de causas-raiz de quebras, plano de correção pontual e suíte re-executada com status 100% verde (GREEN).
+### 🛡️ Qualidade, Testes & Revisão
+- **[`review-pr`](Skill-review-pr)** — Orquestra a revisão de Pull Requests no GitHub em 5 fases via `scripts/pr-reviewer.sh`, com bloqueio anti-fraude (exit code 3) e confirmação humana obrigatória.
+- **[`code-review`](Skill-code-review)** — Aplica auditoria local em 4 dimensões (OWASP, SOLID, Robustez, Testabilidade) com relatório em 3 níveis de severidade (🚨 Crítico, ⚠️ Importante, 💡 Sugestão).
+- **[`test-runner`](Skill-test-runner)** — Roda testes focados antes da suíte completa, diagnostica diffs sem adulterar asserções e suporta testes isolados em *Clean Room* (`sandbox/`).
 
----
+### 🏗️ Engenharia, Arquitetura & Infraestrutura
+- **[`git-workflow`](Skill-git-workflow)** — Padroniza branches (`feature/`, `fix/`, `refactor/`), commits em inglês (*Conventional Commits*) e diretivas `Fixes #<id>` em texto puro.
+- **[`architecture-decision`](Skill-architecture-decision)** — Documenta decisões técnicas estruturais no padrão Michael Nygard em `docs/adr/` ou [`docs/ARCHITECTURE.md`](ARCHITECTURE).
+- **[`docker-dev`](Skill-docker-dev)** — Diagnostica falhas de containers/Compose e aplica *multi-stage builds*, usuário não-root e `.dockerignore`.
+- **[`publish-rule-issue`](Skill-publish-rule-issue)** — Globaliza regras descobertas via `/learn` em qualquer projeto criando uma issue pronta para `/run-issue` no `my-agents`.
 
-### 3.5. `git-workflow` (Branches Semânticas e Commits)
-- **Definição**: [skills/git-workflow/SKILL.md](https://github.com/VitorJacom/my-agents/blob/main/skills/git-workflow/SKILL.md)
-- **Objetivo**: Padronização da criação de branches semânticas (`feature/`, `fix/`, `refactor/`), elaboração de mensagens de commit seguindo a especificação de **Conventional Commits** e preparação de Pull Requests.
-- **Gatilho de Progressive Disclosure**:
-  - Sempre que o agente for realizar operações de versionamento no Git ou preparar commits e PRs.
-- **Formas de Invocação**:
-  ```text
-  Crie a branch de trabalho para a issue #20
-  Prepare o commit com as mudanças de documentação seguindo o Conventional Commits
-  ```
-- **Artefatos Produzidos**:
-  - Commits padronizados (ex.: `feat(docs): ...`, `fix(auth): ...`) e branches organizadas.
-
----
-
-### 3.6. `architecture-decision` (Registros de ADR)
-- **Definição**: [skills/architecture-decision/SKILL.md](https://github.com/VitorJacom/my-agents/blob/main/skills/architecture-decision/SKILL.md)
-- **Objetivo**: Registro formal e padronizado de decisões de arquitetura e design de software (ADRs), preservando o contexto histórico, opções consideradas e trade-offs assumidos.
-- **Gatilho de Progressive Disclosure**:
-  - Escolhas de banco de dados, adoção de protocolos de comunicação, introdução de novos frameworks ou consolidação estrutural.
-- **Formas de Invocação**:
-  ```text
-  Crie uma ADR documentando a escolha de SQLite para armazenamento local de cache
-  Documente a decisão de adotar Git Worktrees para concorrência de issues
-  ```
-- **Artefatos Produzidos**:
-  - Registro estruturado no formato Michael Nygard consolidado em `docs/ARCHITECTURE.md` ou mantido sob `docs/adr/`.
-
----
-
-### 3.7. `docker-dev` (Diagnóstico e Containers)
-- **Definição**: [skills/docker-dev/SKILL.md](https://github.com/VitorJacom/my-agents/blob/main/skills/docker-dev/SKILL.md)
-- **Objetivo**: Diagnóstico, validação e manutenção de ambientes locais baseados em Docker e Docker Compose, tratando portas ocupadas, montagens de volume incorretas e containers falhando.
-- **Gatilho de Progressive Disclosure**:
-  - Erros de inicialização de containers locais, falha de comunicação entre serviços ou diagnóstico de logs.
-- **Formas de Invocação**:
-  ```text
-  O container da API está reiniciando em loop, descubra o motivo
-  Verifique as portas em conflito no docker-compose.yml
-  ```
-- **Artefatos Produzidos**:
-  - Diagnóstico com saída de `docker logs`, identificação da causa-raiz e correções nas variáveis de ambiente ou montagem de volumes.
-
----
-
-### 3.8. `game-dev-patterns` (Padrões e Física para Jogos 2D)
-- **Definição**: [skills/game-dev-patterns/SKILL.md](https://github.com/VitorJacom/my-agents/blob/main/skills/game-dev-patterns/SKILL.md)
-- **Objetivo**: Garantir boas práticas de engenharia e física cinemática em jogos 2D (HTML5, Phaser 3, PixiJS, Canvas API), eliminando armadilhas de renderização dependente de taxa de atualização.
-- **Principais Padrões Abordados**:
-  1. **Independência de Taxa de Quadros (FPS Independence & Timestep)**:
-     - Utilização obrigatória de `delta` de tempo (`deltaInSeconds = delta / 1000`) para movimentos e acelerações.
-     - Simulação de física com *Fixed Timestep* (acumulador de tempo fixo).
-  2. **Debounce em Colisões Contínuas**: Prevenção de múltiplos disparos de dano ou som em um único toque.
-  3. **Preservação Dimensional de Sprites**: Separação de container lógico e sprite visual para evitar explosão de escala em animações.
-  4. **Alcance Cinemático Procedural**: Fórmulas balísticas para garantir que plataformas geradas proceduralmente sejam sempre alcançáveis pelo pulo do personagem.
-- **Gatilho de Progressive Disclosure**:
-  - Exclusivo para projetos de jogos 2D ou simulações interativas no navegador. Permanece completamente adormecido em projetos de outros domínios (*Zero Token Waste*).
-- **Formas de Invocação**:
-  ```text
-  O personagem pula mais alto em monitores de 144Hz, ajuste para delta time
-  Aplique debounce no som de impacto da colisão entre o projétil e o inimigo
-  ```
-- **Artefatos Produzidos**:
-  - Funções de física desacopladas da taxa de atualização e testes de física determinísticos.
-
----
-
-### 3.9. `publish-rule-issue` (Publicação Global de Regras)
-- **Definição**: [skills/publish-rule-issue/SKILL.md](https://github.com/VitorJacom/my-agents/blob/main/skills/publish-rule-issue/SKILL.md)
-- **Objetivo**: Publicar uma issue estruturada no repositório canônico central `VitorJacom/my-agents` contendo o contexto, causa-raiz e proposta de nova regra aprendida via comando `/learn` em qualquer workspace do desenvolvedor.
-- **Gatilho de Progressive Disclosure**:
-  - Execução pós-ciclo de `/learn`, quando o agente identifica uma regra reutilizável e pergunta ao desenvolvedor se deseja registrá-la centralmente.
-- **Formas de Invocação**:
-  ```text
-  /publish-rule-issue
-  Publique a regra aprendida nesta sessão no repositório central my-agents
-  ```
-- **Artefatos Produzidos**:
-  - Issue aberta via GitHub CLI (`gh issue create --repo VitorJacom/my-agents`) com labels `rule-proposal`, `enhancement` e corpo padronizado.
-
----
-
-### 3.10. `ui-ux-design` (Design de Interface, Motion e Anti-Slop)
-- **Definição**: [skills/ui-ux-design/SKILL.md](https://github.com/VitorJacom/my-agents/blob/main/skills/ui-ux-design/SKILL.md)
-- **Objetivo**: Fornecer um ecossistema completo de engenharia de interface, física de movimento (motion) baseada nas fórmulas da Apple (WWDC Fluid Interfaces), ergonomia mobile e combate ativo a clichês visuais de IA (AI-Slop).
-- **Gatilho de Progressive Disclosure**:
-  - Ativada automaticamente pelo subagente `uiux-designer` na concepção ou auditoria de telas.
-  - Convocada expressamente quando o desenvolvedor solicita refatoração de UI, refinamento de animações ou purga de templates genéricos.
-- **Formas de Invocação**:
-  ```text
-  Audite o arquivo src/components/Hero.tsx contra clichês visuais de IA
-  Aplique as curvas de mola e easing canônicas no menu lateral
-  ```
-- **Artefatos Produzidos**:
-  - Especificações vivas de telas (Living Specs) em `docs/mockups/` e blueprints espaciais ASCII.
-  - Checklists determinísticos de pré-entrega e auditoria automatizada via `python3 skills/ui-ux-design/scripts/skill_assistant.py audit`.
-
----
-
-### 3.11. `review-pr` (Orquestrador de Revisão de Pull Requests & Gate Humano)
-- **Definição**: [skills/review-pr/SKILL.md](https://github.com/VitorJacom/my-agents/blob/main/skills/review-pr/SKILL.md)
-- **Objetivo**: Conduzir o ciclo determinístico completo de revisão e auditoria de Pull Requests no GitHub em 5 fases:
-  1. **Fase 1: Inspeção & Diff**: Extração estruturada de metadados da PR e diff unificado via `scripts/pr-reviewer.sh fetch-diff`.
-  2. **Fase 2: Auditoria de Integridade & Golden Rule**: Verificação anti-fraude via `scripts/pr-reviewer.sh audit-integrity` (circuit-breaker com exit code 3 em caso de alterações em `tests/core/`).
-  3. **Fase 3: Revisão Heurística & Severidade**: Auditoria em 4 dimensões (OWASP, SOLID, Robustez e Testabilidade) com classificação em 🚨 Crítico, ⚠️ Importante e 💡 Sugestão.
-  4. **Fase 4: Gate de Validação Humana Mandatório**: Apresentação dos achados e solicitação de confirmação explícita do desenvolvedor antes de qualquer ação no GitHub.
-  5. **Fase 5: Despacho & Rastreabilidade**: Submissão de parecer formal (`scripts/pr-reviewer.sh submit-review`) e criação de issues rastreadas no backlog (`scripts/pr-reviewer.sh create-issues`) com auto-reconciliação de governança.
-- **Gatilho de Progressive Disclosure**:
-  - Quando o desenvolvedor solicita a revisão ou auditoria de uma Pull Request no GitHub.
-  - Invocação explícita do comando `/review-pr`.
-- **Formas de Invocação**:
-  ```text
-  /review-pr #12
-  /review-pr 12
-  /review-pr https://github.com/VitorJacom/my-agents/pull/12
-  ```
-- **Artefatos Produzidos e Ações**:
-  - Parecer formal de code review publicado na Pull Request do GitHub.
-  - Issues rastreadas abertas no backlog com labels semânticas (`type:fix`, `type:refactor`, `status:planned`, `source:code-review`) e vinculação da PR de origem, branch head e commit SHA.
-  - Reconciliação automática no GitHub Project v2.
+### 🎨 Domínios Especializados
+- **[`ui-ux-design`](Skill-ui-ux-design)** — 48 técnicas de UI/UX em 7 módulos de carregamento progressivo, fórmulas de molas e CLI `skill_assistant.py` para receitas, checklists e auditoria anti-slop.
+- **[`game-dev-patterns`](Skill-game-dev-patterns)** — 4 invariantes de física e renderização para jogos 2D (Phaser, Canvas, PixiJS) com *Zero Token Waste* fora do nicho de jogos.
 
 ---
 
 ## 📚 4. Leituras Complementares
 
-- [Guia de Introdução (`docs/Getting-Started.md`)](./Getting-Started.md): Setup de plugins e primeiro comando.
-- [Catálogo de Subagentes (`docs/Subagents.md`)](./Subagents.md): Detalhamento das personas executoras.
-- [Arquitetura Geral (`docs/ARCHITECTURE.md`)](https://github.com/VitorJacom/my-agents/blob/main/docs/ARCHITECTURE.md): Visão de sistema e histórico de decisões técnicas.
+- [Guia de Introdução (`Getting-Started`)](Getting-Started): Setup de plugins e primeiro comando.
+- [Catálogo de Subagentes (`Subagents`)](Subagents): Detalhamento das 7 personas executoras e matriz RACI.
+- [Especificação & ADRs (`ARCHITECTURE`)](ARCHITECTURE): Visão técnica canônica e histórico de decisões.

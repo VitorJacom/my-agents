@@ -13,8 +13,14 @@
   - `_Sidebar.md`: Barra lateral de navegação hierárquica.
   - `_Footer.md`: Rodapé padrão institucional e metadados de governança.
   - `Getting-Started.md`: Guia de introdução, onboarding e ciclo AIDD.
-  - `Subagents.md`: Catálogo dos 7 subagentes especializados e matriz RACI.
-  - `Skills-Catalog.md`: Catálogo das 10 skills ativadas por Progressive Disclosure.
+  - `Subagents.md`: Sumário executivo dos 7 subagentes especializados e matriz de permissões (com páginas dedicadas em `docs/agents/Agent-*.md`).
+  - `agents/`: Páginas dedicadas de cada um dos 7 subagentes (`Agent-<nome>.md`).
+  - `Skills-Catalog.md`: Sumário executivo das 11 skills ativadas por Progressive Disclosure (com páginas dedicadas em `docs/skills/Skill-*.md`).
+  - `skills/`: Páginas dedicadas de cada uma das 11 skills (`Skill-<nome>.md`).
+  - `Scripts-Catalog.md`: Sumário executivo dos 21 scripts de automação (com páginas dedicadas por categoria em `docs/scripts/Script-*.md`).
+  - `scripts/`: Páginas dedicadas de cada categoria de scripts (`Script-<categoria>.md`).
+  - `Tests-Catalog.md`: Sumário executivo das 51 suítes de testes (com páginas dedicadas por categoria em `docs/tests/Test-*.md`).
+  - `tests/`: Páginas dedicadas de cada categoria da suíte de testes (`Test-<categoria>.md`).
   - `AIDD-Manifesto.md`: Manifesto AI-Driven Development e 4 valores fundamentais.
   - `System-Architecture.md`: Visão arquitetural em 5 camadas concêntricas e índice de ADRs.
   - `Troubleshooting.md`: Diagnóstico de problemas, locks, tokens e circuit breakers.

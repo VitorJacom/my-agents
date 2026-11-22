@@ -121,8 +121,9 @@ for doc in "$GETTING_STARTED" "$SUBAGENTS" "$SKILLS_CATALOG"; do
     # Remove eventuais âncoras internas no link (ex: ./Subagents.md#secao)
     clean_target="${link%%#*}"
     if [ -n "$clean_target" ]; then
-      resolved="$doc_dir/$clean_target"
-      check "Link em $doc_name para '$clean_target' resolve arquivo real" test -e "$resolved"
+      base_name="$(basename "$clean_target")"
+      check "Link em $doc_name para '$clean_target' resolve arquivo real" \
+        bash -c "test -e '$doc_dir/$clean_target' || test -e '$doc_dir/$clean_target.md' || test -e '$doc_dir/agents/$base_name.md' || test -e '$doc_dir/skills/$base_name.md' || test -e '$doc_dir/scripts/$base_name.md' || test -e '$doc_dir/tests/$base_name.md'"
     fi
   done
 done

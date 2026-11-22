@@ -42,7 +42,10 @@ Explore os módulos e documentações completas do ecossistema:
 
 - 🏁 **[Primeiros Passos](Getting-Started)**: Guia completo de instalação do plugin, configuração no Antigravity CLI e verificação de ambiente.
 - 📜 **[Manifesto AIDD](AIDD-Manifesto)**: Princípios fundamentais, ciclo de arquivos efêmeros (`task.md`, `implementation_plan.md`, `walkthrough.md`) e Trava Dupla Anti-Fraude.
-- 🏛️ **[Arquitetura do Sistema](System-Architecture)**: Visão estrutural de alto nível, ciclo de vida híbrido (Local vs Nuvem), Worktrees, Ondas de Execução e Merge Queue.
-- 🤖 **[Catálogo de Subagentes](Subagents)**: Detalhamento de cada persona, fluxos de trabalho, permissões de tools e interfaces.
-- 🧰 **[Catálogo de Skills](Skills-Catalog)**: Guia das habilidades sob demanda (*Progressive Disclosure*), incluindo `/plan-feature`, `/run-issue`, `game-dev-patterns` e mais.
+- 🏛️ **[Arquitetura do Sistema](System-Architecture)** & **[Especificação & ADRs](ARCHITECTURE)**: Visão estrutural de alto nível, ciclo de vida híbrido, Worktrees, Ondas de Execução e histórico de decisões técnicas.
+- 🤖 **[Sumário de Subagentes](Subagents)**: Matriz de permissões e **7 páginas dedicadas** detalhando cada persona (`product-owner`, `system-architect`, `uiux-designer`, `planner`, `qa-engineer`, `coder` e `gatekeeper`).
+- 🧰 **[Sumário de Skills](Skills-Catalog)**: Índice das **11 habilidades sob demanda** (*Progressive Disclosure*), cada uma com página dedicada na Wiki (`plan-feature`, `issue-pipeline`, `review-pr`, `ui-ux-design`, `game-dev-patterns` e mais).
+- 🛠️ **[Sumário de Scripts](Scripts-Catalog)**: Catálogo dos **21 utilitários e automações** (`hooks`, `pipeline`, `pr-reviewer`, `statusline` e `migrations`) com páginas dedicadas por categoria.
+- 🧪 **[Sumário de Testes](Tests-Catalog)**: Mapa completo das **51 suítes determinísticas** (`core`, `governance`, `pipeline`, `wiki`, `ui-ux`, `pr-review` e `statusline`) executadas via `./tests/run.sh`.
+- 🎨 **[Catálogo de Telas (Mockups)](mockups/README)**: Especificações vivas (*Mockup-as-Code*) e templates visuais do projeto.
 - 🛠️ **[Troubleshooting e FAQ](Troubleshooting)**: Diagnóstico e resolução de problemas comuns de permissão, worktrees, hooks e execução de testes.
