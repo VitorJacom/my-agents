@@ -88,8 +88,8 @@ check "Sidebar aponta para Home" grep -E -q '\(Home\)' "$SIDEBAR_MD"
 check "Sidebar aponta para Getting-Started" grep -E -q '\(Getting-Started\)' "$SIDEBAR_MD"
 check "Sidebar aponta para AIDD-Manifesto" grep -E -q '\(AIDD-Manifesto\)' "$SIDEBAR_MD"
 check "Sidebar aponta para System-Architecture" grep -E -q '\(System-Architecture\)' "$SIDEBAR_MD"
-check "Sidebar aponta para Subagents" grep -E -q '\(Subagents\)' "$SIDEBAR_MD"
-check "Sidebar aponta para Skills-Catalog" grep -E -q '\(Skills-Catalog\)' "$SIDEBAR_MD"
+check "Sidebar aponta para Subagents" grep -E -q '(\(Subagents\)|href="Subagents")' "$SIDEBAR_MD"
+check "Sidebar aponta para Skills-Catalog" grep -E -q '(\(Skills-Catalog\)|href="Skills-Catalog")' "$SIDEBAR_MD"
 check "Sidebar aponta para Troubleshooting" grep -E -q '\(Troubleshooting\)' "$SIDEBAR_MD"
 
 # =============================================================================
