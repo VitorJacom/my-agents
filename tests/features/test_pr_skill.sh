@@ -2,16 +2,16 @@
 set -euo pipefail
 
 # =============================================================================
-# Teste de Aceitação (TDD): Orquestrador da Skill /review-pr com Gate Humano
-# Issue #54
+# Teste de Aceitação (TDD): Orquestrador da Skill /pr com Gate Humano
+# Issue #54 (Unificado com code-review na Issue #85)
 # =============================================================================
-# Valida a especificação, estrutura e rastreabilidade da Skill /review-pr:
-# 1. Existência e Frontmatter YAML de skills/review-pr/SKILL.md
-# 2. Protocolo de Invocação (/review-pr <#PR | URL>)
+# Valida a especificação, estrutura e rastreabilidade da Skill /pr:
+# 1. Existência e Frontmatter YAML de skills/pr/SKILL.md
+# 2. Protocolo de Invocação (/pr <#PR | URL> e /pr local)
 # 3. Máquina de Estados Determinística de 5 Fases
 # 4. Gate de Validação Humana Mandatório
 # 5. Papel dos Subagentes e Subcomandos do scripts/pr-reviewer.sh
-# 6. Integração Cruzada em skills/code-review/SKILL.md
+# 6. Critérios Heurísticos em 4 Dimensões (OWASP, SOLID, Robustez, Testabilidade)
 # 7. Documentação e Integridade de Links em docs/Skills-Catalog.md
 # 8. Casos de Borda e Falhas (Golden Rule Circuit-Breaker, Rejeição no Gate)
 # =============================================================================

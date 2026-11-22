@@ -25,7 +25,7 @@ flowchart TD
     Verdict --> Issues["5. Despacho & Rastreabilidade<br/>(Criar issues e reconciliar projeto)"]
     Spec -. "Transversal" .-> Telemetry["6. Telemetria & Tokens<br/>(Cache, hotspots e multiagente)"]
 
-    Spec -. "Coberto por" .-> T1["test_review_pr_skill"]
+    Spec -. "Coberto por" .-> T1["test_pr_skill"]
     Diff -. "Coberto por" .-> T2["test_pr_auditor"]
     Golden -. "Coberto por" .-> T2
     Verdict -. "Coberto por" .-> T3["test_pr_review_submission"]
@@ -43,7 +43,7 @@ flowchart TD
 | 2 | **`test_pr_auditor.sh`** | Issue #51 | Subcomandos `fetch-diff` e `audit-integrity` de [`pr-reviewer.sh`](Script-pr-reviewer), fallback `python3` e *Circuit Breaker* (exit `3`) em [`tests/core/`](Test-core) |
 | 3 | **`test_pr_review_submission.sh`** | Issue #52 | Submissão determinística de pareceres (`submit-review`) com inferência automática de veredito e `--dry-run` |
 | 4 | **`test_pr_issue_generator.sh`** | Issue #53 | Geração automática de issues rastreadas (`create-issues`), taxonomia AIDD e disparo do reconciliador de governança |
-| 5 | **`test_review_pr_skill.sh`** | Issue #54 | Contrato estrutural da skill [`pr`](Skill-pr) em 5 fases, Gate de Validação Humana e cobertura local |
+| 5 | **`test_pr_skill.sh`** | Issue #54 | Contrato estrutural da skill [`pr`](Skill-pr) em 5 fases, Gate de Validação Humana e cobertura local |
 | | **Total** | **5 suítes** | **Cobertura integral da esteira `/pr` e telemetria de tokens** |
 
 ---
@@ -110,7 +110,7 @@ flowchart TD
   - *Fail-fast* quando `gh issue create` retorna erro de API (`FAIL_TRIGGER`).
 - **Isolamento & Mocks**: Mock do CLI `gh` com registro em `GH_LOG`, script simulado de reconciliação injetado via `MY_AGENTS_RECONCILER_OVERRIDE` e fixtures de apontamentos em `mktemp -d`.
 
-### 5. `test_review_pr_skill.sh`
+### 5. `test_pr_skill.sh`
 
 - **Origem**: Issue #54 — *Orquestrador da Skill `/pr` com Gate Humano* ([`Skill-pr`](Skill-pr)).
 - **O que Valida**: Contrato estrutural de `skills/pr/SKILL.md`, máquina de estados em 5 fases, Gate de Validação Humana mandatório, papéis de subagentes ([`Agent-gatekeeper`](Agent-gatekeeper)), critérios heurísticos em 4 dimensões e catalogação em [`Skills-Catalog`](Skills-Catalog).
