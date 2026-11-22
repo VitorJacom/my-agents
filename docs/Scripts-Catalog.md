@@ -33,7 +33,7 @@ Clique em qualquer categoria para acessar sua **página dedicada**:
 | ---: | :--- | :--- | ---: | ---: | :--- |
 | 1 | **[🪝 Hooks de Runtime](Script-hooks)** | `scripts/hooks/` | 2 | 9.5% | Interceptação `PreToolUse` (`safety-guard.sh`) e injeção de contexto dinâmico `SessionStart` (`session-start-context.sh`). |
 | 2 | **[🚀 Esteira & Governança AIDD](Script-pipeline)** | `scripts/pipeline/` | 12 | 57.1% | Worktrees, portões de *Interface Contract*, *Contract Integration Gate*, reconciliação GitHub, promoção `tests/core/`, métricas e `update-plugin.sh`. |
-| 3 | **[🔍 Revisor de PR & Telemetria](Script-pr-reviewer)** | `scripts/` *(raiz)* | 2 | 9.5% | Motor CLI da esteira `/review-pr` (`pr-reviewer.sh`) e wrapper de auditoria de eficiência de tokens (`audit-token-efficiency.py`). |
+| 3 | **[🔍 Revisor de PR & Telemetria](Script-pr-reviewer)** | `scripts/` *(raiz)* | 2 | 9.5% | Motor CLI da esteira `/pr` (`pr-reviewer.sh`) e wrapper de auditoria de eficiência de tokens (`audit-token-efficiency.py`). |
 | 4 | **[⚡ Statusline & Quota CLI](Script-statusline)** | `scripts/statusline/` | 3 | 14.3% | Instalador idempotente, barra de status sub-50ms com quota Gemini e widget de atualização (`statusline-quota.sh`). |
 | 5 | **[🏛️ Migrações Históricas](Script-migrations)** | `scripts/migrations/` | 2 | 9.5% | Utilitários *one-off* para migração de issues ao GitHub Projects v2 e reclassificação de Épicos/Releases. |
 | **Total** | **5 Categorias** | **`scripts/`** | **21** | **100.0%** | **100% conformidade Fail-Fast & CLI canônico** |

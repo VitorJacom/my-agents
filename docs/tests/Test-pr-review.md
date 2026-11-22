@@ -9,13 +9,13 @@
 
 ## 🎯 Propósito da Camada
 
-Valida a esteira determinística de revisão de Pull Requests ([`review-pr`](Skill-review-pr)) de ponta a ponta — desde a especificação orquestradora de 5 fases até a extração de diff, verificação anti-fraude da *Golden Rule* ([`AIDD-Manifesto`](AIDD-Manifesto)), submissão automatizada de pareceres e geração de issues rastreadas com governança via [`Script-pr-reviewer`](Script-pr-reviewer) — além do auditor de eficiência de tokens e telemetria multiagente do pipeline ([`Script-pipeline`](Script-pipeline)).
+Valida a esteira determinística de revisão de Pull Requests ([`pr`](Skill-pr)) de ponta a ponta — desde a especificação orquestradora de 5 fases até a extração de diff, verificação anti-fraude da *Golden Rule* ([`AIDD-Manifesto`](AIDD-Manifesto)), submissão automatizada de pareceres e geração de issues rastreadas com governança via [`Script-pr-reviewer`](Script-pr-reviewer) — além do auditor de eficiência de tokens e telemetria multiagente do pipeline ([`Script-pipeline`](Script-pipeline)).
 
 ---
 
-## 🔄 Cobertura na Esteira de Revisão (/review-pr)
+## 🔄 Cobertura na Esteira de Revisão (/pr)
 
-O diagrama abaixo mapeia como as 5 suítes cobrem cada fase da esteira [`review-pr`](Skill-review-pr) e a auditoria transversal de telemetria e consumo de tokens:
+O diagrama abaixo mapeia como as 5 suítes cobrem cada fase da esteira [`pr`](Skill-pr) e a auditoria transversal de telemetria e consumo de tokens:
 
 ```mermaid
 flowchart TD
@@ -25,7 +25,7 @@ flowchart TD
     Verdict --> Issues["5. Despacho & Rastreabilidade<br/>(Criar issues e reconciliar projeto)"]
     Spec -. "Transversal" .-> Telemetry["6. Telemetria & Tokens<br/>(Cache, hotspots e multiagente)"]
 
-    Spec -. "Coberto por" .-> T1["test_review_pr_skill"]
+    Spec -. "Coberto por" .-> T1["test_pr_skill"]
     Diff -. "Coberto por" .-> T2["test_pr_auditor"]
     Golden -. "Coberto por" .-> T2
     Verdict -. "Coberto por" .-> T3["test_pr_review_submission"]
@@ -43,8 +43,8 @@ flowchart TD
 | 2 | **`test_pr_auditor.sh`** | Issue #51 | Subcomandos `fetch-diff` e `audit-integrity` de [`pr-reviewer.sh`](Script-pr-reviewer), fallback `python3` e *Circuit Breaker* (exit `3`) em [`tests/core/`](Test-core) |
 | 3 | **`test_pr_review_submission.sh`** | Issue #52 | Submissão determinística de pareceres (`submit-review`) com inferência automática de veredito e `--dry-run` |
 | 4 | **`test_pr_issue_generator.sh`** | Issue #53 | Geração automática de issues rastreadas (`create-issues`), taxonomia AIDD e disparo do reconciliador de governança |
-| 5 | **`test_review_pr_skill.sh`** | Issue #54 | Contrato estrutural da skill [`review-pr`](Skill-review-pr) em 5 fases, Gate de Validação Humana e links cruzados |
-| | **Total** | **5 suítes** | **Cobertura integral da esteira `/review-pr` e telemetria de tokens** |
+| 5 | **`test_pr_skill.sh`** | Issue #54 | Contrato estrutural da skill [`pr`](Skill-pr) em 5 fases, Gate de Validação Humana e cobertura local |
+| | **Total** | **5 suítes** | **Cobertura integral da esteira `/pr` e telemetria de tokens** |
 
 ---
 
@@ -110,14 +110,14 @@ flowchart TD
   - *Fail-fast* quando `gh issue create` retorna erro de API (`FAIL_TRIGGER`).
 - **Isolamento & Mocks**: Mock do CLI `gh` com registro em `GH_LOG`, script simulado de reconciliação injetado via `MY_AGENTS_RECONCILER_OVERRIDE` e fixtures de apontamentos em `mktemp -d`.
 
-### 5. `test_review_pr_skill.sh`
+### 5. `test_pr_skill.sh`
 
-- **Origem**: Issue #54 — *Orquestrador da Skill `/review-pr` com Gate Humano* ([`Skill-review-pr`](Skill-review-pr)).
-- **O que Valida**: Contrato estrutural de `skills/review-pr/SKILL.md`, máquina de estados em 5 fases, Gate de Validação Humana mandatório, papéis de subagentes ([`Agent-gatekeeper`](Agent-gatekeeper)), integração cruzada com [`Skill-code-review`](Skill-code-review) e catalogação em [`Skills-Catalog`](Skills-Catalog).
+- **Origem**: Issue #54 — *Orquestrador da Skill `/pr` com Gate Humano* ([`Skill-pr`](Skill-pr)).
+- **O que Valida**: Contrato estrutural de `skills/pr/SKILL.md`, máquina de estados em 5 fases, Gate de Validação Humana mandatório, papéis de subagentes ([`Agent-gatekeeper`](Agent-gatekeeper)), critérios heurísticos em 4 dimensões e catalogação em [`Skills-Catalog`](Skills-Catalog).
 - **Happy Path**:
-  - Valida existência, frontmatter YAML (`name: review-pr`, `description:`) e protocolo de invocação (`/review-pr <#PR | URL>`, ID numérico e URL completa).
+  - Valida existência, frontmatter YAML (`name: pr`, `description:`) e protocolo de invocação (`/pr <#PR | URL>`, `/pr local`, ID numérico e URL completa).
   - Verifica documentação das 5 fases (`fetch-diff`, `audit-integrity`, 4 dimensões + 3 severidades, Gate de Validação Humana exigindo confirmação explícita do desenvolvedor, `submit-review` + `create-issues`) e atuação de [`gatekeeper`](Agent-gatekeeper) e orquestrador/planner.
-  - Confirma links cruzados em `skills/code-review/SKILL.md` e registro completo em `docs/Skills-Catalog.md`.
+  - Confirma o registro completo em `docs/Skills-Catalog.md`.
 - **Edge Cases & Failure Modes**:
   - Verifica documentação do *Circuit Breaker* na Fase 2 (*Golden Rule* com exit code `3`), tratamento de recusa/cancelamento no Gate da Fase 4 sem mutação remota e preservação de estado em `--dry-run` na Fase 5.
   - Executa `tests/features/wiki/test_wiki_structure_and_links.sh` garantindo zero links quebrados na Wiki.

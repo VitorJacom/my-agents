@@ -53,7 +53,7 @@ Clique em qualquer categoria para acessar sua **página dedicada**:
 | 3 | **[🔄 Pipeline & Maestro](Test-pipeline)** | `tests/features/pipeline/` | 8 | 15.7% | Ciclo *Elephant-Goldfish*, *Interface Contract*, *Concurrent Fork*, *Execution Waves* e *Merge Queue*. | `./tests/run.sh -c pipeline` |
 | 4 | **[📚 Wiki & Documentação](Test-wiki)** | `tests/features/wiki/` | 8 | 15.7% | Integridade de links internos, `wiki-sync.yml`, catálogos duplos de telas e guias de onboarding. | `./tests/run.sh -c wiki` |
 | 5 | **[🎨 UI/UX & Mockups](Test-ui-ux)** | `tests/features/ui-ux/` | 7 | 13.7% | Protocolo *Mockup-as-Code*, Living Specs, *Visual Audit Gate*, comparação visual e skill `ui-ux-design`. | `./tests/run.sh -c ui-ux` |
-| 6 | **[🔍 Revisão de PR & Telemetria](Test-pr-review)** | `tests/features/*.sh` | 5 | 9.8% | Esteira `/review-pr` (5 fases), auditoria de PR, submissão de parecer, geração de issues e eficiência de tokens. | `./tests/run.sh -f "pr_\|review_pr\|token"` |
+| 6 | **[🔍 Revisão de PR & Telemetria](Test-pr-review)** | `tests/features/*.sh` | 5 | 9.8% | Esteira `/pr` (5 fases), auditoria de PR, submissão de parecer, geração de issues e eficiência de tokens. | `./tests/run.sh -f "pr_\|review_pr\|token"` |
 | 7 | **[⚡ Statusline & Performance](Test-statusline)** | `tests/features/statusline/` | 3 | 5.9% | Arquitetura modular da statusline, benchmark sub-50ms, instalador e widget de atualização. | `./tests/run.sh -c statusline` |
 | **Total** | **7 Categorias** | **`tests/`** | **51** | **100.0%** | **4 Core (Imutáveis) + 47 Features (TDD)** | **`./tests/run.sh`** |
 

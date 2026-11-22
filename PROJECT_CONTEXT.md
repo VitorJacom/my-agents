@@ -15,8 +15,8 @@
   - `Getting-Started.md`: Guia de introdução, onboarding e ciclo AIDD.
   - `Subagents.md`: Sumário executivo dos 7 subagentes especializados e matriz de permissões (com páginas dedicadas em `docs/agents/Agent-*.md`).
   - `agents/`: Páginas dedicadas de cada um dos 7 subagentes (`Agent-<nome>.md`).
-  - `Skills-Catalog.md`: Sumário executivo das 11 skills ativadas por Progressive Disclosure (com páginas dedicadas em `docs/skills/Skill-*.md`).
-  - `skills/`: Páginas dedicadas de cada uma das 11 skills (`Skill-<nome>.md`).
+  - `Skills-Catalog.md`: Sumário executivo das 10 skills ativadas por Progressive Disclosure (com páginas dedicadas em `docs/skills/Skill-*.md`).
+  - `skills/`: Páginas dedicadas de cada uma das 10 skills (`Skill-<nome>.md`).
   - `Scripts-Catalog.md`: Sumário executivo dos 21 scripts de automação (com páginas dedicadas por categoria em `docs/scripts/Script-*.md`).
   - `scripts/`: Páginas dedicadas de cada categoria de scripts (`Script-<categoria>.md`).
   - `Tests-Catalog.md`: Sumário executivo das 51 suítes de testes (com páginas dedicadas por categoria em `docs/tests/Test-*.md`).

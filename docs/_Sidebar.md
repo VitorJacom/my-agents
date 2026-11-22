@@ -30,12 +30,11 @@
 </details>
 
 <details>
-<summary><a href="Skills-Catalog"><strong>🧰 Skills (11)</strong></a></summary>
+<summary><a href="Skills-Catalog"><strong>🧰 Skills (10)</strong></a></summary>
 
 - [`plan-feature`](Skill-plan-feature)
 - [`issue-pipeline`](Skill-issue-pipeline)
-- [`review-pr`](Skill-review-pr)
-- [`code-review`](Skill-code-review)
+- [`pr`](Skill-pr)
 - [`test-runner`](Skill-test-runner)
 - [`git-workflow`](Skill-git-workflow)
 - [`architecture-decision`](Skill-architecture-decision)

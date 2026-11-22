@@ -141,4 +141,4 @@ flowchart TD
 
 ## 🔗 Navegação
 
-[← Anterior: `plan-feature`](Skill-plan-feature) | [Sumário de Skills](Skills-Catalog) | [Próxima Skill: `review-pr` →](Skill-review-pr)
+[← Anterior: `plan-feature`](Skill-plan-feature) | [Sumário de Skills](Skills-Catalog) | [Próxima Skill: `pr` →](Skill-pr)
