@@ -57,14 +57,15 @@ flowchart TD
 
 ## 📋 Responsabilidades por Estado
 
-| Estado | Subagente | Entregas Principais |
+| Estado | Responsável | O que acontece nesta etapa |
 | :--- | :--- | :--- |
-| **1. Descoberta Funcional** | `product-owner` (*The Elephant*) | Postura socrática, personas, critérios Gherkin (`Dado / Quando / Então`), detecção concreta de Regras Core e classificação `UI_UX_REQUIRED`. |
-| **1.5. UI/UX Design** *(Condicional)* | `uiux-designer` (Modo 1) | *Spatial Blueprint* ASCII, *Design Tokens* (Value Contrast $\ge$ 2:1, WCAG AA $\ge$ 4.5:1), protótipo headless em `docs/assets/mockups/<slug>.png` e Living Spec em `docs/mockups/<slug>.md`. |
-| **2. Design Técnico** | `system-architect` | Mapeamento de `src/`, registro de ADRs em `docs/ARCHITECTURE.md`, seção mandatória `## Interface Contract`, `## Target Files & Dependencies` e particionamento em `## Execution Waves` (máx. 3 issues disjuntas por onda). |
-| **2.5. Cold Audit** | `gatekeeper` (*The Goldfish*) | Auditoria estéril anti-premissas, verificação de atomicidade ($\le 3$ passos) e validação do *Interface Contract* com loop de auto-healing de até 2 iterações. |
-| **3. Gate Humano** | Orquestrador + Desenvolvedor | Apresentação do `planning_proposal.md` (e preview visual se houver UI) para aprovação explícita. |
-| **4–5. GitHub & Governança** | Orquestrador | Criação/edição de issues (`--milestone`, `--parent`), vinculação ao GitHub Project v2 e execução de `reconcile-github-governance.sh`. |
+| **1. Descoberta Funcional** | [`product-owner`](Agent-product-owner) | Faz perguntas para tirar dúvidas de negócio, classifica se a demanda é uma **Nova Issue**, **Issue Existente (`#XX`)** ou **Épico**, define critérios de aceite claros, identifica eventuais regras críticas (*Core*) e decide se a entrega envolve interface visual (`UI_UX_REQUIRED`). |
+| **1.5. Design Visual** *(Condicional)* | [`uiux-designer`](Agent-uiux-designer) | Acionado apenas se houver interface visual. Desenha a estrutura da tela, define o padrão visual, gera um protótipo de preview e salva a especificação visual do mockup para aprovação antes de programar. |
+| **2. Design Técnico** | [`system-architect`](Agent-system-architect) | Mapeia quais arquivos do projeto serão impactados, registra decisões técnicas em [`ARCHITECTURE`](ARCHITECTURE), congela o contrato de interface (entradas, saídas e erros) e fatia o trabalho em tarefas pequenas ($\le 3$ passos) organizadas em ondas de execução sem conflito de arquivos. |
+| **2.5. Auditoria da Especificação** | [`gatekeeper`](Agent-gatekeeper) | Faz uma revisão independente do plano sem depender do histórico da conversa, barrando ambiguidades, contratos incompletos ou tarefas grandes demais. Se reprovar, devolve para ajuste automático (até 2 tentativas) antes de acionar o *Circuit Breaker*. |
+| **3. Gate Humano** | Orquestrador + Desenvolvedor | Apresenta o plano consolidado (`planning_proposal.md`) — e o preview visual, quando houver — para revisão e aprovação explícita do desenvolvedor antes de publicar no GitHub. |
+| **4. Publicar no GitHub** | Orquestrador | Publica o plano aprovado no repositório: cria novas issues, atualiza uma issue existente (`#XX`) ou gera as sub-issues vinculadas ao Épico. |
+| **5. Atualizar Board (Project v2)** | Orquestrador + [`Script-pipeline`](Script-pipeline) | Sincroniza automaticamente as issues criadas ou editadas com a Milestone (Épico), define a Release prevista e posiciona os cartões com status inicial **`Planned`** no quadro do projeto. |
 
 ---
 
