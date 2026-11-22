@@ -115,4 +115,4 @@ flowchart TD
 
 ## 🔗 Navegação
 
-[← Anterior: `issue-pipeline`](Skill-issue-pipeline) | [Sumário de Skills](Skills-Catalog) | [Próxima Skill: `test-runner` →](Skill-test-runner)
+[← Anterior: `issue-pipeline`](Skill-issue-pipeline) | [Sumário de Skills](Skills-Catalog) | [Próxima Skill: `git-workflow` →](Skill-git-workflow)

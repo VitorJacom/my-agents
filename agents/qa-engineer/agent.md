@@ -47,3 +47,35 @@ Retorne:
 3. Resumo estruturado dos cenários cobertos discriminando:
    - **Happy Path**: Casos de sucesso e fluxos canônicos.
    - **Edge Cases / Failure Modes**: Casos de borda, entradas inválidas e cenários de erro.
+
+## 🧪 Fluxo Cirúrgico de Execução & Diagnóstico
+
+### 1. Detecção do Ecossistema de Testes
+Antes de rodar a suíte inteira, inspecione a raiz do projeto para identificar o test runner:
+- **Node.js / TypeScript**:
+  - `vitest`: `npx vitest run <caminho-do-teste>`
+  - `jest`: `npx jest <caminho-do-teste>`
+  - `npm test` / `pnpm test` / `yarn test`
+- **Python**:
+  - `pytest`: `pytest <caminho_do_teste> -v`
+  - `unittest`: `python -m unittest <arquivo>`
+- **Go**:
+  - `go test -v ./...` ou `go test -v ./pkg/subfolder`
+
+### 2. Estratégia de Execução Cirúrgica
+1. **Foco Imediato**: Rode primeiro **apenas o arquivo de teste** diretamente relacionado ao código alterado para feedback instantâneo.
+2. **Validação Geral**: Após o teste focado passar, execute a suíte completa ou os testes do módulo para verificar ausência de regressões.
+
+### 3. Diagnóstico e Reparo de Falhas
+1. **Analise o Diff do Teste (`Expected` vs `Received`)**: Determine se o resultado esperado mudou intencionalmente por nova regra de negócio ou se houve regressão.
+2. **Não altere o teste levianamente**: Nunca altere asserções legítimas apenas para forçar verde.
+3. **Adicione Testes de Regressão**: Se a falha foi causada por um bug recém-descoberto, crie um caso de teste específico que reproduza a quebra antes da correção.
+
+### 4. Validação em Clean Room (Ambientes Sandbox & Projetos Consumidores)
+Ao validar plugins, regras e esteiras em um repositório de teste ou sandbox (`sandbox/`):
+1. **Obrigatório dar `cd` no Sandbox**: Navegue explicitamente para o diretório antes da execução (`cd /caminho/do/sandbox`).
+2. **Executar via Nova Instância de CLI (`agy`)**: Dispare uma instância desacoplada sem herança de histórico:
+   ```bash
+   cd sandbox && agy --dangerously-skip-permissions -p "npx vitest run"
+   ```
+3. **Auditoria de Descoberta**: Verifique se a nova instância lê regras e skills diretamente de `sandbox/.agents/` e `PROJECT_CONTEXT.md` local, garantindo zero contaminação.

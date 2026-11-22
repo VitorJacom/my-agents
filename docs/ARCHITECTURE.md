@@ -35,7 +35,6 @@ my-agents/
 │   ├── game-dev-patterns/    # Física 2D, FPS independence e cinemática
 │   ├── plan-feature/         # Esteira de planejamento funcional e técnico
 │   ├── issue-pipeline/       # Esteira de execução TDD (Worktree + Fork/Join)
-│   ├── architecture-decision/# Diretrizes de design técnico
 │   └── ...                   # Outras skills especializadas
 ├── scripts/                  # Ferramental operacional e statusline
 │   ├── hooks/                # Hooks do Antigravity CLI (safety-guard, session-start)

@@ -1,8 +1,12 @@
 [← Voltar ao Sumário de Skills](Skills-Catalog)
 
+> [!WARNING]
+> ⚠️ **DEPRECATED**: Esta skill está obsoleta e será removida em versão futura.
+
 > **Diagnóstico e Gestão de Containers**  
 > **Definição Canônica**: [`skills/docker-dev/SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/docker-dev/SKILL.md)  
 > **Categoria**: Engenharia, Arquitetura & Infra  
+> **Status**: `DEPRECATED`  
 > **Comando de Invocação**: Invocação contextual em tarefas de Docker e Docker Compose
 
 ---
@@ -59,4 +63,4 @@ docker compose restart <service_name>
 
 ## 🔗 Navegação
 
-[← Anterior: `architecture-decision`](Skill-architecture-decision) | [Sumário de Skills](Skills-Catalog) | [Próxima Skill: `game-dev-patterns` →](Skill-game-dev-patterns)
+[← Anterior: `git-workflow`](Skill-git-workflow) | [Sumário de Skills](Skills-Catalog) | [Próxima Skill: `game-dev-patterns` →](Skill-game-dev-patterns)

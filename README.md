@@ -42,9 +42,7 @@ Procedimentos acionados sob demanda pelo agente ou pelo desenvolvedor:
 - **`game-dev-patterns`**: Engenharia e física para jogos 2D (fixed timestep, independência de FPS, debounce de overlap e alcance cinemático).
 - **`git-workflow`**: Criação de branches semânticas, commits Conventional Commits e templates de PR.
 - **`code-review`**: Análise estática, segurança (OWASP), arquitetura e refatoração com relatório de severidade.
-- **`test-runner`**: Deteção automática do framework de testes e execução cirúrgica com diagnóstico de causas-raiz.
-- **`docker-dev`**: Resolução de problemas com containers, compose, logs e boas práticas de Dockerfile.
-- **`architecture-decision`**: Elaboração padronizada de registros de arquitetura (ADRs).
+- **`docker-dev`** `[DEPRECATED]`: Resolução de problemas com containers, compose, logs e boas práticas de Dockerfile.
 
 ---
 
@@ -266,7 +264,5 @@ my-agents/
     ├── publish-rule-issue/     # Publicador de regras pós-learn no GitHub
     ├── git-workflow/           # Fluxo de branches, commits e PRs
     ├── code-review/            # Auditoria e refatoração de código
-    ├── test-runner/            # Execução e diagnóstico de testes
-    ├── docker-dev/             # Gestão de containers e Docker
-    └── architecture-decision/  # Documentação de ADRs
+    └── docker-dev/             # [DEPRECATED] Gestão de containers e Docker
 ```

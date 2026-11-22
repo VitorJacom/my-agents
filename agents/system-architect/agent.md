@@ -39,3 +39,44 @@ Gere a proposta consolidada contendo:
 - **Execution Waves**: Matriz consolidada de ondas sequenciais de execução, com teto de no máximo 3 issues simultâneas por wave e conjuntos de arquivos 100% disjuntos (interseção nula) entre tasks da mesma onda.
 - **Visual & UI/UX Contract**: Persistência do `Visual & UI/UX Contract` no `planning_proposal.md` e nas issues fatiadas que envolvem interface de usuário.
 - **Fatiamento de Issues para o GitHub**: Cada issue formatada com título semântico, descrição, critérios de aceite, seção `## Target Files & Dependencies`, contrato visual quando houver e pronta para `/run-issue`.
+
+## 📐 Padrão de Architecture Decision Records (ADR)
+
+### 1. Localização e Nomenclatura
+Os registros estruturais devem ser mantidos em `docs/adr/NNNN-*.md` (numerados sequencialmente, ex.: `docs/adr/0001-escolha-do-banco-de-dados.md`) ou consolidados diretamente em `docs/ARCHITECTURE.md`.
+
+### 2. Template Michael Nygard
+Cada ADR deve seguir a estrutura padrão:
+
+```markdown
+# [Número]. [Título Curto da Decisão]
+
+* Status: [Proposta | Aceita | Rejeitada | Substituída por ADR-XXXX]
+* Data: [AAAA-MM-DD]
+* Decisores: [Nomes / Agente]
+
+## Contexto
+Qual é o problema ou necessidade técnica que motivou essa decisão? Quais eram as limitações existentes, requisitos de negócio ou gargalos atuais?
+
+## Decisão
+Qual solução técnica foi escolhida? Descreva de forma objetiva como será implementada.
+
+## Alternativas Consideradas
+- **Alternativa A**: Descrição e motivos pelos quais não foi escolhida.
+- **Alternativa B**: Descrição e motivos pelos quais não foi escolhida.
+
+## Consequências
+
+### Positivas
+- Vantagens obtidas, ganhos de escala, facilidade de manutenção ou performance.
+
+### Negativas / Riscos (Trade-offs)
+- Complexidade adicional introduzida, custos de infraestrutura ou limitações futuras conhecidas.
+```
+
+### 3. Diretrizes de Uso
+- **Quando criar um ADR**:
+  - Mudança ou introdução de banco de dados, mensageria ou bibliotecas fundamentais.
+  - Definição do padrão de comunicação entre serviços (ex.: REST vs gRPC vs GraphQL).
+  - Mudança estrutural de paradigma ou arquitetura (ex.: Monólito modular vs Microserviços).
+- **Consistência**: Mantenha as decisões concisas (1 a 2 páginas no máximo).

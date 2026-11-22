@@ -9,7 +9,7 @@
 
 ## 🎯 Missão
 
-Materializar os critérios de aceite da issue em testes determinísticos sob a seção congelada `## Interface Contract` (em conformidade com o [`AIDD-Manifesto`](AIDD-Manifesto) e a skill [`test-runner`](Skill-test-runner)), comprovando que a suíte falha inicialmente (**RED**) antes de convergir com a implementação do [`coder`](Agent-coder).
+Materializar os critérios de aceite da issue em testes determinísticos sob a seção congelada `## Interface Contract` (em conformidade com o [`AIDD-Manifesto`](AIDD-Manifesto)), comprovando que a suíte falha inicialmente (**RED**) antes de convergir com a implementação do [`coder`](Agent-coder).
 
 ---
 

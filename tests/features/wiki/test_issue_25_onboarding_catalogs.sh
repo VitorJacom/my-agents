@@ -85,12 +85,11 @@ SKILLS=(
   "plan-feature"
   "issue-pipeline"
   "pr"
-  "test-runner"
   "git-workflow"
-  "architecture-decision"
   "docker-dev"
   "game-dev-patterns"
   "publish-rule-issue"
+  "ui-ux-design"
 )
 
 check "Documenta princípio de Progressive Disclosure e Zero Token Waste" \

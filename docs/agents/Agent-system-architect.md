@@ -19,7 +19,7 @@ Transformar a especificação funcional do [`product-owner`](Agent-product-owner
 - **Padronização Mandatória de `## Interface Contract`**: Define explicitamente os 5 pilares (*Signatures*, *Types & Interfaces*, *Inputs*, *Outputs*, *Errors*) com tipagens inequívocas para permitir o *Concurrent Fork* entre [`qa-engineer`](Agent-qa-engineer) e [`coder`](Agent-coder) (ADR-0005).
 - **Mapeamento de Blast Radius (`## Target Files & Dependencies`)**: Declara exatamente quais arquivos serão tocados e quais issues são pré-requisitos (`Depends On`).
 - **Matriz de Execution Waves**: Agrupa issues concorrentes em ondas de no máximo **3 issues por wave** com conjuntos de arquivos 100% disjuntos (interseção nula).
-- **Registro de ADRs**: Documenta decisões arquiteturais estruturais diretamente em [`docs/ARCHITECTURE.md`](ARCHITECTURE) seguindo o padrão da skill [`architecture-decision`](Skill-architecture-decision).
+- **Registro de ADRs**: Documenta decisões arquiteturais estruturais em `docs/adr/NNNN-*.md` ou diretamente em [`docs/ARCHITECTURE.md`](ARCHITECTURE) seguindo o padrão Michael Nygard (ADR).
 
 ---
 

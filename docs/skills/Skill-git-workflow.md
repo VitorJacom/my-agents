@@ -66,4 +66,4 @@ Formato: `<type>(<scope>): <subject>`
 
 ## 🔗 Navegação
 
-[← Anterior: `test-runner`](Skill-test-runner) | [Sumário de Skills](Skills-Catalog) | [Próxima Skill: `architecture-decision` →](Skill-architecture-decision)
+[← Anterior: `pr`](Skill-pr) | [Sumário de Skills](Skills-Catalog) | [Próxima Skill: `docker-dev` →](Skill-docker-dev)
