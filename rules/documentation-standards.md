@@ -45,3 +45,24 @@ Para manter Wikis escaláveis e de fácil navegação:
 
 </details>
 ```
+
+---
+
+## 3. Padrão de Diagramas Mermaid (Wiki & Terminal)
+
+Todo diagrama Mermaid em documentação da Wiki ou exibido no chat do terminal DEVE seguir estas convenções:
+
+1. **Invocação Explícita de Subagentes (Sem Subtítulos)**:
+   - Sempre que um passo acionar um subagente, o nó DEVE declarar explicitamente a ferramenta nativa do Antigravity e apenas o nome canônico do agente, sem subtítulos ou descrições extras:
+     ```text
+     <passo>. invoke_subagent: <nome-do-subagente>
+     ```
+   - Exemplo: `PO["1. invoke_subagent: product-owner"]`, `Arch["2. invoke_subagent: system-architect"]`.
+   - O detalhamento de responsabilidades de cada agente pertence à tabela textual abaixo do diagrama, nunca ao rótulo do nó.
+
+2. **Linguagem de Processo nos Demais Nós**:
+   - Evitar flags de CLI (`--parent`, `--milestone`) ou nomes crus de scripts no diagrama; descrever de forma objetiva **o que a etapa realiza**.
+
+3. **Largura Compacta na Wiki & Preview em Texto Simples no Chat**:
+   - Nos arquivos `.md` da Wiki, manter blocos `mermaid` em orientação vertical (`flowchart TD`), quebrando linhas com `<br/>` (~35 caracteres por linha), arestas curtas (`"YES"`, `"NO"`, `"APPROVED"`, `"REJECTED"`, `"<= 2"`, `"> 2"`) e consolidando classificações em um único nó vertical (sem múltiplas arestas paralelas longas entre o mesmo par de nós).
+   - **No chat do terminal (CLI)**: ao apresentar ou revisar fluxos com o usuário, **não** usar blocos ` ```mermaid ` (que frequentemente excedem a largura do terminal). Exibir o fluxo em **texto simples (ASCII compacto em bloco ` ```text `)**.

@@ -38,18 +38,19 @@ Ela elimina especificações ambíguas, garante atomicidade ($\le 3$ passos por 
 
 ```mermaid
 flowchart TD
-    Start["Entrada: Ideia / Épico / Issue #XX"] --> PO["1. Product Owner (The Elephant)<br/>Postura Socrática, Personas & Gherkin"]
-    PO --> Decision{"Interface Visual?<br/>(UI_UX_REQUIRED)"}
-    Decision -- "YES" --> UIUX["1.5. UI/UX Designer<br/>Modo 1: Mockup-as-Code & Visual Contract"]
-    Decision -- "NO" --> Arch["2. System Architect<br/>Design Técnico, <= 3 passos, Interface Contract & Waves"]
+    Start["Entrada: /plan-feature<br/>(ideia ou #XX)"] --> PO["1. invoke_subagent: product-owner"]
+    PO --> Scope["Classificação (pelo PO)<br/>• Ideia ➔ Nova Issue<br/>• #XX ➔ Issue Existente<br/>• Macro ➔ Épico"]
+    Scope --> Decision{"Interface Visual?<br/>(UI_UX_REQUIRED)"}
+    Decision -- "YES" --> UIUX["1.5. invoke_subagent: uiux-designer"]
+    Decision -- "NO" --> Arch["2. invoke_subagent: system-architect"]
     UIUX --> Arch
-    Arch --> Goldfish["2.5. Gatekeeper (The Goldfish)<br/>Cold Audit Stateless & Interface Contract Gate"]
-    Goldfish -- "SPEC_AUDIT: REJECTED" --> Healing{"Loop de Auto-Healing<br/>(Máx. 2 iterações)"}
-    Healing -- "Iteração <= 2" --> Arch
-    Healing -- "Excedeu 2" --> CB["🚨 Circuit Breaker"]
-    Goldfish -- "SPEC_AUDIT: APPROVED" --> Gate["3. Gate de Aprovação Humana<br/>Validação do Desenvolvedor"]
-    Gate --> GH["4. Criação / Refinamento no GitHub<br/>gh issue create / edit + --parent + --milestone"]
-    GH --> Reconcile["5. Reconciliação de Governança<br/>reconcile-github-governance.sh"]
+    Arch --> Goldfish["2.5. invoke_subagent: gatekeeper"]
+    Goldfish -- "REJECTED" --> Healing{"Auto-Healing<br/>(Máx. 2)"}
+    Healing -- "<= 2" --> Arch
+    Healing -- "> 2" --> CB["🚨 Circuit Breaker"]
+    Goldfish -- "APPROVED" --> Gate["3. Gate de Aprovação Humana"]
+    Gate --> GH["4. Publicar no GitHub<br/>Criar issue, editar #XX<br/>ou gerar sub-issues"]
+    GH --> Sync["5. Atualizar Board (Project v2)<br/>Milestone, Release e Planned"]
 ```
 
 ---
