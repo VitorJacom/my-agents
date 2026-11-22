@@ -2,20 +2,16 @@
 
 ---
 
-- **Início**
-  - [🏠 Visão Geral (Home)](Home)
-- **Primeiros Passos**
-  - [🏁 Guia de Instalação e Uso](Getting-Started)
-- **Troubleshooting**
-  - [🩺 Diagnóstico & FAQ](Troubleshooting)
+- [🏠 **Início (Home)**](Home)
+- [🏁 **Primeiros Passos**](Getting-Started)
+- [🩺 **Troubleshooting & FAQ**](Troubleshooting)
 
 ---
 
-<details open>
-<summary><strong>🏛️ Arquitetura & Governança</strong></summary>
+<details>
+<summary><a href="System-Architecture"><strong>🏛️ Arquitetura & Governança (3)</strong></a></summary>
 
 - [Manifesto AIDD](AIDD-Manifesto)
-- [Arquitetura do Sistema](System-Architecture)
 - [Especificação & ADRs (ARCHITECTURE)](ARCHITECTURE)
 
 </details>
