@@ -10,7 +10,7 @@
 
 ## 🎯 Propósito da Camada
 
-Valida a esteira determinística de revisão de Pull Requests ([`/review-pr`](Skill-review-pr)) de ponta a ponta — extração de diff, verificação anti-fraude da *Golden Rule*, submissão de pareceres, geração de issues rastreadas com governança — além do auditor de eficiência de tokens e telemetria do pipeline.
+Valida a esteira determinística de revisão de Pull Requests ([`/review-pr`](Skill-review-pr)) de ponta a ponta — extração de diff, verificação anti-fraude da *Golden Rule* ([`AIDD-Manifesto`](AIDD-Manifesto)), submissão de pareceres, geração de issues rastreadas com governança — além do auditor de eficiência de tokens e telemetria do pipeline ([`Script-pr-reviewer`](Script-pr-reviewer)).
 
 ---
 
@@ -18,8 +18,8 @@ Valida a esteira determinística de revisão de Pull Requests ([`/review-pr`](Sk
 
 | Suíte | Origem | O que Valida |
 | :--- | :--- | :--- |
-| **`test_audit_token_efficiency.sh`** | Issue #49 | Auditoria de eficiência de tokens e telemetria da esteira, garantindo *Zero Token Waste* e detecção de bloat em contextos. |
-| **`test_pr_auditor.sh`** | Issue #51 | Subcomandos `fetch-diff` e `audit-integrity` de `scripts/pr-reviewer.sh`, incluindo Circuit Breaker (exit code 3) em alterações na zona protegida `tests/core/`. |
+| **`test_audit_token_efficiency.sh`** | Issue #49 | Auditoria de eficiência de tokens e telemetria da esteira ([`Script-pipeline`](Script-pipeline)), garantindo *Zero Token Waste* e detecção de bloat em contextos. |
+| **`test_pr_auditor.sh`** | Issue #51 | Subcomandos `fetch-diff` e `audit-integrity` de [`pr-reviewer.sh`](Script-pr-reviewer), incluindo Circuit Breaker (exit code 3) em alterações na zona protegida [`tests/core/`](Test-core). |
 | **`test_pr_review_submission.sh`** | Issue #52 | Submissão determinística de pareceres de code review (`submit-review` com `approve`, `request-changes`, `comment` e `--dry-run`). |
 | **`test_pr_issue_generator.sh`** | Issue #53 | Geração automática de issues rastreadas no backlog (`create-issues`) com labels semânticas (`type:fix`, `type:refactor`, `source:code-review`), vínculo de PR/SHA e reconciliação. |
 | **`test_review_pr_skill.sh`** | Issue #54 | Orquestrador da skill [`review-pr`](Skill-review-pr) em 5 fases com Gate de Validação Humana mandatório antes de qualquer mutação remota. |

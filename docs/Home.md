@@ -22,17 +22,17 @@ O ecossistema `my-agents` é regido pelos 4 valores inegociáveis do **Manifesto
 
 ## 🤖 Taxonomia dos Subagentes Especializados
 
-Para evitar agentes monolíticos sobrecarregados, o `my-agents` adota uma divisão rigorosa de responsabilidades com permissões confinadas:
+Para evitar agentes monolíticos sobrecarregados, o `my-agents` adota uma divisão rigorosa de responsabilidades com permissões confinadas (consulte a matriz completa em [`Subagents`](Subagents)):
 
 | Subagente | Papel e Especialidade | Modo de Operação |
 | :--- | :--- | :--- |
-| **`product-owner`** | Engenharia de requisitos, personas, critérios de aceitação Gherkin e priorização de valor. | Somente Leitura / Planejamento |
-| **`system-architect`** | Mapeamento de impacto técnico em `src/`, ADRs em `docs/ARCHITECTURE.md` e decomposição em issues atômicas. | Somente Leitura / Planejamento |
-| **`uiux-designer`** | Hierarquia visual, ergonomia, contraste de luminância monocromático (Value Contrast / WCAG AA) e prova visual headless. | Design Tokens / Auditoria Headless |
-| **`planner`** | Triagem técnica de issues, validação de blast radius e criação do `implementation_plan.md` com *Interface Contract*. | Somente Leitura / Triagem |
-| **`qa-engineer`** | Engenharia de testes TDD em `tests/features/` garantindo estado inicial RED (falha determinística antes do código). | Confinado a `tests/features/` |
-| **`coder`** | Construção cirúrgica de código de produção em `src/` orientado a contratos, sem permissão de alterar testes. | Confinado a `src/` |
-| **`gatekeeper`** | Auditoria anti-fraude (*Golden Rule*), checagem de integridade de testes, compilação de evidências e abertura de PR. | Auditoria / Git & GitHub CLI |
+| **[`product-owner`](Agent-product-owner)** | Engenharia de requisitos, personas, critérios de aceitação Gherkin e priorização de valor. | Somente Leitura / Planejamento |
+| **[`system-architect`](Agent-system-architect)** | Mapeamento de impacto técnico em `src/`, ADRs em [`ARCHITECTURE`](ARCHITECTURE) e decomposição em issues atômicas. | Somente Leitura / Planejamento |
+| **[`uiux-designer`](Agent-uiux-designer)** | Hierarquia visual, ergonomia, contraste de luminância monocromático (Value Contrast / WCAG AA) e prova visual headless. | Design Tokens / Auditoria Headless |
+| **[`planner`](Agent-planner)** | Triagem técnica de issues, validação de blast radius e criação do `implementation_plan.md` com *Interface Contract*. | Somente Leitura / Triagem |
+| **[`qa-engineer`](Agent-qa-engineer)** | Engenharia de testes TDD em `tests/features/` garantindo estado inicial RED (falha determinística antes do código). | Confinado a `tests/features/` |
+| **[`coder`](Agent-coder)** | Construção cirúrgica de código de produção em `src/` orientado a contratos, sem permissão de alterar testes. | Confinado a `src/` |
+| **[`gatekeeper`](Agent-gatekeeper)** | Auditoria anti-fraude (*Golden Rule* em [`tests/core/`](Test-core)), checagem de integridade de testes, compilação de evidências e abertura de PR. | Auditoria / Git & GitHub CLI |
 
 ---
 

@@ -54,8 +54,8 @@ flowchart TD
     end
 
     subgraph GitHubGov ["Publicação Oficial no GitHub"]
-        PR["Pull Request Oficial (GitHub)<br/><code>gh pr create --body-file walkthrough.md</code>"]
-        WALK -.->|Publicado pelo Gatekeeper| PR
+        PR["Pull Request Oficial<br/>Corpo preenchido com walkthrough.md"]
+        WALK -.->|"Publicado pelo gatekeeper"| PR
     end
 
     style TASK fill:#0f172a,stroke:#38bdf8,stroke-width:2px,color:#f1f5f9
@@ -66,7 +66,7 @@ flowchart TD
 
 ### 2.1. Natureza Efêmera e Publicação no Pull Request
 - Os arquivos `task.md`, `implementation_plan.md` e `walkthrough.md` são ferramentas de trabalho locais e **devem constar obrigatoriamente no `.gitignore`**.
-- Eles **nunca poluem a branch `main`**. A persistência histórica do `walkthrough.md` é efetuada pelo subagente `gatekeeper` diretamente no corpo oficial do Pull Request no GitHub (`gh pr create --body-file walkthrough.md`).
+- Eles **nunca poluem a branch `main`**. A persistência histórica do `walkthrough.md` é efetuada pelo subagente [`gatekeeper`](Agent-gatekeeper) diretamente no corpo oficial do Pull Request no GitHub (`gh pr create --body-file walkthrough.md`).
 
 ### 2.2. Especificação dos Arquivos
 
@@ -98,17 +98,17 @@ flowchart TD
 
 ## 🛡️ 3. A Trava Dupla Anti-Fraude (Defesa em Profundidade)
 
-Para impedir o "golpe do estagiário" (quando o modelo tenta alterar, comentar ou apagar testes antigos para forçar uma suíte quebrada a passar de forma espúria):
+Para impedir o "golpe do estagiário" (quando o modelo tenta alterar, comentar ou apagar testes antigos para forçar uma suíte quebrada a passar de forma espúria — validado continuamente por [`Test-governance`](Test-governance)):
 
 ```mermaid
-flowchart LR
-    A[Modificação Realizada] --> B{Modificou tests/core/?}
-    B -- Sim --> C[CRASH: Circuit-Breaker Imediato<br/>ALERTA DE FRAUDE]
-    B -- Não --> D{Cobertura >= 85%?}
-    D -- Não --> E[REJEIÇÃO: Cobertura Insuficiente]
-    D -- Sim --> F{Happy Path & Edge Cases Validados?}
-    F -- Não --> G[REJEIÇÃO: Ausência de Casos de Borda]
-    F -- Sim --> H[Aprovado pelo Gatekeeper]
+flowchart TD
+    A["Alteração Pronta para Auditoria"] --> B{"Modificou ou removeu<br/>tests/core/?"}
+    B -- "YES" --> C["🚨 Circuit Breaker<br/>ALERTA DE FRAUDE"]
+    B -- "NO" --> D{"Cobertura >= 85%?"}
+    D -- "NO" --> E["❌ REJECTED<br/>Cobertura Insuficiente"]
+    D -- "YES" --> F{"Happy Path e<br/>Edge Cases validados?"}
+    F -- "NO" --> G["❌ REJECTED<br/>Sem Casos de Borda"]
+    F -- "YES" --> H["✅ APPROVED<br/>Liberado para PR"]
 
     style C fill:#7f1d1d,stroke:#ef4444,stroke-width:2px,color:#fee2e2
     style E fill:#7f1d1d,stroke:#ef4444,stroke-width:2px,color:#fee2e2
@@ -117,14 +117,14 @@ flowchart LR
 ```
 
 ### 3.1. Separação Canônica de Pastas de Teste
-- `tests/core/`: Guarda as regras de negócio históricas, invariantes e fundamentais da aplicação. **Zona intocável.**
-- `tests/features/`: Onde o QA Engineer cria novos testes de aceitação específicos da issue ativa.
+- [`tests/core/`](Test-core): Guarda as regras de negócio históricas, invariantes e fundamentais da aplicação. **Zona intocável.**
+- `tests/features/`: Onde o [`qa-engineer`](Agent-qa-engineer) cria novos testes de aceitação específicos da issue ativa (veja [`Tests-Catalog`](Tests-Catalog)).
 
 ### 3.2. A "Golden Rule" via Bash (Gatekeeper & CI)
 > [!NOTE]
-> **Evolução da Golden Rule (ADR-0015)**: A checagem determinística clássica `MODIFIED=$(git diff --name-only origin/main...HEAD 2>/dev/null | grep -E '^tests/core/' || true)` foi modernizada com a flag `--diff-filter=MD` para permitir a adição legítima de novos testes promovidos pós-GREEN sem disparar falsos positivos de fraude.
+> **Evolução da Golden Rule ([`ARCHITECTURE`](ARCHITECTURE) — ADR-0015)**: A checagem determinística clássica `MODIFIED=$(git diff --name-only origin/main...HEAD 2>/dev/null | grep -E '^tests/core/' || true)` foi modernizada com a flag `--diff-filter=MD` para permitir a adição legítima de novos testes promovidos pós-GREEN sem disparar falsos positivos de fraude.
 
-Antes de comitar ou abrir PR, o Gatekeeper e os pipelines de CI executam a checagem determinística do Git com `--diff-filter=MD` para detectar estritamente modificações (`M`) e deleções (`D`) ilegais em `tests/core/`:
+Antes de comitar ou abrir PR, o [`gatekeeper`](Agent-gatekeeper) e os pipelines de CI executam a checagem determinística do Git com `--diff-filter=MD` para detectar estritamente modificações (`M`) e deleções (`D`) ilegais em `tests/core/`:
 ```bash
 MODIFIED=$(git diff --diff-filter=MD --name-only origin/main...HEAD 2>/dev/null | grep -E '^tests/core/' || true)
 if [ -n "$MODIFIED" ]; then
@@ -133,7 +133,7 @@ if [ -n "$MODIFIED" ]; then
 fi
 ```
 - **Adulteração / Fraude**: Se houver **1 caractere alterado** (`M`) ou qualquer arquivo excluído (`D`) em `tests/core/`, a esteira é abortada imediatamente com erro fatal (Circuit-Breaker).
-- **Adições Legítimas Auditadas**: Novos arquivos adicionados (`A`) em `tests/core/` (como testes promovidos via `promote-core-test.sh` após aprovação formal na ADR-0015) são permitidos e auditados sem disparar falso positivo.
+- **Adições Legítimas Auditadas**: Novos arquivos adicionados (`A`) em `tests/core/` (como testes promovidos via [`promote-core-test.sh`](Script-pipeline) após aprovação formal na ADR-0015) são permitidos e auditados sem disparar falso positivo.
 
 ### 3.3. Anti-Triviality & Mutation Testing
 - Proibido escrever testes vazios ou tautológicos (ex.: `expect(true).toBe(true)` ou `assert True`).

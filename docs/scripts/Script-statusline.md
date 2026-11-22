@@ -9,7 +9,7 @@
 
 ## 🎯 Propósito
 
-Fornece a barra de status modular integrada ao rodapé do Antigravity CLI, exibindo contexto de repositório, quota da API Gemini em tempo real e notificação não-intrusiva de novas versões do plugin, mantendo **latência estritamente inferior a 50ms** graças a cache TTL local.
+Fornece a barra de status modular integrada ao rodapé do Antigravity CLI (detalhada no guia [`Getting-Started`](Getting-Started)), exibindo contexto de repositório, quota da API Gemini em tempo real e notificação não-intrusiva de novas versões do plugin, mantendo **latência estritamente inferior a 50ms** graças a cache TTL local — validada pelas suítes em [`Test-statusline`](Test-statusline) (em caso de falhas locais, consulte [`Troubleshooting`](Troubleshooting)).
 
 ---
 

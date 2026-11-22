@@ -16,9 +16,9 @@ A skill **`docker-dev`** orienta o diagnóstico, operação e validação de amb
 
 ## ⚡ Quando Acionar (*Progressive Disclosure*)
 
-- Quando containers falham na inicialização ou entram em *restart loop*.
+- Quando containers falham na inicialização ou entram em *restart loop* (complementando o guia de [`Troubleshooting`](Troubleshooting)).
 - Em conflitos de portas, problemas de rede entre serviços ou volumes montados incorretamente.
-- Ao criar ou auditar `Dockerfile`, `.dockerignore` e `docker-compose.yml`.
+- Ao criar ou auditar `Dockerfile`, `.dockerignore` e `docker-compose.yml` durante implementações conduzidas pelo [`coder`](Agent-coder).
 
 ---
 

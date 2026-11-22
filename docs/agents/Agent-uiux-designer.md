@@ -3,7 +3,7 @@
 # 🤖 Subagente: `uiux-designer`
 
 > **Definição Canônica**: [`agents/uiux-designer/agent.md`](https://github.com/VitorJacom/my-agents/blob/main/agents/uiux-designer/agent.md)  
-> **Fase AIDD**: Planejamento (`/plan-feature` — Estado 1.5) & Auditoria Visual (`/run-issue` — Estado 3.5)  
+> **Fase AIDD**: Planejamento ([`plan-feature`](Skill-plan-feature) — Estado 1.5) & Auditoria Visual ([`issue-pipeline`](Skill-issue-pipeline) — Estado 3.5)  
 > **Ferramentas (`tools`)**: `read_file`, `write_file`, `edit_file`, `search_web`, `run_command`  
 > **Confinamento**: Artefatos visuais, Living Specs (`docs/mockups/`, `docs/screenshots/`), capturas headless e pareceres
 
@@ -11,7 +11,7 @@
 
 ## 🎯 Missão
 
-Atuar como guardião de usabilidade, acessibilidade (**WCAG AA**), **contraste de luminância monocromático (Value Contrast)**, ergonomia mobile e combate a clichês visuais de IA (*AI-Slop*), operando em parceria direta com a skill [`ui-ux-design`](Skill-ui-ux-design).
+Atuar como guardião de usabilidade, acessibilidade (**WCAG AA**), **contraste de luminância monocromático (Value Contrast)**, ergonomia mobile e combate a clichês visuais de IA (*AI-Slop*), operando em parceria direta com a skill [`ui-ux-design`](Skill-ui-ux-design) e validado pelas suítes de [`Test-ui-ux`](Test-ui-ux).
 
 ---
 

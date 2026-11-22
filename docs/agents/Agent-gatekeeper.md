@@ -3,7 +3,7 @@
 # 🤖 Subagente: `gatekeeper` (*The Goldfish*)
 
 > **Definição Canônica**: [`agents/gatekeeper/agent.md`](https://github.com/VitorJacom/my-agents/blob/main/agents/gatekeeper/agent.md)  
-> **Fase AIDD**: Planejamento (`/plan-feature` — Estado 2.5) & Finalização (`/run-issue` — Estado 4)  
+> **Fase AIDD**: Planejamento ([`plan-feature`](Skill-plan-feature) — Estado 2.5) & Finalização ([`issue-pipeline`](Skill-issue-pipeline) — Estado 4)  
 > **Ferramentas (`tools`)**: `read_file`, `write_file`, `edit_file`, `run_command`  
 > **Confinamento**: Auditoria, geração de `walkthrough.md`, commits padronizados e abertura de Pull Request
 
@@ -11,7 +11,7 @@
 
 ## 🎯 Missão
 
-Atuar como o **portão final de integridade** do ecossistema AIDD em dois papéis complementares: auditoria fria de especificações (**The Goldfish Reviewer**) e guardião anti-fraude/finalizador de Pull Requests (**Modo 2**).
+Atuar como o **portão final de integridade** do ecossistema ([`AIDD-Manifesto`](AIDD-Manifesto)) em dois papéis complementares: auditoria fria de especificações (**The Goldfish Reviewer**) e guardião anti-fraude/finalizador de Pull Requests (**Modo 2**), com travas verificadas continuamente por [`Test-governance`](Test-governance).
 
 ---
 
@@ -33,9 +33,9 @@ Atuar como o **portão final de integridade** do ecossistema AIDD em dois papéi
     exit 1
   fi
   ```
-  Bloqueia modificações (`M`) e remoções (`D`) em `tests/core/`, permitindo adições legítimas (`A`) promovidas via [`promote-core-test.sh`](Script-pipeline).
-- **Auditoria Visual & Wiki**: Quando `UI_UX_REQUIRED: true`, exige `VISUAL_AUDIT: APPROVED`, URLs canônicas `raw.githubusercontent.com` na tabela comparativa e atualização de `Implemented-Screens-Catalog`.
-- **Relatório `walkthrough.md` & PR**: Compila logs reais de testes, cobertura $\ge 85\%$, `git status`, `Fixes #<id>` em texto puro e abre o PR com `gh pr create --body-file walkthrough.md`.
+  Bloqueia modificações (`M`) e remoções (`D`) em [`tests/core/`](Test-core), permitindo adições legítimas (`A`) promovidas via [`promote-core-test.sh`](Script-pipeline).
+- **Auditoria Visual & Wiki**: Quando `UI_UX_REQUIRED: true`, exige parecer `VISUAL_AUDIT: APPROVED` do [`uiux-designer`](Agent-uiux-designer), URLs canônicas `raw.githubusercontent.com` na tabela comparativa e atualização de `Implemented-Screens-Catalog`.
+- **Relatório `walkthrough.md` & PR**: Seguindo a skill [`git-workflow`](Skill-git-workflow), compila logs reais de testes, cobertura $\ge 85\%$, `git status`, `Fixes #<id>` em texto puro e abre o PR com `gh pr create --body-file walkthrough.md`.
 
 ---
 

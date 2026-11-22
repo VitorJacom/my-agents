@@ -8,16 +8,16 @@ Este guia consolida a matriz diagnóstica, as causas-raiz e as soluções determ
 
 | Sintoma / Mensagem de Erro | Componente Impactado | Causa-Raiz Provável | Procedimento |
 | :--- | :--- | :--- | :--- |
-| `Lock file .worktrees/.lock-<id> already exists` | Worktree Manager | Processo anterior abortado sem cleanup ou concorrência indevida | [Seção 1](#1-conflitos-de-lock-e-gerenciamento-de-worktrees) |
+| `Lock file .worktrees/.lock-<id> already exists` | [`Script-pipeline`](Script-pipeline) (Worktree Manager) | Processo anterior abortado sem cleanup ou concorrência indevida | [Seção 1](#1-conflitos-de-lock-e-gerenciamento-de-worktrees) |
 | `Resource not accessible by integration (gh project)` | GitHub CLI / Actions | Falta do escopo `project` no token de autenticação | [Seção 2](#2-permissões-de-token-no-github-actions-e-github-cli) |
-| `ALERTA DE FRAUDE: O agente modificou arquivos protegidos em tests/core/!` | Trava Anti-Fraude | Subagente tentou editar ou deletar testes históricos fundamentais | [Seção 3](#3-falhas-na-trava-anti-fraude-e-circuit-breakers) |
-| `Circuit-Breaker: Code Coverage < 85%` | Gatekeeper / CI | Suíte de testes não atinge o limiar mínimo de 85% de cobertura | [Seção 3.2](#32-cobertura-de-código-inferior-a-85) |
-| `Statusline latency exceeded: > 50ms` | Statusline Quota | Chamadas externas síncronas ou ausência do utilitário `jq` | [Seção 4](#4-latência-cache-e-falhas-na-statusline) |
-| Conflito de tipagem / assinaturas no Join Point | QA & Coder Fork/Join | Divergência em relação ao `Interface Contract` congelado | [Seção 5](#5-divergências-no-interface-contract-forkjoin) |
-| `remote: GitHub Wiki is not initialized` | Wiki Sync Workflow | A aba Wiki do GitHub nunca foi criada na interface web | [Seção 6](#6-sincronização-da-github-wiki-wiki-syncyml) |
-| Colisão de arquivos na mesma Execution Wave | Maestro Orchestrator | Duas issues simultâneas compartilham `Target Files` | [Seção 7](#7-concorrência-do-maestro-e-colisão-de-target-files) |
-| `ERRO FAIL-SAFE: Working tree com alterações locais` | Gerenciador de Atualizações | Working tree suja impede aplicação segura de nova versão | [Seção 8.1](#81-working-tree-suja-dirty-tree-fail-safe) |
-| `Não foi possível obter o lock exclusivo para ...update.json.lock` | Gerenciador de Atualizações | Lockfile de atualização retido após encerramento forçado | [Seção 8.3](#83-lockfile-de-atualização-retido-lock-concorrente) |
+| `ALERTA DE FRAUDE: O agente modificou arquivos protegidos em tests/core/!` | [`AIDD-Manifesto`](AIDD-Manifesto) / [`Test-core`](Test-core) | Subagente tentou editar ou deletar testes históricos fundamentais | [Seção 3](#3-falhas-na-trava-anti-fraude-e-circuit-breakers) |
+| `Circuit-Breaker: Code Coverage < 85%` | [`gatekeeper`](Agent-gatekeeper) / CI | Suíte de testes não atinge o limiar mínimo de 85% de cobertura | [Seção 3.2](#32-cobertura-de-código-inferior-a-85) |
+| `Statusline latency exceeded: > 50ms` | [`Script-statusline`](Script-statusline) | Chamadas externas síncronas ou ausência do utilitário `jq` | [Seção 4](#4-latência-cache-e-falhas-na-statusline) |
+| Conflito de tipagem / assinaturas no Join Point | [`qa-engineer`](Agent-qa-engineer) & [`coder`](Agent-coder) | Divergência em relação ao `Interface Contract` congelado | [Seção 5](#5-divergências-no-interface-contract-forkjoin) |
+| `remote: GitHub Wiki is not initialized` | Wiki Sync Workflow ([`Test-wiki`](Test-wiki)) | A aba Wiki do GitHub nunca foi criada na interface web | [Seção 6](#6-sincronização-da-github-wiki-wiki-syncyml) |
+| Colisão de arquivos na mesma Execution Wave | [`issue-pipeline`](Skill-issue-pipeline) (Maestro) | Duas issues simultâneas compartilham `Target Files` | [Seção 7](#7-concorrência-do-maestro-e-colisão-de-target-files) |
+| `ERRO FAIL-SAFE: Working tree com alterações locais` | [`Script-pipeline`](Script-pipeline) (Updater) | Working tree suja impede aplicação segura de nova versão | [Seção 8.1](#81-working-tree-suja-dirty-tree-fail-safe) |
+| `Não foi possível obter o lock exclusivo para ...update.json.lock` | [`Script-pipeline`](Script-pipeline) (Updater) | Lockfile de atualização retido após encerramento forçado | [Seção 8.3](#83-lockfile-de-atualização-retido-lock-concorrente) |
 
 ---
 

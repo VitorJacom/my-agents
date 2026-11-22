@@ -9,7 +9,7 @@
 
 ## 🎯 Propósito
 
-Disponibiliza os pontos de entrada de alto nível para a esteira determinística de revisão de Pull Requests ([`/review-pr`](Skill-review-pr)) e para a auditoria de eficiência de tokens da execução multiagente.
+Disponibiliza os pontos de entrada de alto nível para a esteira determinística de revisão de Pull Requests ([`/review-pr`](Skill-review-pr)) e para a auditoria de eficiência de tokens da execução multiagente — validados continuamente pelas suítes em [`Test-pr-review`](Test-pr-review).
 
 ---
 
@@ -19,11 +19,11 @@ Disponibiliza os pontos de entrada de alto nível para a esteira determinística
 Motor CLI determinístico que implementa as operações automatizadas da skill [`review-pr`](Skill-review-pr):
 
 | Subcomando | Fase `/review-pr` | Função |
-| :--- | :---: | :--- |
+| :--- | :--- | :--- |
 | **`fetch-diff <#PR>`** | Fase 1 | Valida que a PR está `OPEN`, extrai metadados (autor, head/base, `headRefOid`) e obtém o diff unificado completo. |
-| **`audit-integrity <#PR>`** | Fase 2 | Verifica a *Golden Rule*: se detectar alterações em `tests/core/`, encerra imediatamente com **exit code 3** (Circuit Breaker). |
+| **`audit-integrity <#PR>`** | Fase 2 | Verifica a *Golden Rule* do [`AIDD-Manifesto`](AIDD-Manifesto): se detectar alterações em [`tests/core/`](Test-core), encerra imediatamente com **exit code 3** (Circuit Breaker). |
 | **`submit-review <#PR>`** | Fase 5 | Publica o parecer formal na PR (`--body-file`, `--status auto\|approve\|request-changes\|comment`). Suporta `--dry-run`. |
-| **`create-issues <#PR>`** | Fase 5 | Cria issues rastreadas no backlog (`--findings-file`) com labels semânticas, vínculo de PR/SHA e reconciliação automática. Suporta `--dry-run`. |
+| **`create-issues <#PR>`** | Fase 5 | Cria issues rastreadas no backlog (`--findings-file`) com labels semânticas, vínculo de PR/SHA e reconciliação automática via [`Script-pipeline`](Script-pipeline). Suporta `--dry-run`. |
 
 ```bash
 # Exemplos de uso
@@ -34,7 +34,7 @@ Motor CLI determinístico que implementa as operações automatizadas da skill [
 ```
 
 ### 2. `scripts/audit-token-efficiency.py`
-Wrapper de compatibilidade na raiz que delega diretamente para `scripts/pipeline/audit-token-efficiency.py`, permitindo invocação curta para auditoria de transcripts e quality gate de score mínimo (`--min-score 80`).
+Wrapper de compatibilidade na raiz que delega diretamente para [`scripts/pipeline/audit-token-efficiency.py`](Script-pipeline), permitindo invocação curta para auditoria de transcripts e quality gate de score mínimo (`--min-score 80`).
 
 ---
 

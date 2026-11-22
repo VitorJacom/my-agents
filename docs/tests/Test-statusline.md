@@ -10,7 +10,7 @@
 
 ## 🎯 Propósito da Camada
 
-Valida a arquitetura modular da barra de status (statusline) do CLI, garantindo **latência sub-50ms** via cache TTL, instalação idempotente multi-ambiente e renderização do widget de notificação de atualizações do plugin.
+Valida a arquitetura modular da barra de status (statusline) do CLI ([`Script-statusline`](Script-statusline)), garantindo **latência sub-50ms** via cache TTL, instalação idempotente multi-ambiente e renderização do widget de notificação de atualizações do plugin.
 
 ---
 

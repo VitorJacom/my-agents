@@ -23,8 +23,8 @@ Garante que toda a documentação *Docs-as-Code* em `docs/` e sua sincronizaçã
 | **`test_issue_25_onboarding_catalogs.sh`** | Issue #25 | Conteúdo e integridade dos manuais de onboarding ([Getting-Started](Getting-Started)), [Subagents](Subagents) e [Skills-Catalog](Skills-Catalog). |
 | **`test_issue_26_governance_troubleshooting.sh`** | Issue #26 | Guias de governança ([AIDD-Manifesto](AIDD-Manifesto), [System-Architecture](System-Architecture)) e diagnósticos em [Troubleshooting](Troubleshooting). |
 | **`test_issue_46_governance_reconciliation_docs.sh`** | Issue #46 | Documentação determinística do fluxo de reconciliação de governança GitHub na Wiki. |
-| **`test_scripts_readme_and_troubleshooting_links.sh`** | Issue #602 | Ausência de links locais `file://` em `scripts/README.md` e alinhamento dos contratos CLI com a documentação de troubleshooting. |
-| **`test_wiki_structure_and_links.sh`** | Issue #27 | Existência de todas as páginas canônicas (incluindo `docs/skills/` e `docs/tests/`), **zero links quebrados**, conformidade de `wiki-sync.yml` e `PROJECT_CONTEXT.md`. |
+| **`test_scripts_readme_and_troubleshooting_links.sh`** | Issue #602 | Ausência de links locais `file://` em `scripts/README.md` ([`Scripts-Catalog`](Scripts-Catalog)) e alinhamento dos contratos CLI com [`Troubleshooting`](Troubleshooting). |
+| **`test_wiki_structure_and_links.sh`** | Issue #27 | Existência de todas as páginas canônicas (incluindo [`Skills-Catalog`](Skills-Catalog), [`Subagents`](Subagents), [`Scripts-Catalog`](Scripts-Catalog) e [`Tests-Catalog`](Tests-Catalog)), **zero links quebrados**, conformidade de `wiki-sync.yml` e `PROJECT_CONTEXT.md`. |
 | **`test_wiki_update_documentation.sh`** | Update Docs | Validação da documentação do mecanismo de atualização e notificação de novas versões do plugin. |
 
 ---

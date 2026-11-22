@@ -157,11 +157,22 @@ for doc_path in "${DOCS_TO_CHECK[@]}"; do
     [ -z "$clean_target" ] && continue
     
     resolved=0
+    base_name="$(basename "$clean_target")"
     if [ -e "$DOCS_DIR/$clean_target" ] || [ -e "$DOCS_DIR/$clean_target.md" ]; then
       resolved=1
     elif [ -e "$REPO_ROOT/$clean_target" ] || [ -e "$REPO_ROOT/$clean_target.md" ]; then
       resolved=1
-    elif [ -e "$DOCS_DIR/$(basename "$clean_target")" ] || [ -e "$DOCS_DIR/$(basename "$clean_target").md" ]; then
+    elif [ -e "$DOCS_DIR/$base_name" ] || [ -e "$DOCS_DIR/$base_name.md" ]; then
+      resolved=1
+    elif [ -e "$DOCS_DIR/agents/$base_name" ] || [ -e "$DOCS_DIR/agents/$base_name.md" ]; then
+      resolved=1
+    elif [ -e "$DOCS_DIR/skills/$base_name" ] || [ -e "$DOCS_DIR/skills/$base_name.md" ]; then
+      resolved=1
+    elif [ -e "$DOCS_DIR/scripts/$base_name" ] || [ -e "$DOCS_DIR/scripts/$base_name.md" ]; then
+      resolved=1
+    elif [ -e "$DOCS_DIR/tests/$base_name" ] || [ -e "$DOCS_DIR/tests/$base_name.md" ]; then
+      resolved=1
+    elif [ -e "$DOCS_DIR/mockups/$base_name" ] || [ -e "$DOCS_DIR/mockups/$base_name.md" ]; then
       resolved=1
     fi
 

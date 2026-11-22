@@ -10,7 +10,7 @@
 
 ## 🎯 Propósito
 
-Os scripts em `scripts/hooks/` são disparados automaticamente pelo **Antigravity CLI** em eventos do ciclo de vida da sessão, fornecendo blindagem preventiva contra comandos destrutivos e injeção dinâmica de contexto sem poluir arquivos versionados.
+Os scripts em `scripts/hooks/` compõem a camada de runtime da [`System-Architecture`](System-Architecture) e são disparados automaticamente pelo **Antigravity CLI** em eventos do ciclo de vida da sessão, fornecendo blindagem preventiva contra comandos destrutivos e injeção dinâmica de contexto sem poluir arquivos versionados (conforme o [`AIDD-Manifesto`](AIDD-Manifesto)).
 
 ---
 
@@ -19,7 +19,7 @@ Os scripts em `scripts/hooks/` são disparados automaticamente pelo **Antigravit
 ### 1. `safety-guard.sh`
 - **Evento**: `PreToolUse`
 - **Função**: Intercepta comandos de terminal antes da execução para bloquear operações destrutivas não autorizadas (como `rm -rf /`, `git push --force` em branches protegidas ou comandos que violam guardrails de segurança).
-- **Comportamento**: Retorna código de saída diferente de zero com diagnóstico claro quando detecta violação, impedindo a execução da ferramenta.
+- **Comportamento**: Retorna código de saída diferente de zero com diagnóstico claro quando detecta violação, impedindo a execução da ferramenta (veja também [`Troubleshooting`](Troubleshooting)).
 
 ### 2. `session-start-context.sh`
 - **Evento**: `SessionStart`

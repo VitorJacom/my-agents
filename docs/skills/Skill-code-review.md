@@ -16,7 +16,7 @@ A skill **`code-review`** orienta auditorias rigorosas de código-fonte local ou
 
 ## ⚡ Quando Acionar (*Progressive Disclosure*)
 
-- Antes de abrir um Pull Request ou realizar merge de uma branch local.
+- Antes de abrir um Pull Request ou realizar merge de uma branch local (complementando o [`git-workflow`](Skill-git-workflow) e a auditoria final do [`gatekeeper`](Agent-gatekeeper)).
 - Ao solicitar revisão crítica de arquivos específicos, módulos ou diffs da working tree.
 - Como base heurística da Fase 3 da esteira automatizada [`review-pr`](Skill-review-pr).
 

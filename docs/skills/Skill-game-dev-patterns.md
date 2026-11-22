@@ -10,13 +10,13 @@
 
 ## 🎯 Objetivo
 
-A skill **`game-dev-patterns`** encapsula padrões mandatórios de engenharia e física cinemática para jogos 2D na web, eliminando bugs clássicos de taxa de quadros, colisões duplicadas, distorção de sprites e fases procedurais impossíveis — permanecendo 100% adormecida em projetos fora do domínio de jogos (*Zero Token Waste*).
+A skill **`game-dev-patterns`** encapsula padrões mandatórios de engenharia e física cinemática para jogos 2D na web, eliminando bugs clássicos de taxa de quadros, colisões duplicadas, distorção de sprites e fases procedurais impossíveis — permanecendo 100% adormecida em projetos fora do domínio de jogos, conforme o princípio de neutralidade de domínio do [`AIDD-Manifesto`](AIDD-Manifesto) (*Zero Token Waste*).
 
 ---
 
 ## ⚡ Quando Acionar (*Progressive Disclosure*)
 
-- Desenvolvimento ou refatoração de jogos 2D em HTML5 Canvas, Phaser 3 ou PixiJS.
+- Desenvolvimento ou refatoração de jogos 2D em HTML5 Canvas, Phaser 3 ou PixiJS (acionada pelo [`coder`](Agent-coder) e validada pelo [`qa-engineer`](Agent-qa-engineer)).
 - Bugs de física que mudam entre monitores de 30Hz, 60Hz e 120Hz/144Hz.
 - Duplicação de pontos/sons em colisões, sprites que explodem de escala em tweens ou plataformas procedurais inalcançáveis.
 

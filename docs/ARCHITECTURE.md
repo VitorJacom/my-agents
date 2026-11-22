@@ -1,12 +1,17 @@
 # Arquitetura e Decisões Técnicas do Plugin `my-agents`
 
+> **Cabeçalho de Controle**  
+> **Escopo**: Arquitetura estrutural canônica e registro histórico de ADRs (0001–0018)  
+> **Fonte Canônica**: `docs/ARCHITECTURE.md` (índice executivo em [`System-Architecture`](System-Architecture))  
+> **Navegação**: [`Home`](Home) | [`AIDD-Manifesto`](AIDD-Manifesto) | [`Subagents`](Subagents) | [`Skills-Catalog`](Skills-Catalog) | [`Scripts-Catalog`](Scripts-Catalog) | [`Tests-Catalog`](Tests-Catalog)
+
 Este documento consolida a arquitetura estrutural do plugin `my-agents`, seus componentes canônicos e o histórico de decisões de engenharia tomadas ao longo do ciclo de vida do projeto.
 
 ---
 
 ## 🏛️ 1. Visão Geral da Arquitetura
 
-O `my-agents` é um repositório central de governança, guardrails de segurança e automações para o **Antigravity CLI** (Gemini CLI), desenhado sob os 4 valores do **Manifesto AIDD** (*AI-Driven Development*):
+O `my-agents` é um repositório central de governança, guardrails de segurança e automações para o **Antigravity CLI** (Gemini CLI), desenhado sob os 4 valores do [`AIDD-Manifesto`](AIDD-Manifesto) (*AI-Driven Development*):
 1. **Método sobre o Modelo (Method over Model)**
 2. **Responsabilidade sobre Delegação (Ownership over Delegation)**
 3. **Compreensão sobre Aceitação (Understanding over Acceptance)**

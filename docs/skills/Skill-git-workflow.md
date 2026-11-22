@@ -10,7 +10,7 @@
 
 ## 🎯 Objetivo
 
-A skill **`git-workflow`** padroniza todo o ciclo de versionamento no Git: criação de branches semânticas, commits atômicos no formato **Conventional Commits** em inglês, checklist rigoroso de pré-commit e formatação de Pull Requests com fechamento automático (*auto-close*) de issues no GitHub.
+A skill **`git-workflow`** padroniza todo o ciclo de versionamento no Git conforme o [`AIDD-Manifesto`](AIDD-Manifesto): criação de branches semânticas, commits atômicos no formato **Conventional Commits** em inglês, checklist rigoroso de pré-commit e formatação de Pull Requests com fechamento automático (*auto-close*) de issues no GitHub — utilizada no handoff do [`gatekeeper`](Agent-gatekeeper) e na esteira [`issue-pipeline`](Skill-issue-pipeline).
 
 ---
 

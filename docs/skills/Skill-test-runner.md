@@ -10,14 +10,14 @@
 
 ## 🎯 Objetivo
 
-A skill **`test-runner`** orienta a execução inteligente de suítes de testes automatizados em múltiplos ecossistemas (Node/TS, Python, Go), o diagnóstico cirúrgico de falhas e o reparo seguro com garantia de **regressão zero** — sem nunca adulterar asserções legítimas para forçar testes verdes.
+A skill **`test-runner`** orienta a execução inteligente de suítes de testes automatizados em múltiplos ecossistemas (Node/TS, Python, Go), o diagnóstico cirúrgico de falhas e o reparo seguro com garantia de **regressão zero** — sem nunca adulterar asserções legítimas em [`tests/core/`](Test-core) para forçar testes verdes, conforme o [`AIDD-Manifesto`](AIDD-Manifesto).
 
 ---
 
 ## ⚡ Quando Acionar (*Progressive Disclosure*)
 
-- Quando uma suíte de testes falha ou o pipeline de CI fica vermelho.
-- Ao validar mudanças pontuais de forma rápida antes de rodar a suíte completa.
+- Quando uma suíte de testes falha ou o pipeline de CI fica vermelho (consulte também [`Tests-Catalog`](Tests-Catalog) e [`Troubleshooting`](Troubleshooting)).
+- Ao validar mudanças pontuais de forma rápida antes de rodar a suíte completa, especialmente em ciclos do [`qa-engineer`](Agent-qa-engineer) e do [`coder`](Agent-coder).
 - Ao executar validações isoladas em ambiente *Clean Room* (`sandbox/`).
 
 ---

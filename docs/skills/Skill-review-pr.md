@@ -35,28 +35,30 @@ A skill **`review-pr`** conduz uma esteira determinística de **5 fases** para a
 
 ```mermaid
 flowchart TD
-    Start["Invocação: /review-pr <#PR | URL>"] --> F1["Fase 1: Inspeção & Diff<br/>scripts/pr-reviewer.sh fetch-diff"]
-    F1 --> F2["Fase 2: Auditoria de Integridade<br/>scripts/pr-reviewer.sh audit-integrity"]
-    F2 --> CheckGolden{"tests/core/ alterado?"}
-    CheckGolden -- "Sim (Exit 3)" --> CB["🚨 Circuit Breaker: Alerta de Fraude"]
-    CheckGolden -- "Não (Exit 0)" --> F3["Fase 3: Revisão Heurística<br/>OWASP, SOLID, Robustez & Testabilidade"]
-    F3 --> F4["Fase 4: Gate de Validação Humana<br/>Confirmação Explícita Obrigatória"]
-    F4 -- "Rejeitado / Ajustes" --> Adj["Refinar localmente sem mutação remota"]
-    F4 -- "Aprovado" --> F5["Fase 5: Despacho & Rastreabilidade<br/>submit-review & create-issues"]
+    Start["Entrada: /review-pr<br/>(#PR ou URL)"] --> F1["1. Inspeção & Coleta de Diff<br/>Validar PR aberta e extrair mudanças"]
+    F1 --> F2["2. Auditoria de Integridade<br/>Verificar proteção de tests/core/"]
+    F2 --> CheckGolden{"tests/core/<br/>adulterado?"}
+    CheckGolden -- "YES" --> CB["🚨 Circuit Breaker<br/>Alerta de Fraude"]
+    CheckGolden -- "NO" --> F3["3. Revisão Heurística<br/>Segurança, Arquitetura,<br/>Robustez e Testabilidade"]
+    F3 --> F4["4. Gate de Validação Humana<br/>Aprovação explícita obrigatória"]
+    F4 -- "REJECTED" --> Adj["Ajustar parecer localmente<br/>sem mutação remota"]
+    F4 -- "APPROVED" --> F5["5. Despacho & Rastreabilidade<br/>Publicar parecer e criar issues"]
 ```
 
 ---
 
 ## 📋 Protocolo das 5 Fases
 
-1. **Fase 1 — Inspeção & Diff (`fetch-diff`)**: Valida que a PR está `OPEN`, extrai metadados (autor, branches, `headRefOid`) e obtém o diff unificado completo.
-2. **Fase 2 — Auditoria de Integridade & Golden Rule (`audit-integrity`)**: Verifica se houve qualquer alteração em `tests/core/`. Em caso positivo, dispara **Circuit Breaker (exit code 3)** e aborta o pipeline imediatamente.
-3. **Fase 3 — Revisão Heurística & Severidade**: Avalia o diff nas 4 dimensões da skill [`code-review`](Skill-code-review) (OWASP, SOLID, Robustez e Testabilidade), classificando em:
-   - **🚨 Crítico (Bloqueia Merge)** ➔ `request-changes` + issue `type:fix`
-   - **⚠️ Importante (Refatoração Recomendada)** ➔ issue `type:refactor`
-   - **💡 Sugestão (Melhoria Opcional)**
-4. **Fase 4 — Gate de Validação Humana Mandatório**: Apresenta o resumo executivo, tabela de apontamentos e lista de issues propostas. **Nenhuma mutação remota no GitHub é permitida sem confirmação explícita do desenvolvedor.**
-5. **Fase 5 — Despacho & Rastreabilidade (`submit-review` & `create-issues`)**: Publica o parecer oficial na PR, cria as issues no backlog com labels (`type:*`, `status:planned`, `source:code-review`), vincula PR/branch/SHA e executa `reconcile-github-governance.sh`. Suporta modo `--dry-run`.
+| Fase | Componente / Responsável | O que acontece nesta etapa |
+| :--- | :--- | :--- |
+| **1. Inspeção & Diff** | Orquestrador + [`Script-pr-reviewer`](Script-pr-reviewer) | Valida que a Pull Request está aberta, coleta metadados (autor, branches, commit auditado) e extrai o diff completo para análise. |
+| **2. Auditoria de Integridade** | Orquestrador + [`Script-pr-reviewer`](Script-pr-reviewer) | Aplica a *Golden Rule* do [`AIDD-Manifesto`](AIDD-Manifesto), verificando se houve qualquer alteração indevida em [`tests/core/`](Test-core). Se detectar fraude, aborta imediatamente via *Circuit Breaker*. |
+| **3. Revisão Heurística** | Orquestrador + [`code-review`](Skill-code-review) | Avalia o código em 4 dimensões (Segurança, Arquitetura, Robustez e Testabilidade) e classifica os achados em **Crítico** (bloqueia merge), **Importante** (refatoração) ou **Sugestão**. |
+| **4. Gate de Validação Humana** | Orquestrador + Desenvolvedor | Apresenta o resumo executivo, a tabela de apontamentos e as issues propostas. Nenhuma ação remota no GitHub ocorre sem confirmação explícita do desenvolvedor. |
+| **5. Despacho & Rastreabilidade** | Orquestrador + [`Script-pr-reviewer`](Script-pr-reviewer) + [`Script-pipeline`](Script-pipeline) | Publica o parecer oficial na PR, abre issues rastreadas no backlog vinculadas à PR/commit de origem e sincroniza a governança do GitHub Project v2. |
+
+> [!TIP]
+> A validação automatizada desta esteira é garantida pelas suítes documentadas em [`Test-pr-review`](Test-pr-review).
 
 ---
 

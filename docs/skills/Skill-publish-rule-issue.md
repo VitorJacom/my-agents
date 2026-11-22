@@ -10,7 +10,7 @@
 
 ## 🎯 Objetivo
 
-A skill **`publish-rule-issue`** fecha o ciclo de aprendizado contínuo do ecossistema AIDD: quando um desenvolvedor corrige um comportamento ou descobre um novo padrão via `/learn` em **qualquer projeto**, ela publica uma issue estruturada e atômica diretamente no repositório central `VitorJacom/my-agents`.
+A skill **`publish-rule-issue`** fecha o ciclo de aprendizado contínuo do ecossistema ([`AIDD-Manifesto`](AIDD-Manifesto)): quando um desenvolvedor corrige um comportamento ou descobre um novo padrão via `/learn` em **qualquer projeto**, ela publica uma issue estruturada e atômica diretamente no repositório central `VitorJacom/my-agents`.
 
 ---
 
@@ -32,20 +32,12 @@ Publique a regra aprendida nesta sessão no repositório central my-agents
 
 ## 🔄 Procedimento de Execução
 
-1. **Coleta de Evidências**: Inspeciona o `learning_proposal.md` ou a sessão atual para extrair:
-   - Projeto de origem, gatilho/situação, causa-raiz e texto/diff da regra proposta.
-2. **Formatação Atômica da Issue**: Gera um corpo padronizado contendo:
-   - `## 📌 Contexto de Origem`, `## 🔍 Causa-Raiz & Racional Técnico`, `## 📝 Regra Proposta / Aprendizado`
-   - `## 🎯 Escopo Recomendado no my-agents` (`rules/AGENTS.md`, `skills/` ou `hooks.json`)
-   - `## Target Files & Dependencies` e `## Passos de Implementação (<= 3 passos)`
-3. **Abertura no GitHub (`gh CLI`)**:
-   ```bash
-   gh issue create --repo VitorJacom/my-agents \
-     --title "feat(rules): <título no imperativo>" \
-     --label "enhancement,planned" \
-     [--milestone "<milestone>"] --body "<corpo>"
-   ```
-4. **Governança no Project v2 (Fallback Resiliente)**: Vincula automaticamente ao GitHub Project v2 (`gh project item-add`) e atribui o campo `Release` sem bloquear a esteira em caso de falha de rede.
+| Etapa | O que acontece |
+| :--- | :--- |
+| **1. Coleta de Evidências** | Analisa a proposta de aprendizado da sessão para extrair projeto de origem, situação gatilho, causa-raiz e a regra recomendada. |
+| **2. Formatação Atômica** | Monta a especificação da issue em seções padronizadas (contexto, causa-raiz, escopo em `rules/`, `skills/` ou `hooks`, arquivos-alvo e passos $\le 3$). |
+| **3. Abertura no GitHub** | Cria a issue no repositório central `VitorJacom/my-agents` com título padronizado, labels e Milestone correspondente. |
+| **4. Governança no Project v2** | Vincula a issue ao quadro do projeto e atribui o campo `Release` (em conjunto com os utilitários de [`Script-pipeline`](Script-pipeline)), operando com fallback resiliente em caso de falha de rede. |
 
 ---
 

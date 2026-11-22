@@ -6,38 +6,31 @@ Esta página apresenta a visão sistêmica, o modelo de decomposição em camada
 
 ## 🏛️ 1. Visão Sistêmica e Arquitetura em Camadas
 
-O `my-agents` é um repositório central de governança, automações e guardrails para o **Antigravity CLI** (Gemini CLI), desenhado sob a filosofia do **Manifesto AIDD** (*AI-Driven Development*). A plataforma opera segundo uma arquitetura modular desacoplada em 5 camadas concêntricas:
+O `my-agents` é um repositório central de governança, automações e guardrails para o **Antigravity CLI** (Gemini CLI), desenhado sob a filosofia do [`AIDD-Manifesto`](AIDD-Manifesto). A plataforma opera segundo uma arquitetura modular desacoplada em 5 camadas concêntricas:
 
 ```mermaid
-flowchart TB
-    subgraph L1 ["1. Camada de Governança Global (Zero Token Waste)"]
-        RULES["rules/AGENTS.md<br/>Manifesto AIDD & Travas Anti-Fraude"]
-        HOOKS["hooks.json<br/>Injeção de Contexto & Guardrails"]
+flowchart TD
+    subgraph L1 ["1. Governança Global (Zero Token Waste)"]
+        RULES["Regras Globais & Manifesto AIDD<br/>Travas Anti-Fraude"]
+        HOOKS["Hooks de Runtime<br/>Contexto & Guardrails"]
     end
 
-    subgraph L2 ["2. Camada de Orquestração & Automação (Control Plane)"]
-        MAESTRO["Maestro Orchestrator<br/>Ondas Concorrentes & Merge Queue"]
-        WORKTREE_MGR["scripts/pipeline/worktree-manager.sh<br/>Locks Atômicos & Worktrees Isoladas"]
-        UPDATER["scripts/pipeline/update-plugin.sh<br/>Background Update & Fail-Safe"]
+    subgraph L2 ["2. Orquestração & Automação (Control Plane)"]
+        MAESTRO["Orquestrador Maestro<br/>Ondas Concorrentes & Merge Queue"]
+        WORKTREE_MGR["Gestão de Worktrees Isoladas<br/>Locks Atômicos"]
+        UPDATER["Gestor de Atualizações<br/>Verificação & Fail-Safe"]
     end
 
-    subgraph L3 ["3. Camada de Subagentes Especializados (Execution Plane)"]
-        PO["product-owner<br/>Requisitos & Personas"]
-        ARCH["system-architect<br/>Impacto Técnico & ADRs"]
-        UIUX["uiux-designer<br/>Tokens & Mockups Headless"]
-        PLANNER["planner<br/>Interface Contract & TDD Plan"]
-        QA["qa-engineer<br/>Testes de Aceitação RED"]
-        CODER["coder<br/>Implementação GREEN"]
-        GK["gatekeeper<br/>Anti-Fraude, Coverage & PR"]
+    subgraph L3 ["3. Subagentes Especializados (Execution Plane)"]
+        SUBS["product-owner, system-architect,<br/>uiux-designer, planner,<br/>qa-engineer, coder e gatekeeper"]
     end
 
-    subgraph L4 ["4. Camada de Capacidades sob Demanda (Progressive Disclosure)"]
-        SKILLS["skills/<br/>plan-feature, issue-pipeline, test-runner,<br/>game-dev-patterns, architecture-decision, etc."]
+    subgraph L4 ["4. Capacidades sob Demanda (Progressive Disclosure)"]
+        SKILLS["Catálogo de Skills<br/>Esteiras, Revisão, Testes & Domínios"]
     end
 
-    subgraph L5 ["5. Camada de Integração Externa & Gestão"]
-        GH_PROJ["GitHub Projects v2<br/>Kanban Board & Views"]
-        GH_MILESTONES["Milestones<br/>Entregas por Sprint / Versão"]
+    subgraph L5 ["5. Integração Externa & Gestão"]
+        GH_PROJ["GitHub Projects v2<br/>Kanban, Épicos & Releases"]
         GH_WIKI["GitHub Wiki<br/>Documentação Sincronizada"]
     end
 
@@ -57,11 +50,11 @@ flowchart TB
 
 | Diretório / Arquivo | Responsabilidade | Mecanismo de Carregamento |
 | :--- | :--- | :--- |
-| `rules/AGENTS.md` | Manifesto AIDD, Travas Anti-Fraude e regras inegociáveis | Carregado automaticamente no contexto raiz pelo CLI |
-| `hooks.json` | Gatilhos de ciclo de vida de sessão e injeção dinâmica de contexto | Executado nativamente pelo Antigravity CLI |
-| `agents/` | Definições das 7 personas canônicas de agentes de IA | Invocados sob demanda via `invoke_subagent` |
-| `skills/` | Habilidades e esteiras de execução encapsuladas | Descobertas sob demanda (*Progressive Disclosure*) |
-| `scripts/` | Utilitários de bash e python (Worktrees, Statusline, Métricas, Atualização) | Execução desacoplada em subprocessos |
+| `rules/AGENTS.md` | [`AIDD-Manifesto`](AIDD-Manifesto), Travas Anti-Fraude e regras inegociáveis | Carregado automaticamente no contexto raiz pelo CLI |
+| `hooks.json` | Gatilhos de ciclo de vida de sessão ([`Script-hooks`](Script-hooks)) | Executado nativamente pelo Antigravity CLI |
+| `agents/` | Definições das 7 personas canônicas ([`Subagents`](Subagents)) | Invocados sob demanda via `invoke_subagent` |
+| `skills/` | Habilidades e esteiras encapsuladas ([`Skills-Catalog`](Skills-Catalog)) | Descobertas sob demanda (*Progressive Disclosure*) |
+| `scripts/` | Utilitários de automação e statusline ([`Scripts-Catalog`](Scripts-Catalog)) | Execução desacoplada em subprocessos |
 | `docs/` | Documentação viva espelhada automaticamente para a GitHub Wiki | Sincronização via GitHub Actions (`wiki-sync.yml`) |
 
 ### Taxonomia de Scripts de Pipeline e Telemetria
@@ -128,33 +121,35 @@ sequenceDiagram
 
 ## 🔄 3. Ciclo de Vida Ponta a Ponta de uma Issue
 
-Toda funcionalidade ou correção percorre um pipeline padronizado e auditável:
+Toda funcionalidade ou correção percorre um pipeline padronizado e auditável combinando [`plan-feature`](Skill-plan-feature) e [`issue-pipeline`](Skill-issue-pipeline):
 
 ```mermaid
 flowchart TD
-    subgraph Planning ["Fase 1: Planejamento Funcional & Técnico (/plan-feature)"]
-        PO_PHASE["Product Owner<br/>Requisitos, Escopo & Personas"]
-        UI_PHASE{"Impacto Visual?<br/>[UI/UX Required]"}
-        UIUX_MOCK["UI/UX Designer<br/>Mockup-as-Code & Tokens"]
-        ARCH_PHASE["System Architect<br/>Blast Radius & Execution Waves"]
-        APPROVAL{"Gate de Aprovação<br/>Humana"}
-        CREATE_ISSUES["Criação de Issues no GitHub<br/>+ Vinculação ao Project v2 & Milestone"]
+    subgraph Planning ["Fase 1: Planejamento (/plan-feature)"]
+        PO_PHASE["1. invoke_subagent: product-owner"]
+        UI_PHASE{"Interface Visual?<br/>(UI_UX_REQUIRED)"}
+        UIUX_MOCK["1.5. invoke_subagent: uiux-designer"]
+        ARCH_PHASE["2. invoke_subagent: system-architect"]
+        GOLD_PHASE["2.5. invoke_subagent: gatekeeper"]
+        APPROVAL{"3. Gate de Aprovação<br/>Humana"}
+        CREATE_ISSUES["4. Publicar Issues no GitHub<br/>& Atualizar Board (Project v2)"]
 
         PO_PHASE --> UI_PHASE
-        UI_PHASE -- Sim --> UIUX_MOCK --> ARCH_PHASE
-        UI_PHASE -- Não --> ARCH_PHASE
-        ARCH_PHASE --> APPROVAL
-        APPROVAL -- Aprovado --> CREATE_ISSUES
+        UI_PHASE -- "YES" --> UIUX_MOCK --> ARCH_PHASE
+        UI_PHASE -- "NO" --> ARCH_PHASE
+        ARCH_PHASE --> GOLD_PHASE
+        GOLD_PHASE -- "APPROVED" --> APPROVAL
+        APPROVAL -- "APPROVED" --> CREATE_ISSUES
     end
 
     subgraph Execution ["Fase 2: Execução TDD Isolada (/run-issue)"]
-        WT_CREATE["Worktree Provisioning<br/>.worktrees/issue-ID"]
-        PLANNER_STATE["Planner<br/>Congela Interface Contract"]
-        FORK["Fork Concorrente"]
-        QA_STATE["QA Engineer<br/>Cria Testes RED"]
-        CODER_STATE["Coder<br/>Implementa GREEN"]
-        JOIN["Join Point<br/>Suíte 100% Verde"]
-        GK_AUDIT["Gatekeeper<br/>Anti-Fraude, Coverage >= 85% & Provas"]
+        WT_CREATE["Provisionar Worktree<br/>Isolada"]
+        PLANNER_STATE["1. invoke_subagent: planner"]
+        FORK["2. Fork Concorrente"]
+        QA_STATE["2a. invoke_subagent: qa-engineer"]
+        CODER_STATE["2b. invoke_subagent: coder"]
+        JOIN["3. Portão de Integração<br/>Testes GREEN & Cobertura >= 85%"]
+        GK_AUDIT["4. invoke_subagent: gatekeeper"]
 
         CREATE_ISSUES --> WT_CREATE
         WT_CREATE --> PLANNER_STATE
@@ -167,9 +162,9 @@ flowchart TD
     end
 
     subgraph Delivery ["Fase 3: Entrega & Reconciliação"]
-        PR_PUBLISH["Abertura de PR com Walkthrough<br/>Status no Project v2: In Review"]
+        PR_PUBLISH["Publicar PR com Evidências<br/>& Status In Review"]
         WT_CLEANUP["Cleanup de Worktree & Lock"]
-        
+
         GK_AUDIT --> PR_PUBLISH --> WT_CLEANUP
     end
 
@@ -187,10 +182,10 @@ flowchart TD
 
 ## 📜 4. Índice Consolidado de Decisões de Arquitetura (ADRs)
 
-A evolução arquitetural do `my-agents` é registrada formalmente através de Architecture Decision Records (ADRs). Abaixo consta o índice consolidado de todas as decisões tomadas:
+A evolução arquitetural do `my-agents` é registrada formalmente através de Architecture Decision Records (ADRs) em [`ARCHITECTURE`](ARCHITECTURE). Abaixo consta o índice consolidado de todas as decisões tomadas:
 
 | ADR ID | Título | Data | Status | Escopo & Impacto |
-| :---: | :--- | :---: | :---: | :--- |
+| ---: | :--- | :--- | :--- | :--- |
 | **0001** | Generalização de Regras Visuais, Subagente UI/UX e Desacoplamento de Domínio (Game Dev) | 2026-11-04 | Implementada | Desacoplamento de regras de física e games de `rules/` para `skills/game-dev-patterns/` (*Zero Token Waste*), criação do `uiux-designer` e exigência condicional de provas visuais. |
 | **0002** | Governança Efêmera de Arquivos de Tarefa, Fonte Única ARCHITECTURE.md e Wiki Sync | 2026-11-04 | Implementada | Adição de `task.md`, `implementation_plan.md` e `walkthrough.md` ao `.gitignore`; consolidação da documentação em `docs/` e sincronização automática via `.github/workflows/wiki-sync.yml`. |
 | **0003** | Arquitetura Modular de Statusline Plug-and-Play e Performance Sub-50ms | 2026-11-04 | Proposta | Decomposição modular da statusline (`scripts/statusline/statusline-quota.sh`), instalador idempotente (`scripts/statusline/install-statusline.sh`) e suíte de benchmark sub-50ms (`scripts/statusline/test-statusline.sh`). |

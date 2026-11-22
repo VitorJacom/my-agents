@@ -7,10 +7,10 @@ Bem-vindo ao **`my-agents`**! Este guia fornece instruções passo a passo para 
 ## 🚀 1. Visão Geral
 
 O `my-agents` é um pacote de extensões (plugin) projetado para potencializar o desenvolvimento assistido por agentes de IA no Antigravity CLI. Ele fornece:
-- **Governança AIDD**: Proteções contra falsos positivos, fraudes em testes e poluição de contexto (*Zero Token Waste*).
-- **Subagentes Confinados**: Personas com papéis bem delimitados (Product Owner, Arquiteto, QA Engineer, Coder, Gatekeeper e UI/UX Designer).
-- **Skills Sob Demanda**: Habilidades especializadas ativadas por *Progressive Disclosure* (planejamento de features, esteira TDD de issues, revisão de código, padrões de jogos 2D, etc.).
-- **Statusline de Alta Performance**: Monitoramento em tempo real de quota e status do Git com latência garantida sub-50ms.
+- **Governança AIDD**: Proteções contra falsos positivos, fraudes em testes e poluição de contexto (*Zero Token Waste*) descritas no [`AIDD-Manifesto`](AIDD-Manifesto).
+- **Subagentes Confinados**: Personas com papéis bem delimitados catalogadas em [`Subagents`](Subagents).
+- **Skills Sob Demanda**: Habilidades especializadas ativadas por *Progressive Disclosure* catalogadas em [`Skills-Catalog`](Skills-Catalog).
+- **Statusline de Alta Performance**: Monitoramento em tempo real de quota e status do Git com latência garantida sub-50ms ([`Script-statusline`](Script-statusline)).
 
 ---
 
@@ -165,41 +165,40 @@ agy -p "Liste as personas de subagentes disponíveis neste workspace"
 
 ## 🔄 6. O Primeiro Ciclo AIDD Passo a Passo
 
-O fluxo padrão do ecossistema `my-agents` segue uma esteira determinística em duas fases principais:
+O fluxo padrão do ecossistema `my-agents` segue uma esteira determinística em duas fases principais ([`plan-feature`](Skill-plan-feature) e [`issue-pipeline`](Skill-issue-pipeline)):
 
 ```mermaid
-flowchart LR
-    Idea["💡 Ideia / Requisito"] --> Plan["1. /plan-feature"]
-    Plan --> Approval{"Aprovação do Plano"}
-    Approval -- Aprovado --> Issues["Issues Criadas no GitHub"]
-    Issues --> Run["2. /run-issue #ID"]
-    Run --> PR["Pull Request com Walkthrough"]
+flowchart TD
+    Idea["💡 Ideia ou Requisito"] --> Plan["1. Planejamento Funcional e Técnico<br/>(/plan-feature)"]
+    Plan --> Approval{"Aprovação Humana<br/>do Plano?"}
+    Approval -- "APPROVED" --> Issues["2. Publicação de Issues<br/>Atômicas no GitHub"]
+    Issues --> Run["3. Execução TDD Isolada<br/>(/run-issue #ID)"]
+    Run --> PR["4. Pull Request com<br/>Evidências (walkthrough.md)"]
 ```
 
-### Passo 1: Planejamento com `/plan-feature`
+### Passo 1: Planejamento com [`/plan-feature`](Skill-plan-feature)
 No prompt do `agy`, digite a descrição da funcionalidade desejada:
 
 ```text
 /plan-feature Sistema de autenticação JWT com rota de login e validação de token
 ```
 
-O orquestrador acionará o `product-owner` para definir requisitos e critérios de aceite, o `uiux-designer` (se envolver interface) e o `system-architect` para estruturar a arquitetura técnica, verificar impacto na base e fatiar a demanda em issues atômicas (com no máximo 3 passos por issue).
+O orquestrador acionará o [`product-owner`](Agent-product-owner) para definir requisitos e critérios de aceite, o [`uiux-designer`](Agent-uiux-designer) (se envolver interface) e o [`system-architect`](Agent-system-architect) para estruturar a arquitetura técnica, verificar impacto na base e fatiar a demanda em issues atômicas (com no máximo 3 passos por issue).
 
 ### Passo 2: Aprovação e Criação das Issues
 Ao final do planejamento, o agente apresenta a proposta estruturada em `planning_proposal.md`. Com a sua aprovação, as issues serão criadas automaticamente no repositório GitHub com os metadados e dependências corretas.
 
-### Passo 3: Execução Determinística com `/run-issue`
+### Passo 3: Execução Determinística com [`/run-issue`](Skill-issue-pipeline)
 Com a issue criada (por exemplo, `#1`), dispare a esteira de construção:
 
 ```text
 /run-issue #1
 ```
 
-A máquina de estados executará sequencialmente:
-1. **`planner`**: Triagem e contrato atômico (`implementation_plan.md` e `task.md`).
-2. **`qa-engineer`**: Criação de testes de aceitação em `tests/features/` comprovando o estado inicial de falha (**RED**).
-3. **`coder`**: Construção do código de produção exclusivamente em `src/` até que todos os testes fiquem verdes (**GREEN**) com cobertura $\ge 85\%$.
-4. **`gatekeeper`**: Auditoria anti-fraude (Golden Rule), verificação de interface gráfica se aplicável, compilação das evidências em `walkthrough.md` e criação do Pull Request no GitHub.
+A máquina de estados executará:
+1. **[`planner`](Agent-planner)**: Triagem e contrato atômico (`implementation_plan.md` e `task.md`).
+2. **[`qa-engineer`](Agent-qa-engineer)** e **[`coder`](Agent-coder)** *(em paralelo sob contrato congelado)*: Criação de testes de aceitação em `tests/features/` (**RED**) e implementação cirúrgica em `src/` até atingir **GREEN** com cobertura $\ge 85\%$, mantendo [`tests/core/`](Test-core) intocado.
+3. **[`gatekeeper`](Agent-gatekeeper)**: Auditoria anti-fraude (*Golden Rule*), verificação de interface gráfica se aplicável, compilação das evidências em `walkthrough.md` e criação do Pull Request no GitHub.
 
 ---
 

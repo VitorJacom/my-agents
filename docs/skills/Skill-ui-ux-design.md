@@ -4,19 +4,19 @@
 
 > **Definição Canônica**: [`skills/ui-ux-design/SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/ui-ux-design/SKILL.md)  
 > **Categoria**: Domínios Especializados  
-> **Comando de Invocação**: Invocação contextual em UI/UX ou via subagente `uiux-designer`
+> **Comando de Invocação**: Invocação contextual em UI/UX ou via subagente [`uiux-designer`](Agent-uiux-designer)
 
 ---
 
 ## 🎯 Objetivo
 
-A skill **`ui-ux-design`** é um hub executivo de engenharia de interface para agentes de IA, reunindo **48 técnicas consolidadas**, **7 módulos temáticos**, **13 referências técnicas profundas** (incluindo *Apple WWDC Fluid Interfaces* e padrões de *Emil Kowalski*) e um **assistente CLI automatizado** (`skill_assistant.py`) para busca de receitas, checklists e auditoria anti-slop em tempo real.
+A skill **`ui-ux-design`** é um hub executivo de engenharia de interface para agentes de IA, reunindo **48 técnicas consolidadas**, **7 módulos temáticos**, **13 referências técnicas profundas** (incluindo *Apple WWDC Fluid Interfaces* e padrões de *Emil Kowalski*) e um **assistente CLI automatizado** (`skill_assistant.py`) para busca de receitas, checklists e auditoria anti-slop em tempo real — validada continuamente pela suíte [`Test-ui-ux`](Test-ui-ux).
 
 ---
 
 ## ⚡ Quando Acionar (*Progressive Disclosure*)
 
-- Automaticamente pelo subagente `uiux-designer` nos Modos 1 (Concepção & Mockup-as-Code) e 2 (Auditoria Visual Headless).
+- Automaticamente pelo subagente [`uiux-designer`](Agent-uiux-designer) nos Modos 1 (Concepção & Mockup-as-Code na esteira [`plan-feature`](Skill-plan-feature)) e 2 (Auditoria Visual Headless na esteira [`issue-pipeline`](Skill-issue-pipeline)).
 - Ao projetar telas, landing pages, fluxos mobile, e-commerce/PDPs, paywalls ou dashboards.
 - Ao refatorar interfaces geradas por IA com clichês visuais (*AI-Slop*) ou calibrar física de animações.
 

@@ -10,7 +10,7 @@
 
 ## 🎯 Objetivo
 
-A skill **`architecture-decision`** padroniza a elaboração de **Architecture Decision Records (ADRs)** seguindo o template clássico de **Michael Nygard**, preservando o contexto histórico, alternativas descartadas e trade-offs assumidos em escolhas estruturais de software.
+A skill **`architecture-decision`** padroniza a elaboração de **Architecture Decision Records (ADRs)** seguindo o template clássico de **Michael Nygard**, preservando o contexto histórico, alternativas descartadas e trade-offs assumidos em escolhas estruturais de software — utilizada frequentemente pelo [`system-architect`](Agent-system-architect) durante a esteira [`plan-feature`](Skill-plan-feature).
 
 ---
 
@@ -18,7 +18,7 @@ A skill **`architecture-decision`** padroniza a elaboração de **Architecture D
 
 - Ao introduzir ou trocar banco de dados, mensageria, cache ou bibliotecas fundamentais.
 - Ao definir padrões de comunicação entre serviços (REST vs. gRPC vs. GraphQL).
-- Ao adotar mudanças estruturais de arquitetura (ex.: Git Worktrees para concorrência, Monólito Modular vs. Microsserviços).
+- Ao adotar mudanças estruturais de arquitetura (ex.: Git Worktrees para concorrência, Monólito Modular vs. Microsserviços), documentadas também em [`System-Architecture`](System-Architecture).
 
 ---
 

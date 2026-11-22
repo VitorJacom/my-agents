@@ -10,7 +10,7 @@
 
 ## 🎯 Objetivo
 
-A skill **`issue-pipeline`** orquestra a máquina de estados determinística do ecossistema AIDD para implementar uma ou múltiplas issues do GitHub com **TDD rigoroso**, execução concorrente sob contrato congelado (*Concurrent Fork*), cobertura mínima de **85%**, auditoria visual headless (quando aplicável) e proteção anti-fraude (*Golden Rule*).
+A skill **`issue-pipeline`** orquestra a máquina de estados determinística do ecossistema ([`AIDD-Manifesto`](AIDD-Manifesto)) para implementar uma ou múltiplas issues do GitHub planejadas via [`plan-feature`](Skill-plan-feature), garantindo **TDD rigoroso**, execução concorrente sob contrato congelado (*Concurrent Fork*), cobertura mínima de **85%**, auditoria visual (quando aplicável) e proteção anti-fraude (*Golden Rule*).
 
 ---
 
@@ -45,29 +45,43 @@ A skill **`issue-pipeline`** orquestra a máquina de estados determinística do 
 
 ```mermaid
 flowchart TD
-    E1["1. PLANNING<br/>(planner: implementation_plan.md, task.md & Interface Contract)"] --> CheckUI{"UI_UX_REQUIRED &<br/>sem Contrato?"}
-    CheckUI -- "Sim" --> E1F["1.1 Fallback UI/UX<br/>(uiux-designer Modo 1)"]
-    CheckUI -- "Não" --> E2["2. CONCURRENT FORK<br/>(qa-engineer & coder em paralelo)"]
-    E1F --> E2
-    E2 --> E3["3. CONTRACT INTEGRATION GATE<br/>(Suíte GREEN & Cobertura >= 85%, máx. 2 loops)"]
-    E3 --> CheckVisual{"UI_UX_REQUIRED?"}
-    CheckVisual -- "true" --> E35["3.5. UI/UX VISUAL AUDIT GATE<br/>(uiux-designer Modo 2 Headless)"]
-    CheckVisual -- "false" --> E4["4. GATEKEEPING & HANDOFF<br/>(gatekeeper: Golden Rule, walkthrough & PR)"]
-    E35 --> E4
+    Start["Entrada: /run-issue #XX"] --> Plan["1. invoke_subagent: planner"]
+    Plan --> CheckUI{"Interface Visual<br/>sem Contrato?"}
+    CheckUI -- "YES" --> UI1["1.1. invoke_subagent: uiux-designer"]
+    CheckUI -- "NO" --> Fork["2. Execução Paralela<br/>(Concurrent Fork)"]
+    UI1 --> Fork
+    Fork --> QA["2a. invoke_subagent: qa-engineer"]
+    Fork --> Coder["2b. invoke_subagent: coder"]
+    QA --> Gate3["3. Portão de Integração<br/>Testes GREEN & Cobertura >= 85%"]
+    Coder --> Gate3
+    Gate3 -- "FAILED" --> Loop{"Reconciliação<br/>(Máx. 2)"}
+    Loop -- "<= 2" --> Coder
+    Loop -- "> 2" --> CB["🚨 Circuit Breaker"]
+    Gate3 -- "PASSED" --> CheckVisual{"Interface Visual?<br/>(UI_UX_REQUIRED)"}
+    CheckVisual -- "YES" --> UI2["3.5. invoke_subagent: uiux-designer"]
+    CheckVisual -- "NO" --> GK["4. invoke_subagent: gatekeeper"]
+    UI2 --> GK
+    GK --> PR["5. Pull Request Publicado<br/>Evidências & Auto-Close"]
 ```
 
-- **Estado 1 (`planner`)**: Valida atomicidade ($\le 3$ passos) e o portão `validate-interface-contract.sh`. Atualiza o status no GitHub Project v2 para `In Progress`.
-- **Estado 2 (*Concurrent Fork*)**: Dispara `qa-engineer` (confinado a `tests/features/`) e `coder` (confinado a `src/`) em paralelo sob a seção congelada `## Interface Contract`.
-- **Estado 3 (*Contract Integration Gate*)**: Executa `contract-integration-gate.sh` com timeout rígido (60s), validando testes GREEN e cobertura $\ge 85\%$ (até 2 loops de reconciliação).
-- **Estado 3.5 (*Visual Audit Gate*)**: Quando `UI_UX_REQUIRED: true`, o `uiux-designer` (Modo 2) audita capturas headless antes do PR.
-- **Estado 4 (`gatekeeper`)**: Verifica a *Golden Rule* (zero modificações em `tests/core/`), compila o `walkthrough.md` com `Fixes #<id>` em texto puro e abre o PR.
+### 📋 Responsabilidades por Estado (Modo Unitário)
+
+| Estado | Responsável | O que acontece nesta etapa |
+| :--- | :--- | :--- |
+| **1. Planejamento Tático** | [`planner`](Agent-planner) | Valida se a issue é atômica ($\le 3$ passos), prepara o plano técnico com o contrato de interface congelado (`implementation_plan.md` e `task.md`) e move o cartão no quadro do projeto para **`In Progress`**. |
+| **1.1. Fallback Visual** *(Condicional)* | [`uiux-designer`](Agent-uiux-designer) | Acionado apenas se a issue exigir interface visual mas ainda não possuir especificação de mockup. Gera o contrato visual antes da codificação. |
+| **2a. Testes de Aceitação** *(Paralelo)* | [`qa-engineer`](Agent-qa-engineer) | Trabalha isolado na camada de testes, criando cenários de *Happy Path* e *Edge Cases / Failure Modes* que falham inicialmente (**RED**) com base no contrato congelado. |
+| **2b. Implementação** *(Paralelo)* | [`coder`](Agent-coder) | Trabalha simultaneamente no código de produção respeitando rigorosamente as assinaturas, tipos e erros definidos no contrato congelado. |
+| **3. Portão de Integração** | Orquestrador + [`Script-pipeline`](Script-pipeline) | Executa os testes com timeout rígido e verifica se todos estão verdes (**GREEN**) com cobertura $\ge 85\%$. Se falhar, aciona até 2 ciclos de correção antes do *Circuit Breaker*. |
+| **3.5. Auditoria Visual** *(Condicional)* | [`uiux-designer`](Agent-uiux-designer) | Quando a entrega possui interface visual, captura a tela renderizada em navegador headless e audita fidelidade, contraste e responsividade antes do PR. |
+| **4. Auditoria & Handoff** | [`gatekeeper`](Agent-gatekeeper) | Verifica a *Golden Rule* (nenhuma adulteração em [`tests/core/`](Test-core)), compila o relatório de provas (`walkthrough.md`) e publica o Pull Request com fechamento automático da issue. |
 
 ### 2. Modo Maestro (Multi-Issue & `--epic`)
 
-- **Segregação Control Plane vs. Execution Plane**: A sessão principal atua exclusivamente como Maestro e delega cada issue da onda via `invoke_subagent` em worktrees isoladas (`.worktrees/issue-<id>`).
-- **Pre-flight & Wave Partitioning**: Agrupa issues com `Target Files` 100% disjuntos em ondas concorrentes.
-- **Merge Queue Sequencial**: Integra cada worktree na branch intermediária via `worktree-manager.sh rebase-sync`, rodando a suíte acumulada com até 2 tentativas de auto-reconciliação.
-- **PR Consolidado**: Ao término de todas as ondas, o `gatekeeper` abre um Pull Request consolidado para `main`.
+- **Segregação Control Plane vs. Execution Plane**: A sessão principal atua exclusivamente como Maestro e delega cada issue da onda via `invoke_subagent` em worktrees isoladas (`.worktrees/issue-<id>`), gerenciadas pelos utilitários de [`Script-pipeline`](Script-pipeline).
+- **Pre-flight & Wave Partitioning**: Agrupa issues com arquivos-alvo (`Target Files`) 100% disjuntos em ondas concorrentes, evitando conflitos simultâneos.
+- **Merge Queue Sequencial**: Integra cada worktree na branch intermediária e executa a suíte acumulada com até 2 tentativas de auto-reconciliação em caso de regressão.
+- **PR Consolidado**: Ao término de todas as ondas, o [`gatekeeper`](Agent-gatekeeper) audita o resultado integrado e abre um Pull Request consolidado para `main`.
 
 ---
 
