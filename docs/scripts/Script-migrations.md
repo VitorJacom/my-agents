@@ -1,7 +1,6 @@
 [← Voltar ao Sumário de Scripts](Scripts-Catalog)
 
-# 🏛️ Scripts: Migrações Históricas (`scripts/migrations/`)
-
+> **Migrações Históricas**  
 > **Diretório**: [`scripts/migrations/`](https://github.com/VitorJacom/my-agents/tree/main/scripts/migrations)  
 > **Quantidade**: 2 scripts (*one-off*)
 

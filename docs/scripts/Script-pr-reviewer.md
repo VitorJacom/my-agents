@@ -1,7 +1,6 @@
 [← Voltar ao Sumário de Scripts](Scripts-Catalog)
 
-# 🔍 Scripts: Revisor de PR & Telemetria (`scripts/`)
-
+> **Revisor de PR & Telemetria**  
 > **Diretório**: [`scripts/`](https://github.com/VitorJacom/my-agents/tree/main/scripts) *(raiz)*  
 > **Quantidade**: 2 scripts (`pr-reviewer.sh` e wrapper `audit-token-efficiency.py`)
 

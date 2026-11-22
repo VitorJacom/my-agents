@@ -1,7 +1,5 @@
 [← Voltar ao Sumário de Subagentes](Subagents)
 
-# 🤖 Subagente: `planner`
-
 > **Definição Canônica**: [`agents/planner/agent.md`](https://github.com/VitorJacom/my-agents/blob/main/agents/planner/agent.md)  
 > **Fase AIDD**: Execução ([`issue-pipeline`](Skill-issue-pipeline) — Estado 1: Triage & Planning)  
 > **Ferramentas (`tools`)**: `read_file`, `search_web`  

@@ -1,7 +1,6 @@
 [← Voltar ao Sumário de Skills](Skills-Catalog)
 
-# Skill: `test-runner` (Diagnóstico e Reparo Cirúrgico de Testes)
-
+> **Diagnóstico e Reparo Cirúrgico de Testes**  
 > **Definição Canônica**: [`skills/test-runner/SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/test-runner/SKILL.md)  
 > **Categoria**: Qualidade, Testes & Revisão  
 > **Comando de Invocação**: `/test` ou solicitação de execução/diagnóstico de testes

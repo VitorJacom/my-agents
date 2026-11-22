@@ -1,7 +1,6 @@
 [← Voltar ao Sumário de Skills](Skills-Catalog)
 
-# Skill: `issue-pipeline` (Esteira TDD Unitária e Modo Maestro)
-
+> **Esteira TDD Unitária e Modo Maestro**  
 > **Definição Canônica**: [`skills/issue-pipeline/SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/issue-pipeline/SKILL.md)  
 > **Categoria**: Esteiras & Orquestração AIDD  
 > **Comando de Invocação**: `/issue-pipeline <#ID>` ou `/issue-pipeline <#1 #2 #3>` / `/issue-pipeline --epic <#ID>`

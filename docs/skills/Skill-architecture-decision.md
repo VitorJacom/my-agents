@@ -1,7 +1,6 @@
 [← Voltar ao Sumário de Skills](Skills-Catalog)
 
-# Skill: `architecture-decision` (Registros de Decisão de Arquitetura — ADRs)
-
+> **Registros de Decisão de Arquitetura — ADRs**  
 > **Definição Canônica**: [`skills/architecture-decision/SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/architecture-decision/SKILL.md)  
 > **Categoria**: Engenharia, Arquitetura & Infra  
 > **Comando de Invocação**: Invocação contextual ao registrar escolhas técnicas e trade-offs

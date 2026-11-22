@@ -1,7 +1,5 @@
 [← Voltar ao Sumário de Subagentes](Subagents)
 
-# 🤖 Subagente: `system-architect`
-
 > **Definição Canônica**: [`agents/system-architect/agent.md`](https://github.com/VitorJacom/my-agents/blob/main/agents/system-architect/agent.md)  
 > **Fase AIDD**: Planejamento ([`plan-feature`](Skill-plan-feature) — Estado 2)  
 > **Ferramentas (`tools`)**: `read_file`, `search_web`, `write_file`, `edit_file`  

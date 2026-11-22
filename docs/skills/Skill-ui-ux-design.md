@@ -1,7 +1,6 @@
 [← Voltar ao Sumário de Skills](Skills-Catalog)
 
-# Skill: `ui-ux-design` (Hub Executivo de Interface, Motion & Anti-Slop)
-
+> **Hub Executivo de Interface, Motion & Anti-Slop**  
 > **Definição Canônica**: [`skills/ui-ux-design/SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/ui-ux-design/SKILL.md)  
 > **Categoria**: Domínios Especializados  
 > **Comando de Invocação**: Invocação contextual em UI/UX ou via subagente [`uiux-designer`](Agent-uiux-designer)

@@ -1,7 +1,6 @@
 [← Voltar ao Sumário de Subagentes](Subagents)
 
-# 🤖 Subagente: `gatekeeper` (*The Goldfish*)
-
+> **The Goldfish**  
 > **Definição Canônica**: [`agents/gatekeeper/agent.md`](https://github.com/VitorJacom/my-agents/blob/main/agents/gatekeeper/agent.md)  
 > **Fase AIDD**: Planejamento ([`plan-feature`](Skill-plan-feature) — Estado 2.5) & Finalização ([`issue-pipeline`](Skill-issue-pipeline) — Estado 4)  
 > **Ferramentas (`tools`)**: `read_file`, `write_file`, `edit_file`, `run_command`  

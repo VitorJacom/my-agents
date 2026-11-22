@@ -1,7 +1,5 @@
 [← Voltar ao Sumário de Subagentes](Subagents)
 
-# 🤖 Subagente: `qa-engineer`
-
 > **Definição Canônica**: [`agents/qa-engineer/agent.md`](https://github.com/VitorJacom/my-agents/blob/main/agents/qa-engineer/agent.md)  
 > **Fase AIDD**: Execução ([`issue-pipeline`](Skill-issue-pipeline) — Estado 2: Concurrent Fork / Fase RED)  
 > **Ferramentas (`tools`)**: `read_file`, `write_file`, `edit_file`, `run_command`  

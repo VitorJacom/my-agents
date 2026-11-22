@@ -1,7 +1,6 @@
 [← Voltar ao Sumário de Skills](Skills-Catalog)
 
-# Skill: `plan-feature` (Esteira de Planejamento & Ciclo Elephant-Goldfish)
-
+> **Esteira de Planejamento & Ciclo Elephant-Goldfish**  
 > **Definição Canônica**: [`skills/plan-feature/SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/plan-feature/SKILL.md)  
 > **Categoria**: Esteiras & Orquestração AIDD  
 > **Comando de Invocação**: `/plan-feature <ideia, funcionalidade ou #issue>`

@@ -1,7 +1,6 @@
 [← Voltar ao Sumário de Testes](Tests-Catalog)
 
-# 🛡️ Testes: Core Invariants (`tests/core/`)
-
+> **Core Invariants**  
 > **Diretório**: [`tests/core/`](https://github.com/VitorJacom/my-agents/tree/main/tests/core)  
 > **Quantidade**: 4 suítes imutáveis  
 > **Comando**: `./tests/run.sh --core`

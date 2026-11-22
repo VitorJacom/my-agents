@@ -1,7 +1,6 @@
 [← Voltar ao Sumário de Skills](Skills-Catalog)
 
-# Skill: `git-workflow` (Branches Semânticas, Commits & PRs)
-
+> **Branches Semânticas, Commits & PRs**  
 > **Definição Canônica**: [`skills/git-workflow/SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/git-workflow/SKILL.md)  
 > **Categoria**: Engenharia, Arquitetura & Infra  
 > **Comando de Invocação**: Invocação contextual ao criar branches, commits ou PRs

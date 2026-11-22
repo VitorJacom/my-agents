@@ -1,7 +1,6 @@
 [← Voltar ao Sumário de Scripts](Scripts-Catalog)
 
-# ⚡ Scripts: Statusline & Quota CLI (`scripts/statusline/`)
-
+> **Statusline & Quota CLI**  
 > **Diretório**: [`scripts/statusline/`](https://github.com/VitorJacom/my-agents/tree/main/scripts/statusline)  
 > **Quantidade**: 3 scripts
 

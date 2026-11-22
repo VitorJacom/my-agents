@@ -1,7 +1,6 @@
 [← Voltar ao Sumário de Skills](Skills-Catalog)
 
-# Skill: `review-pr` (Orquestrador de Revisão de Pull Requests)
-
+> **Orquestrador de Revisão de Pull Requests**  
 > **Definição Canônica**: [`skills/review-pr/SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/review-pr/SKILL.md)  
 > **Categoria**: Qualidade, Testes & Revisão  
 > **Comando de Invocação**: `/review-pr <#PR | URL>`

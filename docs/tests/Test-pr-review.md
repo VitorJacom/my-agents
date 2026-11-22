@@ -1,7 +1,6 @@
 [← Voltar ao Sumário de Testes](Tests-Catalog)
 
-# 🔍 Testes: Revisão de PR & Telemetria (`tests/features/*.sh`)
-
+> **Revisão de PR & Telemetria**  
 > **Diretório**: [`tests/features/`](https://github.com/VitorJacom/my-agents/tree/main/tests/features) *(raiz de features)*  
 > **Quantidade**: 5 suítes  
 > **Comando**: `./tests/run.sh --filter "pr_|review_pr|token"`

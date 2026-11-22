@@ -1,7 +1,6 @@
 [← Voltar ao Sumário de Testes](Tests-Catalog)
 
-# 📚 Testes: Wiki & Documentação (`tests/features/wiki/`)
-
+> **Wiki & Documentação**  
 > **Diretório**: [`tests/features/wiki/`](https://github.com/VitorJacom/my-agents/tree/main/tests/features/wiki)  
 > **Quantidade**: 8 suítes  
 > **Comando**: `./tests/run.sh --category wiki`

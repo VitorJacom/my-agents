@@ -1,7 +1,6 @@
 [← Voltar ao Sumário de Skills](Skills-Catalog)
 
-# Skill: `game-dev-patterns` (Engenharia & Física para Jogos 2D)
-
+> **Engenharia & Física para Jogos 2D**  
 > **Definição Canônica**: [`skills/game-dev-patterns/SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/game-dev-patterns/SKILL.md)  
 > **Categoria**: Domínios Especializados  
 > **Comando de Invocação**: Invocação contextual em projetos de jogos 2D (Phaser, PixiJS, Canvas)

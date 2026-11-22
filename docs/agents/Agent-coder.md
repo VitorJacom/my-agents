@@ -1,7 +1,5 @@
 [← Voltar ao Sumário de Subagentes](Subagents)
 
-# 🤖 Subagente: `coder`
-
 > **Definição Canônica**: [`agents/coder/agent.md`](https://github.com/VitorJacom/my-agents/blob/main/agents/coder/agent.md)  
 > **Fase AIDD**: Execução ([`issue-pipeline`](Skill-issue-pipeline) — Estado 2: Concurrent Fork / Fase GREEN)  
 > **Ferramentas (`tools`)**: `read_file`, `write_file`, `edit_file`, `run_command`  

@@ -1,7 +1,6 @@
 [← Voltar ao Sumário de Testes](Tests-Catalog)
 
-# 🎨 Testes: UI/UX & Mockups (`tests/features/ui-ux/`)
-
+> **UI/UX & Mockups**  
 > **Diretório**: [`tests/features/ui-ux/`](https://github.com/VitorJacom/my-agents/tree/main/tests/features/ui-ux)  
 > **Quantidade**: 7 suítes  
 > **Comando**: `./tests/run.sh --category ui-ux`

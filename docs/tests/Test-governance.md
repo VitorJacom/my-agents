@@ -1,7 +1,6 @@
 [← Voltar ao Sumário de Testes](Tests-Catalog)
 
-# 🏛️ Testes: Governança GitHub & AIDD (`tests/features/governance/`)
-
+> **Governança GitHub & AIDD**  
 > **Diretório**: [`tests/features/governance/`](https://github.com/VitorJacom/my-agents/tree/main/tests/features/governance)  
 > **Quantidade**: 16 suítes  
 > **Comando**: `./tests/run.sh --category governance`

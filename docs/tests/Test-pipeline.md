@@ -1,7 +1,6 @@
 [← Voltar ao Sumário de Testes](Tests-Catalog)
 
-# 🔄 Testes: Pipeline & Maestro (`tests/features/pipeline/`)
-
+> **Pipeline & Maestro**  
 > **Diretório**: [`tests/features/pipeline/`](https://github.com/VitorJacom/my-agents/tree/main/tests/features/pipeline)  
 > **Quantidade**: 8 suítes  
 > **Comando**: `./tests/run.sh --category pipeline`

@@ -1,7 +1,5 @@
 [← Voltar ao Sumário de Subagentes](Subagents)
 
-# 🤖 Subagente: `uiux-designer`
-
 > **Definição Canônica**: [`agents/uiux-designer/agent.md`](https://github.com/VitorJacom/my-agents/blob/main/agents/uiux-designer/agent.md)  
 > **Fase AIDD**: Planejamento ([`plan-feature`](Skill-plan-feature) — Estado 1.5) & Auditoria Visual ([`issue-pipeline`](Skill-issue-pipeline) — Estado 3.5)  
 > **Ferramentas (`tools`)**: `read_file`, `write_file`, `edit_file`, `search_web`, `run_command`  

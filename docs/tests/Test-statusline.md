@@ -1,7 +1,6 @@
 [← Voltar ao Sumário de Testes](Tests-Catalog)
 
-# ⚡ Testes: Statusline & Performance (`tests/features/statusline/`)
-
+> **Statusline & Performance**  
 > **Diretório**: [`tests/features/statusline/`](https://github.com/VitorJacom/my-agents/tree/main/tests/features/statusline)  
 > **Quantidade**: 3 suítes  
 > **Comando**: `./tests/run.sh --category statusline`

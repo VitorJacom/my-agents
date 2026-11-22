@@ -1,7 +1,6 @@
 [← Voltar ao Sumário de Scripts](Scripts-Catalog)
 
-# 🚀 Scripts: Esteira & Governança AIDD (`scripts/pipeline/`)
-
+> **Esteira & Governança AIDD**  
 > **Diretório**: [`scripts/pipeline/`](https://github.com/VitorJacom/my-agents/tree/main/scripts/pipeline)  
 > **Quantidade**: 12 scripts (Bash + Python)
 

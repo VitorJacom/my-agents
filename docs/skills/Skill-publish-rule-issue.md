@@ -1,7 +1,6 @@
 [← Voltar ao Sumário de Skills](Skills-Catalog)
 
-# Skill: `publish-rule-issue` (Publicação Global de Regras)
-
+> **Publicação Global de Regras**  
 > **Definição Canônica**: [`skills/publish-rule-issue/SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/publish-rule-issue/SKILL.md)  
 > **Categoria**: Engenharia, Arquitetura & Infra  
 > **Comando de Invocação**: `/publish-rule-issue` (ou pós-ciclo de `/learn`)

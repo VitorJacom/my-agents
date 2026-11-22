@@ -1,7 +1,6 @@
 [← Voltar ao Sumário de Skills](Skills-Catalog)
 
-# Skill: `docker-dev` (Diagnóstico e Gestão de Containers)
-
+> **Diagnóstico e Gestão de Containers**  
 > **Definição Canônica**: [`skills/docker-dev/SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/docker-dev/SKILL.md)  
 > **Categoria**: Engenharia, Arquitetura & Infra  
 > **Comando de Invocação**: Invocação contextual em tarefas de Docker e Docker Compose

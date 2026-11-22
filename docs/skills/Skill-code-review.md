@@ -1,7 +1,6 @@
 [← Voltar ao Sumário de Skills](Skills-Catalog)
 
-# Skill: `code-review` (Auditoria de Qualidade e Segurança)
-
+> **Auditoria de Qualidade e Segurança**  
 > **Definição Canônica**: [`skills/code-review/SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/code-review/SKILL.md)  
 > **Categoria**: Qualidade, Testes & Revisão  
 > **Comando de Invocação**: `/code-review` ou solicitação direta de revisão local

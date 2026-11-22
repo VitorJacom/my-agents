@@ -68,6 +68,11 @@ Todo diagrama Mermaid em documentação da Wiki DEVE seguir estas convenções:
    - Nos arquivos `.md` da Wiki, manter blocos `mermaid` em orientação vertical (`flowchart TD`), quebrando linhas com `<br/>` (~35 caracteres por linha), usando arestas curtas (`"YES"`, `"NO"`, `"APPROVED"`, `"REJECTED"`) e consolidando classificações em um único nó vertical.
    - **No chat do terminal (CLI)**: **não** renderizar blocos `mermaid` nem desenhos ASCII para revisar fluxos com o usuário (quebram facilmente na largura do terminal). Apresentar revisões de fluxo no chat usando **lista numerada simples**.
 
+4. **Cobertura Completa para Fluxos Multi-Modo**:
+   - Sempre que uma skill ou componente operar em **múltiplos modos** (ex.: Modo Unitário vs. Modo Maestro), a página dedicada DEVE incluir:
+     - Um **diagrama de Roteamento de Modo (Triagem de Entrada)** explicitando qual critério direciona a execução para cada fluxo.
+     - Um **diagrama Mermaid dedicado (`flowchart TD`) para CADA modo de operação**, sem resumir modos secundários apenas em texto corrido.
+
 ---
 
 ## 4. Redação de Páginas Dedicadas (Alto Nível & Cross-Linking)
@@ -81,3 +86,15 @@ Ao redigir ou refatorar páginas dedicadas da Wiki (`docs/skills/`, `docs/agents
 2. **Cross-Linking Obrigatório na Wiki**:
    - Sempre que uma página mencionar outro componente que já possua página dedicada na Wiki — subagentes (`Agent-<nome>`), skills (`Skill-<nome>`), scripts (`Script-<categoria>`), testes (`Test-<categoria>`) ou documentos estruturais (`ARCHITECTURE`, `System-Architecture`, `AIDD-Manifesto`) — DEVE incluir hyperlink clicável usando o slug plano do Gollum.
    - Validar obrigatoriamente a integridade dos links com `./tests/run.sh --category wiki`.
+
+3. **Paridade de `Responsabilidades por Estado` em Múltiplos Modos**:
+   - Toda máquina de estados ou modo de operação documentado com diagrama DEVE possuir sua própria tabela `Responsabilidades por Estado` (`Estado | Responsável | O que acontece nesta etapa`) em linguagem de alto nível e com cross-linking.
+
+4. **Comandos Canônicos de Invocação de Skills (`/<skill-name>`)**:
+   - Ao documentar o comando de invocação ou exemplos de uso de qualquer skill na Wiki, utilizar **estritamente o nome canônico da skill** (`/<name>`, conforme o campo `name:` do `SKILL.md` e o diretório `skills/<name>/` no Antigravity CLI — ex.: `/issue-pipeline`, `/plan-feature`, `/review-pr`).
+   - É proibido inventar ou propagar aliases legados/fictícios (como `/run-issue`) que não correspondam ao padrão real de invocação do Antigravity CLI.
+
+5. **Sem Título `# H1` Redundante nas Páginas Dedicadas da GitHub Wiki**:
+   - O motor Gollum da GitHub Wiki já renderiza automaticamente o slug do arquivo como título `<h1>` no topo da página (ex.: `Skill-issue-pipeline.md` ➔ `Skill issue pipeline`).
+   - Por isso, páginas dedicadas (`docs/skills/`, `docs/agents/`, `docs/scripts/`, `docs/tests/`) **NÃO devem repetir um `# H1`** no corpo do Markdown. Iniciar diretamente com o breadcrumb `[← Voltar ao Sumário...]` seguido pelo bloco de metadados (`> **<Subtítulo Descritivo>**` + `Definição Canônica`, `Categoria`, `Comando de Invocação`) e partir para seções `##`.
+   - *(Exceção: `Home.md`, cujo título nativo é apenas "Home", pode manter o H1 de boas-vindas).*

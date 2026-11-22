@@ -1,7 +1,6 @@
 [← Voltar ao Sumário de Subagentes](Subagents)
 
-# 🤖 Subagente: `product-owner` (*The Elephant*)
-
+> **The Elephant**  
 > **Definição Canônica**: [`agents/product-owner/agent.md`](https://github.com/VitorJacom/my-agents/blob/main/agents/product-owner/agent.md)  
 > **Fase AIDD**: Planejamento ([`plan-feature`](Skill-plan-feature) — Estado 1)  
 > **Ferramentas (`tools`)**: `read_file`, `search_web`  

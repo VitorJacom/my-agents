@@ -1,7 +1,6 @@
 [← Voltar ao Sumário de Scripts](Scripts-Catalog)
 
-# 🪝 Scripts: Hooks de Runtime (`scripts/hooks/`)
-
+> **Hooks de Runtime**  
 > **Diretório**: [`scripts/hooks/`](https://github.com/VitorJacom/my-agents/tree/main/scripts/hooks)  
 > **Quantidade**: 2 scripts  
 > **Orquestração**: Declarados em [`hooks.json`](https://github.com/VitorJacom/my-agents/blob/main/hooks.json)
