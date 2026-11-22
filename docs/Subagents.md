@@ -1,5 +1,10 @@
 # 🤖 Sumário de Subagentes (`Subagents`)
 
+> **Cabeçalho de Controle (Pressman / Sommerville)**  
+> - **Escopo / Filtros Aplicados**: `agents/*/agent.md` • Status: `Ativos` • Ordenação: `Ciclo AIDD (Planejamento ➔ Execução)`  
+> - **Data/Hora de Emissão**: `2026-11-22 15:33 BRT` *(sincronizado via `.github/workflows/wiki-sync.yml`)*  
+> - **Fonte Canônica**: [`agents/`](https://github.com/VitorJacom/my-agents/tree/main/agents)
+
 Este documento é o **índice central e resumo executivo** das **7 personas especializadas de subagentes** do ecossistema `my-agents`. Cada subagente possui sua própria **página dedicada na Wiki** com regras operacionais, modos de atuação, confinamentos e contratos de I/O.
 
 ---
@@ -17,15 +22,16 @@ O [Manifesto AIDD](AIDD-Manifesto) proíbe agentes monolíticos generalistas e i
 
 Clique no nome de qualquer subagente para acessar sua **página dedicada**:
 
-| Subagente | Papel Principal | Ferramentas (`tools`) | Confinamento de Escrita | Fase AIDD | Definição |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **[`product-owner`](Agent-product-owner)** | *The Elephant* — Requisitos Socráticos & Long-Horizon Context | `read_file`, `search_web` | Somente leitura | Planejamento | [`agent.md`](https://github.com/VitorJacom/my-agents/blob/main/agents/product-owner/agent.md) |
-| **[`system-architect`](Agent-system-architect)** | Design Técnico, `Interface Contract`, ADRs & *Execution Waves* | `read_file`, `search_web`, `write_file`, `edit_file` | `docs/ARCHITECTURE.md` e `planning_proposal.md` | Planejamento | [`agent.md`](https://github.com/VitorJacom/my-agents/blob/main/agents/system-architect/agent.md) |
-| **[`uiux-designer`](Agent-uiux-designer)** | *Mockup-as-Code*, *Value Contrast* ($\ge 2:1$), **WCAG AA** & Auditoria Headless | `read_file`, `write_file`, `edit_file`, `search_web`, `run_command` | Living Specs (`docs/mockups/`, `docs/screenshots/`) e pareceres | Planejamento & Auditoria | [`agent.md`](https://github.com/VitorJacom/my-agents/blob/main/agents/uiux-designer/agent.md) |
-| **[`planner`](Agent-planner)** | Triagem Atômica ($\le 3$ passos), *Blast Radius* & Semáforo | `read_file`, `search_web` | Somente leitura | Execução (Triage) | [`agent.md`](https://github.com/VitorJacom/my-agents/blob/main/agents/planner/agent.md) |
-| **[`qa-engineer`](Agent-qa-engineer)** | Engenharia TDD (**RED**) — Happy Path & Edge Cases | `read_file`, `write_file`, `edit_file`, `run_command` | Exclusivo em `tests/features/` (proibido `src/` e `tests/core/`) | Execução (RED) | [`agent.md`](https://github.com/VitorJacom/my-agents/blob/main/agents/qa-engineer/agent.md) |
-| **[`coder`](Agent-coder)** | Implementação Contract-Driven (**GREEN**) & Cobertura $\ge 85\%$ | `read_file`, `write_file`, `edit_file`, `run_command` | Exclusivo em `src/` (proibido alterar `tests/`) | Execução (GREEN) | [`agent.md`](https://github.com/VitorJacom/my-agents/blob/main/agents/coder/agent.md) |
-| **[`gatekeeper`](Agent-gatekeeper)** | *The Goldfish* (Cold Audit) & Guardião *Golden Rule* / PR | `read_file`, `write_file`, `edit_file`, `run_command` | `walkthrough.md`, commits e abertura de PR | Planejamento (Modo 1) & Finalização (Modo 2) | [`agent.md`](https://github.com/VitorJacom/my-agents/blob/main/agents/gatekeeper/agent.md) |
+| # | Subagente | Papel Principal | Ferramentas (`tools`) | Qtd. Tools | Confinamento de Escrita | Fase AIDD | Definição |
+| ---: | :--- | :--- | :--- | ---: | :--- | :--- | :--- |
+| 1 | **[`product-owner`](Agent-product-owner)** | *The Elephant* — Requisitos Socráticos & Long-Horizon Context | `read_file`, `search_web` | 2 | Somente leitura | Planejamento | [`agent.md`](https://github.com/VitorJacom/my-agents/blob/main/agents/product-owner/agent.md) |
+| 2 | **[`system-architect`](Agent-system-architect)** | Design Técnico, `Interface Contract`, ADRs & *Execution Waves* | `read_file`, `search_web`, `write_file`, `edit_file` | 4 | `docs/ARCHITECTURE.md` e `planning_proposal.md` | Planejamento | [`agent.md`](https://github.com/VitorJacom/my-agents/blob/main/agents/system-architect/agent.md) |
+| 3 | **[`uiux-designer`](Agent-uiux-designer)** | *Mockup-as-Code*, *Value Contrast* ($\ge 2:1$), **WCAG AA** & Auditoria Headless | `read_file`, `write_file`, `edit_file`, `search_web`, `run_command` | 5 | Living Specs (`docs/mockups/`, `docs/screenshots/`) e pareceres | Planejamento & Auditoria | [`agent.md`](https://github.com/VitorJacom/my-agents/blob/main/agents/uiux-designer/agent.md) |
+| 4 | **[`planner`](Agent-planner)** | Triagem Atômica ($\le 3$ passos), *Blast Radius* & Semáforo | `read_file`, `search_web` | 2 | Somente leitura | Execução (Triage) | [`agent.md`](https://github.com/VitorJacom/my-agents/blob/main/agents/planner/agent.md) |
+| 5 | **[`qa-engineer`](Agent-qa-engineer)** | Engenharia TDD (**RED**) — Happy Path & Edge Cases | `read_file`, `write_file`, `edit_file`, `run_command` | 4 | Exclusivo em `tests/features/` (proibido `src/` e `tests/core/`) | Execução (RED) | [`agent.md`](https://github.com/VitorJacom/my-agents/blob/main/agents/qa-engineer/agent.md) |
+| 6 | **[`coder`](Agent-coder)** | Implementação Contract-Driven (**GREEN**) & Cobertura $\ge 85\%$ | `read_file`, `write_file`, `edit_file`, `run_command` | 4 | Exclusivo em `src/` (proibido alterar `tests/`) | Execução (GREEN) | [`agent.md`](https://github.com/VitorJacom/my-agents/blob/main/agents/coder/agent.md) |
+| 7 | **[`gatekeeper`](Agent-gatekeeper)** | *The Goldfish* (Cold Audit) & Guardião *Golden Rule* / PR | `read_file`, `write_file`, `edit_file`, `run_command` | 4 | `walkthrough.md`, commits e abertura de PR | Planejamento (Modo 1) & Finalização (Modo 2) | [`agent.md`](https://github.com/VitorJacom/my-agents/blob/main/agents/gatekeeper/agent.md) |
+| **Total** | **7 Subagentes** | **2 Somente Leitura • 5 Confinados** | **5 ferramentas distintas** | **25** | **100% confinamento estrito** | **2 Esteiras** | **7/7 ativos** |
 
 ---
 
@@ -79,3 +85,9 @@ flowchart LR
 - [Sumário de Skills (`Skills-Catalog`)](./Skills-Catalog.md): As 11 skills sob demanda do ecossistema.
 - [Sumário de Scripts (`Scripts-Catalog`)](Scripts-Catalog): Os utilitários que sustentam os portões das personas.
 - [Arquitetura e Decisões Técnicas (`ARCHITECTURE`)](ARCHITECTURE): Detalhamento dos padrões de engenharia e ADRs.
+
+---
+
+> **Rodapé de Controle — Totalizadores & Paginação**  
+> **Totalizadores**: `7 Subagentes` • `2 Somente Leitura` • `5 Com Escrita Confinada` • `7 Páginas Dedicadas`  
+> **Paginação**: `Catálogo 1 de 4` — [🏠 Home](Home) | [Próximo Catálogo: 🧰 Skills →](Skills-Catalog)
