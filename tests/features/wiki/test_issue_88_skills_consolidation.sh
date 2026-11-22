@@ -47,16 +47,20 @@ check() {
   fi
 }
 
+assert_not_exists() {
+  ! test -e "$1"
+}
+
 echo ""
 echo "--- 1. Happy Path: Remoção Física das Skills Absorvidas e Páginas Wiki ---"
 check "Diretório skills/test-runner/ foi removido" \
-  bash -c "! test -d '$REPO_ROOT/skills/test-runner'"
+  assert_not_exists "$REPO_ROOT/skills/test-runner"
 check "Diretório skills/architecture-decision/ foi removido" \
-  bash -c "! test -d '$REPO_ROOT/skills/architecture-decision'"
+  assert_not_exists "$REPO_ROOT/skills/architecture-decision"
 check "Página docs/skills/Skill-test-runner.md foi removida" \
-  bash -c "! test -f '$DOCS_DIR/skills/Skill-test-runner.md'"
+  assert_not_exists "$DOCS_DIR/skills/Skill-test-runner.md"
 check "Página docs/skills/Skill-architecture-decision.md foi removida" \
-  bash -c "! test -f '$DOCS_DIR/skills/Skill-architecture-decision.md'"
+  assert_not_exists "$DOCS_DIR/skills/Skill-architecture-decision.md"
 
 echo ""
 echo "--- 2. Happy Path: Absorção em agents/qa-engineer/agent.md ---"
