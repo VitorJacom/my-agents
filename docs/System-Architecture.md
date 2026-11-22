@@ -78,7 +78,7 @@ Os utilitários do diretório `scripts/` são particionados em domínios operaci
 
 ## ⚡ 2. Orquestração Multi-Task Concorrente (Maestro)
 
-Quando múltiplas issues são disparadas simultaneamente (`/run-issue #24 #25 #26` ou `/run-issue --epic #20`), o sistema opera através do padrão **Maestro (Control Plane)**, que não altera código de produção diretamente, delegando o trabalho para subagentes workers isolados.
+Quando múltiplas issues são disparadas simultaneamente (`/issue-pipeline #24 #25 #26` ou `/issue-pipeline --epic #20`), o sistema opera através do padrão **Maestro (Control Plane)**, que não altera código de produção diretamente, delegando o trabalho para subagentes workers isolados.
 
 ```mermaid
 sequenceDiagram
@@ -91,7 +91,7 @@ sequenceDiagram
     participant MQ as Merge Queue (Rebase Train)
     participant GH as GitHub PR
 
-    Dev->>M: /run-issue #24 #25
+    Dev->>M: /issue-pipeline #24 #25
     M->>M: Analisa Blast Radius (Target Files)
     M->>M: Determina Execution Wave 1 (sem sobreposição)
     M->>WT: Provisiona .worktrees/issue-24 & lock
@@ -142,7 +142,7 @@ flowchart TD
         APPROVAL -- "APPROVED" --> CREATE_ISSUES
     end
 
-    subgraph Execution ["Fase 2: Execução TDD Isolada (/run-issue)"]
+    subgraph Execution ["Fase 2: Execução TDD Isolada (/issue-pipeline)"]
         WT_CREATE["Provisionar Worktree<br/>Isolada"]
         PLANNER_STATE["1. invoke_subagent: planner"]
         FORK["2. Fork Concorrente"]
@@ -191,8 +191,8 @@ A evolução arquitetural do `my-agents` é registrada formalmente através de A
 | **0003** | Arquitetura Modular de Statusline Plug-and-Play e Performance Sub-50ms | 2026-11-04 | Proposta | Decomposição modular da statusline (`scripts/statusline/statusline-quota.sh`), instalador idempotente (`scripts/statusline/install-statusline.sh`) e suíte de benchmark sub-50ms (`scripts/statusline/test-statusline.sh`). |
 | **0004** | Orquestração Multi-Task Concorrente (Maestro), Git Worktrees, Ondas e Merge Queue | 2026-11-06 | Proposta | Arquitetura Maestro com subagentes workers isolados, locks atômicos, análise de Target Files, ondas sequenciais de execução e Rebase Train em branch intermediária. |
 | **0005** | Paralelismo Intra-Task Baseado em Contrato Congelado (QA & Coder) | 2026-11-04 | Aprovada | Decomposição da etapa TDD em Fork concorrente entre QA Engineer e Coder a partir da seção `## Interface Contract` congelada no `implementation_plan.md`. |
-| **0006** | Orquestração Condicional do `uiux-designer` e Protocolo Mockup-as-Code (Figma-less) | 2026-11-06 | Proposta | Protocolo em 3 camadas (Wireframe ASCII, Design Tokens de luminância e Protótipo HTML headless) acionado condicionalmente em `/plan-feature` e `/run-issue`. |
-| **0007** | Integração Nativa de Milestones e GitHub Projects v2 com Degradação Graciosa | 2026-11-06 | Proposta | Amarração automática de Milestones e transição de status no GitHub Projects v2 em `/plan-feature` e `/run-issue` com resiliência a falta de permissões de token. |
+| **0006** | Orquestração Condicional do `uiux-designer` e Protocolo Mockup-as-Code (Figma-less) | 2026-11-06 | Proposta | Protocolo em 3 camadas (Wireframe ASCII, Design Tokens de luminância e Protótipo HTML headless) acionado condicionalmente em `/plan-feature` e `/issue-pipeline`. |
+| **0007** | Integração Nativa de Milestones e GitHub Projects v2 com Degradação Graciosa | 2026-11-06 | Proposta | Amarração automática de Milestones e transição de status no GitHub Projects v2 em `/plan-feature` e `/issue-pipeline` com resiliência a falta de permissões de token. |
 | **0008** | Arquitetura da Informação Modular e Governança da GitHub Wiki | 2026-11-06 | Proposta | Decomposição funcional de `docs/` em artefatos modulares (`Home.md`, `_Sidebar.md`, `_Footer.md`, `Getting-Started.md`, `AIDD-Manifesto.md`, `System-Architecture.md`, `Troubleshooting.md`), eliminando colisões de casing com `ARCHITECTURE.md`. |
 | **0009** | Reconciliação Idempotente de Governança no GitHub e Backfill de Backlog | 2026-11-06 | Implementada | Script utilitário `reconcile-github-governance.sh`, vinculação resiliente a Milestones e Projects v2 e integração operacional com `plan-feature`. |
 | **0010** | Telemetria de Concorrência e Eficiência no Modo Maestro (Wall-Clock e Speedup) | 2026-11-06 | Proposta | Modelo hierárquico por ondas em `metrics-collector.py`, com cálculo de Wall-Clock time real, detecção de worker gargalo e speedup. |

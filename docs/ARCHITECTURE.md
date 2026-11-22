@@ -111,7 +111,7 @@ Para equilibrar a velocidade e economia de tokens da IA com a visibilidade de ge
 * **Contexto**: A execução simultânea de múltiplas issues por agentes exige mais do que o isolamento local de diretórios: é necessário evitar a contaminação de contexto na sessão principal, prevenir colisões de escopo antes da codificação, eliminar falsos conflitos sistêmicos no `PROJECT_CONTEXT.md` e garantir que a integração sequencial das entregas não quebre a branch `main` (conflitos textuais ou semânticos).
 * **Solução Adotada**:
   1. **Arquitetura Maestro + Subagentes Worker Isolados (`invoke_subagent 'self'` + Worktree)**:
-     - Quando `/run-issue` é invocado para múltiplas issues (`/run-issue #24 #25 #26`) ou um épico (`/run-issue --epic #20`), a sessão principal atua exclusivamente como **Maestro (Control Plane)**, sem ler código de produção diretamente.
+     - Quando `/issue-pipeline` é invocado para múltiplas issues (`/issue-pipeline #24 #25 #26`) ou um épico (`/issue-pipeline --epic #20`), a sessão principal atua exclusivamente como **Maestro (Control Plane)**, sem ler código de produção diretamente.
      - Cada issue é delegada a um subagente Worker dedicado (`invoke_subagent` com `TypeName: 'self'`, `ConversationID` isolado e teto máximo de **3 Workers simultâneos** por onda), operando em um diretório estéril `.worktrees/issue-<id>` protegido por lock atômico (`.worktrees/.lock-<id>`).
   2. **Prevenção de Conflitos na Origem (`Target Files` & `Execution Waves`)**:
      - O `system-architect` (em `/plan-feature`) e o `planner` declaram formalmente os `Target Files` (blast radius) e `Depends On` de cada issue.
@@ -128,7 +128,7 @@ Para equilibrar a velocidade e economia de tokens da IA com a visibilidade de ge
 
 ### Decisão 0005 (2026-11-04): Paralelismo Intra-Task Baseado em Contrato Congelado (QA & Coder)
 * **Status**: Aprovada
-* **Contexto**: A esteira `/run-issue` operava estritamente em série (Planner ➔ QA RED ➔ Coder GREEN), criando gargalo temporal onde o Coder aguardava passivamente a escrita dos testes.
+* **Contexto**: A esteira `/issue-pipeline` operava estritamente em série (Planner ➔ QA RED ➔ Coder GREEN), criando gargalo temporal onde o Coder aguardava passivamente a escrita dos testes.
 * **Solução Adotada**:
   1. **Interface Contract Inviolável**: O `implementation_plan.md` passa a conter obrigatoriamente a seção `## Interface Contract`, com tipagens, assinaturas de funções e contratos de dados 100% congelados na etapa de Planejamento.
   2. **Fork Concorrente**: QA Engineer (em `tests/features/`) e Coder (em `src/`) são disparados simultaneamente, ambos trabalhando de forma independente orientados exclusivamente pelo contrato.
@@ -146,7 +146,7 @@ Para equilibrar a velocidade e economia de tokens da IA com a visibilidade de ge
      - **Camada 3 (Protótipo Estático Autocontido + Screenshot Headless)**: Geração de protótipo efêmero `.mockup-preview.html` (HTML/CSS/SVG inline) renderizado em `.mockup-preview.png` via `chromium --headless --screenshot` para aprovação humana no Gate do `/plan-feature` e referência para o `coder`.
   2. **Orquestração Condicional Zero-Overhead**:
      - Em `/plan-feature`: Estado condicional **UI/UX & Mockup Design** acionado entre o `product-owner` e o `system-architect` exclusivamente quando a demanda possuir impacto visual (`[UI/UX Required: YES]`), injetando o `## Visual & UI/UX Contract` no `planning_proposal.md` e no corpo das Issues do GitHub.
-     - Em `/run-issue`: No Estado de Planejamento, se a Issue for visual mas não possuir contrato prévio, o `uiux-designer` é acionado em Modo 1 para estabelecer o contrato; durante a codificação, o `coder` implementa estritamente os Design Tokens; antes do PR, o `uiux-designer` opera em Modo 2 (Auditoria Visual Headless) validando a tela real contra o mockup aprovado antes da liberação pelo `gatekeeper`.
+     - Em `/issue-pipeline`: No Estado de Planejamento, se a Issue for visual mas não possuir contrato prévio, o `uiux-designer` é acionado em Modo 1 para estabelecer o contrato; durante a codificação, o `coder` implementa estritamente os Design Tokens; antes do PR, o `uiux-designer` opera em Modo 2 (Auditoria Visual Headless) validando a tela real contra o mockup aprovado antes da liberação pelo `gatekeeper`.
   3. **Efemeridade de Artefatos de Preview**: Arquivos temporários `.mockup-preview.html` e `.mockup-preview.png` são adicionados ao `.gitignore` para não poluir a árvore Git de produção.
 
 ---
@@ -161,7 +161,7 @@ Para equilibrar a velocidade e economia de tokens da IA com a visibilidade de ge
      - O Estado 4 do `/plan-feature` detecta se há uma Milestone ativa declarada no contexto ou passada na invocação e inclui a flag `--milestone "<milestone>"` na execução de `gh issue create`.
   3. **Adição e Transição de Status em GitHub Projects v2**:
      - Em `/plan-feature` (Estado 4): Ao criar cada issue, o orquestrador invoca `gh project item-add <project_number> --owner <owner> --url <issue_url>`, vinculando-a ao quadro do projeto de forma automatizada.
-     - Em `/run-issue` (`issue-pipeline`): No início da execução (Estado 1/2), o status do item é atualizado para `In Progress`; na fase final (Estado 4 / Gatekeeper), o status transita para `In Review` com o PR aberto.
+     - Em `/issue-pipeline` (`issue-pipeline`): No início da execução (Estado 1/2), o status do item é atualizado para `In Progress`; na fase final (Estado 4 / Gatekeeper), o status transita para `In Review` com o PR aberto.
   4. **Princípio da Degradação Graciosa (Non-Blocking)**:
      - Todas as chamadas ao `gh project` são executadas com fallback resiliente e alertas informativos. Falhas por ausência de permissões no token (ex: falta de escopo `project`), projetos não configurados ou erros de rede NUNCA quebram a esteira de desenvolvimento AIDD.
   5. **Taxonomia Padronizada de Labels e Guia Canônico de Views no GitHub Projects v2**:
@@ -232,7 +232,7 @@ Para equilibrar a velocidade e economia de tokens da IA com a visibilidade de ge
 * **Solução Adotada**:
   1. **Modelo Hierárquico de Ondas de Execução**:
      - Suporte nativo ao argumento `--waves` recebendo estruturas mapeadas por onda: `{"Wave 1": {"Worker #1": "cid1", ...}, "Wave 2": {...}}`.
-     - Preservação estrita de retrocompatibilidade com `--agents` para chamadas planas unitárias da esteira `/run-issue`.
+     - Preservação estrita de retrocompatibilidade com `--agents` para chamadas planas unitárias da esteira `/issue-pipeline`.
   2. **Cálculo Determinístico de Wall-Clock Time e Eficiência**:
      - **Duração da Onda (Wall-Clock)**: Computada como o maior tempo decorrido entre os workers da onda: $T_{\text{wave}} = \max(T_{\text{worker}})$.
      - **Tempo Total do Batch**: Soma dos tempos de relógio de cada onda sequencial: $T_{\text{batch}} = \sum T_{\text{wave}_i}$.
@@ -356,7 +356,7 @@ Para equilibrar a velocidade e economia de tokens da IA com a visibilidade de ge
 * **Solução Adotada**:
   1. **Duplo Portão Interativo Human-in-the-Loop**:
      - *Portão 1 (Descoberta & Planejamento / `/plan-feature`)*: Identificação explícita das regras de negócio concretas extraídas dos requisitos. O agente não pergunta no vácuo se haverá uma regra core; ele indica especificamente qual é a regra identificada (ex.: *"A regra '[Descrição Concreta da Regra]' é uma regra Core?"*) e consulta o desenvolvedor humano via `ask_question`. Se for classificada como regra core invariante (`CORE_RULE: true`), os testes de aceitação correspondentes são registrados formalmente no plano como candidatos à promoção para `tests/core/`.
-     - *Portão 2 (Handoff & Gatekeeping / `/run-issue`)*: Ao concluir o loop de implementação (`GREEN >= 85%`), o `gatekeeper` inspeciona os testes criados em `tests/features/` e consulta interativamente o desenvolvedor humano (`ask_question`), discriminando os testes específicos para autorizar a promoção dos arquivos selecionados para `tests/core/`.
+     - *Portão 2 (Handoff & Gatekeeping / `/issue-pipeline`)*: Ao concluir o loop de implementação (`GREEN >= 85%`), o `gatekeeper` inspeciona os testes criados em `tests/features/` e consulta interativamente o desenvolvedor humano (`ask_question`), discriminando os testes específicos para autorizar a promoção dos arquivos selecionados para `tests/core/`.
   2. **Utilitário Desacoplado `scripts/pipeline/promote-core-test.sh`**:
      - Ferramenta de linha de comando idempotente e independente para gerenciar a promoção segura de testes.
      - Suporta listagem de candidatos (`--list-candidates`), modo de simulação (`--dry-run`), migração segura com preservação de histórico, execução de suíte de integridade pós-promoção (`./tests/run.sh --core`) e rollback imediato caso os testes falhem no novo diretório.

@@ -151,7 +151,7 @@ cd /caminho/do/meu-projeto
 agy
 ```
 
-No prompt, você pode conversar com o agente e acionar slash commands como `/plan-feature` e `/run-issue`.
+No prompt, você pode conversar com o agente e acionar slash commands como `/plan-feature` e `/issue-pipeline`.
 
 ### Modo Pontual (Headless Execution)
 
@@ -172,7 +172,7 @@ flowchart TD
     Idea["💡 Ideia ou Requisito"] --> Plan["1. Planejamento Funcional e Técnico<br/>(/plan-feature)"]
     Plan --> Approval{"Aprovação Humana<br/>do Plano?"}
     Approval -- "APPROVED" --> Issues["2. Publicação de Issues<br/>Atômicas no GitHub"]
-    Issues --> Run["3. Execução TDD Isolada<br/>(/run-issue #ID)"]
+    Issues --> Run["3. Execução TDD Isolada<br/>(/issue-pipeline #ID)"]
     Run --> PR["4. Pull Request com<br/>Evidências (walkthrough.md)"]
 ```
 
@@ -188,11 +188,11 @@ O orquestrador acionará o [`product-owner`](Agent-product-owner) para definir r
 ### Passo 2: Aprovação e Criação das Issues
 Ao final do planejamento, o agente apresenta a proposta estruturada em `planning_proposal.md`. Com a sua aprovação, as issues serão criadas automaticamente no repositório GitHub com os metadados e dependências corretas.
 
-### Passo 3: Execução Determinística com [`/run-issue`](Skill-issue-pipeline)
+### Passo 3: Execução Determinística com [`/issue-pipeline`](Skill-issue-pipeline)
 Com a issue criada (por exemplo, `#1`), dispare a esteira de construção:
 
 ```text
-/run-issue #1
+/issue-pipeline #1
 ```
 
 A máquina de estados executará:

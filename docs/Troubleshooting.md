@@ -24,7 +24,7 @@ Este guia consolida a matriz diagnóstica, as causas-raiz e as soluções determ
 ## 🔧 1. Conflitos de Lock e Gerenciamento de Worktrees
 
 ### Sintoma
-Ao iniciar a execução de uma issue via `/run-issue` ou `./scripts/pipeline/worktree-manager.sh create <id>`, o comando falha reportando que o lock atômico já existe:
+Ao iniciar a execução de uma issue via `/issue-pipeline` ou `./scripts/pipeline/worktree-manager.sh create <id>`, o comando falha reportando que o lock atômico já existe:
 ```text
 [ERROR] Worktree issue-26 already locked by .worktrees/.lock-26
 ```
@@ -53,7 +53,7 @@ Ao iniciar a execução de uma issue via `/run-issue` ou `./scripts/pipeline/wor
 ## 🔑 2. Permissões de Token no GitHub Actions e GitHub CLI
 
 ### Sintoma
-Durante a criação de issues no `/plan-feature` ou transição de status no `/run-issue`, surgem erros como:
+Durante a criação de issues no `/plan-feature` ou transição de status no `/issue-pipeline`, surgem erros como:
 ```text
 GraphQL: Resource not accessible by integration (addProjectV2ItemById)
 ```
@@ -143,7 +143,7 @@ A statusline personalizada (`scripts/statusline/statusline-quota.sh`) demora par
 ## 🔄 5. Divergências no Interface Contract (Fork/Join)
 
 ### Sintoma
-Durante a etapa de Join Point do `/run-issue`, a suíte quebra com erros de assinaturas de função ou argumentos incompatíveis entre `tests/features/` e `src/`.
+Durante a etapa de Join Point do `/issue-pipeline`, a suíte quebra com erros de assinaturas de função ou argumentos incompatíveis entre `tests/features/` e `src/`.
 
 ### Causa-Raiz
 O QA Engineer e o Coder divergiram na interpretação das tipagens durante a implementação concorrente.

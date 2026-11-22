@@ -41,7 +41,7 @@ Clique no nome de qualquer subagente para acessar sua **página dedicada**:
   - **Contrato de Entrada**: Ideia, requisito funcional ou issue macro do usuário.
   - **Fluxo**: [`product-owner`](Agent-product-owner) ➔ [`uiux-designer`](Agent-uiux-designer) *(se `UI_UX_REQUIRED: YES`, garantindo Value Contrast $\ge 2:1$ e WCAG AA $\ge 4.5:1$)* ➔ [`system-architect`](Agent-system-architect) ➔ [`gatekeeper`](Agent-gatekeeper) *(Modo 1: Cold Audit)*.
   - **Contrato de Saída**: `planning_proposal.md` aprovado (`SPEC_AUDIT: APPROVED`), ADRs em [`ARCHITECTURE`](ARCHITECTURE) e issues atômicas no GitHub.
-- **Execução ([`/run-issue`](Skill-issue-pipeline))**:
+- **Execução ([`/issue-pipeline`](Skill-issue-pipeline))**:
   - **Contrato de Entrada**: Issue atômica no GitHub com `## Interface Contract` e `PROJECT_CONTEXT.md`.
   - **Fluxo**: [`planner`](Agent-planner) ➔ *Concurrent Fork* ([`qa-engineer`](Agent-qa-engineer) + [`coder`](Agent-coder)) ➔ *Join Point* ➔ [`uiux-designer`](Agent-uiux-designer) *(Modo 2, se UI)* ➔ [`gatekeeper`](Agent-gatekeeper) *(Modo 2)*.
   - **Contrato de Saída**: Testes em `tests/features/`, código em `src/` com cobertura $\ge 85\%$, `walkthrough.md` e Pull Request aberto no GitHub.
@@ -65,7 +65,7 @@ flowchart TD
     Approval --> GH["GitHub Issues & Milestones"]
 ```
 
-### 4.2. Execução TDD (`/run-issue` — Concurrent Fork)
+### 4.2. Execução TDD (`/issue-pipeline` — Concurrent Fork)
 
 ```mermaid
 flowchart LR

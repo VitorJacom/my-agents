@@ -102,8 +102,8 @@ check "System-Architecture: Contém visão estrutural em camadas e taxonomia de 
 check "System-Architecture: Diagramas Mermaid de arquitetura e orquestração do Maestro" \
   bash -c "grep -q 'sequenceDiagram' '$ARCH_MD' && grep -qi 'Maestro' '$ARCH_MD'"
 
-check "System-Architecture: Ciclo de vida ponta a ponta de issues mapeado (/plan-feature -> /run-issue)" \
-  bash -c "grep -qi '/plan-feature' '$ARCH_MD' && grep -qi '/run-issue' '$ARCH_MD'"
+check "System-Architecture: Ciclo de vida ponta a ponta de issues mapeado (/plan-feature -> /issue-pipeline)" \
+  bash -c "grep -qi '/plan-feature' '$ARCH_MD' && grep -qi '/issue-pipeline' '$ARCH_MD'"
 
 check "System-Architecture: Consolidação de ADRs contendo Decisões de 0001 a 0009" \
   bash -c "grep -q '0001' '$ARCH_MD' && \

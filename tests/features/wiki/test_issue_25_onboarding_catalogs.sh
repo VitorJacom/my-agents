@@ -47,8 +47,8 @@ check "Documenta primeiro comando com Antigravity CLI (agy)" \
 check "Documenta estrutura canônica (PROJECT_CONTEXT.md, tests/core/, tests/features/, .gitignore)" \
   bash -c "grep -q 'PROJECT_CONTEXT.md' '$GETTING_STARTED' && grep -q 'tests/core/' '$GETTING_STARTED' && grep -q 'tests/features/' '$GETTING_STARTED' && grep -q '.gitignore' '$GETTING_STARTED'"
 
-check "Documenta ciclo AIDD com /plan-feature e /run-issue" \
-  bash -c "grep -q '/plan-feature' '$GETTING_STARTED' && grep -q '/run-issue' '$GETTING_STARTED'"
+check "Documenta ciclo AIDD com /plan-feature e /issue-pipeline" \
+  bash -c "grep -q '/plan-feature' '$GETTING_STARTED' && grep -q '/issue-pipeline' '$GETTING_STARTED'"
 
 echo ""
 echo "--- 3. Validação de Conteúdo: docs/Subagents.md (7 Personas) ---"

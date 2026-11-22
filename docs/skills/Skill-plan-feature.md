@@ -74,7 +74,7 @@ flowchart TD
 - **`planning_proposal.md`**: Documento consolidado com requisitos, contratos técnicos/visuais, matriz de *Execution Waves* e selo `SPEC_AUDIT: APPROVED`.
 - **Living Spec Visual** *(quando `UI_UX_REQUIRED: YES`)*: `docs/mockups/<slug>.md` e `docs/assets/mockups/<slug>.png`.
 - **ADRs atualizadas**: Registros de decisão em [`docs/ARCHITECTURE.md`](ARCHITECTURE).
-- **Issues Atômicas no GitHub**: Prontas para execução imediata com `/run-issue`.
+- **Issues Atômicas no GitHub**: Prontas para execução imediata com [`/issue-pipeline`](Skill-issue-pipeline).
 
 ---
 

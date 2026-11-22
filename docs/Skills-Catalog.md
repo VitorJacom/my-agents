@@ -34,7 +34,7 @@ O Antigravity CLI impõe limites de contexto para regras globais para preservar 
 - **[`git-workflow`](Skill-git-workflow)** — Padroniza branches (`feature/`, `fix/`, `refactor/`), commits em inglês (*Conventional Commits*) e diretivas `Fixes #<id>` em texto puro.
 - **[`architecture-decision`](Skill-architecture-decision)** — Documenta decisões técnicas estruturais no padrão Michael Nygard em `docs/adr/` ou [`docs/ARCHITECTURE.md`](ARCHITECTURE).
 - **[`docker-dev`](Skill-docker-dev)** — Diagnostica falhas de containers/Compose e aplica *multi-stage builds*, usuário não-root e `.dockerignore`.
-- **[`publish-rule-issue`](Skill-publish-rule-issue)** — Globaliza regras descobertas via `/learn` em qualquer projeto criando uma issue pronta para `/run-issue` no `my-agents`.
+- **[`publish-rule-issue`](Skill-publish-rule-issue)** — Globaliza regras descobertas via `/learn` em qualquer projeto criando uma issue pronta para `/issue-pipeline` no `my-agents`.
 
 ### 🎨 Domínios Especializados (2)
 - **[`ui-ux-design`](Skill-ui-ux-design)** — 48 técnicas de UI/UX em 7 módulos de carregamento progressivo, fórmulas de molas e CLI `skill_assistant.py` para receitas, checklists e auditoria anti-slop.
@@ -49,7 +49,7 @@ Clique no nome de qualquer skill para acessar sua **página dedicada**:
 | # | Skill | Categoria | Resumo do Propósito | Gatilho / Invocação | Definição |
 | ---: | :--- | :--- | :--- | :--- | :--- |
 | 1 | **[`plan-feature`](Skill-plan-feature)** | Esteiras AIDD | Planejamento funcional, UI/UX e design técnico sob o ciclo *Elephant-Goldfish* antes de codificar. | `/plan-feature <ideia ou #issue>` | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/plan-feature/SKILL.md) |
-| 2 | **[`issue-pipeline`](Skill-issue-pipeline)** | Esteiras AIDD | Esteira TDD determinística em Modo Unitário (1 issue) ou Modo Maestro (multi-issue com Worktrees e Merge Queue). | `/run-issue <#ID>` ou `/run-issue --epic <#ID>` | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/issue-pipeline/SKILL.md) |
+| 2 | **[`issue-pipeline`](Skill-issue-pipeline)** | Esteiras AIDD | Esteira TDD determinística em Modo Unitário (1 issue) ou Modo Maestro (multi-issue com Worktrees e Merge Queue). | `/issue-pipeline <#ID>` ou `/issue-pipeline --epic <#ID>` | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/issue-pipeline/SKILL.md) |
 | 3 | **[`review-pr`](Skill-review-pr)** | Qualidade & Revisão | Revisão determinística de Pull Requests em 5 fases com *Golden Rule*, Gate Humano e criação de issues. | `/review-pr <#PR \| URL>` | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/review-pr/SKILL.md) |
 | 4 | **[`code-review`](Skill-code-review)** | Qualidade & Revisão | Auditoria rigorosa de código local em 4 dimensões (OWASP, SOLID, Robustez e Testabilidade). | `/code-review` | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/code-review/SKILL.md) |
 | 5 | **[`test-runner`](Skill-test-runner)** | Qualidade & Revisão | Execução cirúrgica de testes (Node/TS, Python, Go), diagnóstico de falhas e validação *Clean Room*. | `/test` | [`SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/test-runner/SKILL.md) |

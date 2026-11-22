@@ -4,7 +4,7 @@
 
 > **Definição Canônica**: [`skills/issue-pipeline/SKILL.md`](https://github.com/VitorJacom/my-agents/blob/main/skills/issue-pipeline/SKILL.md)  
 > **Categoria**: Esteiras & Orquestração AIDD  
-> **Comando de Invocação**: `/run-issue <#ID>` ou `/run-issue <#1 #2 #3>` / `/run-issue --epic <#ID>`
+> **Comando de Invocação**: `/issue-pipeline <#ID>` ou `/issue-pipeline <#1 #2 #3>` / `/issue-pipeline --epic <#ID>`
 
 ---
 
@@ -25,27 +25,39 @@ A skill **`issue-pipeline`** orquestra a máquina de estados determinística do 
 
 ```text
 # Modo Unitário (1 Issue)
-/run-issue #12
-/run-issue 12
-/run-issue https://github.com/VitorJacom/my-agents/issues/12
+/issue-pipeline #12
+/issue-pipeline 12
+/issue-pipeline https://github.com/VitorJacom/my-agents/issues/12
 
 # Modo Maestro (Multi-Issue concorrente)
-/run-issue #12 #13 #14
-/run-issue 12 13 14
+/issue-pipeline #12 #13 #14
+/issue-pipeline 12 13 14
 
 # Modo Maestro por Épico
-/run-issue --epic #10
+/issue-pipeline --epic #10
 ```
 
 ---
 
-## 🔄 Os Dois Modos de Operação
+## 🧭 Roteamento de Modo (Triagem de Entrada)
 
-### 1. Modo Unitário (1 Issue)
+Ao receber o comando `/issue-pipeline`, o orquestrador analisa a entrada e decide automaticamente qual fluxo seguir:
 
 ```mermaid
 flowchart TD
-    Start["Entrada: /run-issue #XX"] --> Plan["1. invoke_subagent: planner"]
+    Entry["Entrada: /issue-pipeline<br/>(#ID, lista de #IDs ou --epic)"] --> Route["Triagem de Entrada (Orquestrador)<br/>• 1 Issue ➔ Modo Unitário<br/>• Várias Issues ou Épico ➔ Modo Maestro"]
+    Route --> Mode{"Quantas Issues?"}
+    Mode -- "1 Issue" --> Unit["Fluxo 1: Modo Unitário<br/>Branch direta & PR individual"]
+    Mode -- "Multi-Issue / Épico" --> Maestro["Fluxo 2: Modo Maestro<br/>Ondas em Worktrees & PR consolidado"]
+```
+
+---
+
+## 🔄 Fluxo 1: Modo Unitário (1 Issue)
+
+```mermaid
+flowchart TD
+    Start["Entrada: /issue-pipeline #XX"] --> Plan["1. invoke_subagent: planner"]
     Plan --> CheckUI{"Interface Visual<br/>sem Contrato?"}
     CheckUI -- "YES" --> UI1["1.1. invoke_subagent: uiux-designer"]
     CheckUI -- "NO" --> Fork["2. Execução Paralela<br/>(Concurrent Fork)"]
@@ -60,7 +72,9 @@ flowchart TD
     Gate3 -- "PASSED" --> CheckVisual{"Interface Visual?<br/>(UI_UX_REQUIRED)"}
     CheckVisual -- "YES" --> UI2["3.5. invoke_subagent: uiux-designer"]
     CheckVisual -- "NO" --> GK["4. invoke_subagent: gatekeeper"]
-    UI2 --> GK
+    UI2 --> VisualVerdict{"Auditoria Visual<br/>Aprovada?"}
+    VisualVerdict -- "REJECTED" --> Coder
+    VisualVerdict -- "APPROVED" --> GK
     GK --> PR["5. Pull Request Publicado<br/>Evidências & Auto-Close"]
 ```
 
@@ -73,15 +87,47 @@ flowchart TD
 | **2a. Testes de Aceitação** *(Paralelo)* | [`qa-engineer`](Agent-qa-engineer) | Trabalha isolado na camada de testes, criando cenários de *Happy Path* e *Edge Cases / Failure Modes* que falham inicialmente (**RED**) com base no contrato congelado. |
 | **2b. Implementação** *(Paralelo)* | [`coder`](Agent-coder) | Trabalha simultaneamente no código de produção respeitando rigorosamente as assinaturas, tipos e erros definidos no contrato congelado. |
 | **3. Portão de Integração** | Orquestrador + [`Script-pipeline`](Script-pipeline) | Executa os testes com timeout rígido e verifica se todos estão verdes (**GREEN**) com cobertura $\ge 85\%$. Se falhar, aciona até 2 ciclos de correção antes do *Circuit Breaker*. |
-| **3.5. Auditoria Visual** *(Condicional)* | [`uiux-designer`](Agent-uiux-designer) | Quando a entrega possui interface visual, captura a tela renderizada em navegador headless e audita fidelidade, contraste e responsividade antes do PR. |
+| **3.5. Auditoria Visual** *(Condicional)* | [`uiux-designer`](Agent-uiux-designer) | Quando a entrega possui interface visual, captura a tela renderizada em navegador headless e audita fidelidade, contraste e responsividade. Se reprovar, devolve ao [`coder`](Agent-coder) para ajuste visual. |
 | **4. Auditoria & Handoff** | [`gatekeeper`](Agent-gatekeeper) | Verifica a *Golden Rule* (nenhuma adulteração em [`tests/core/`](Test-core)), compila o relatório de provas (`walkthrough.md`) e publica o Pull Request com fechamento automático da issue. |
 
-### 2. Modo Maestro (Multi-Issue & `--epic`)
+---
 
-- **Segregação Control Plane vs. Execution Plane**: A sessão principal atua exclusivamente como Maestro e delega cada issue da onda via `invoke_subagent` em worktrees isoladas (`.worktrees/issue-<id>`), gerenciadas pelos utilitários de [`Script-pipeline`](Script-pipeline).
-- **Pre-flight & Wave Partitioning**: Agrupa issues com arquivos-alvo (`Target Files`) 100% disjuntos em ondas concorrentes, evitando conflitos simultâneos.
-- **Merge Queue Sequencial**: Integra cada worktree na branch intermediária e executa a suíte acumulada com até 2 tentativas de auto-reconciliação em caso de regressão.
-- **PR Consolidado**: Ao término de todas as ondas, o [`gatekeeper`](Agent-gatekeeper) audita o resultado integrado e abre um Pull Request consolidado para `main`.
+## 🌊 Fluxo 2: Modo Maestro (Multi-Issue & `--epic`)
+
+No Modo Maestro, a sessão principal opera estritamente como **Control Plane** (sem codificar nem rodar TDD na raiz), delegando cada issue para workers isolados em Git Worktrees.
+
+```mermaid
+flowchart TD
+    MStart["Entrada: /issue-pipeline<br/>(#1 #2... ou --epic #XX)"] --> M1["M1. Pre-flight & Ondas<br/>Mapear arquivos e separar<br/>ondas disjuntas (máx. 3)"]
+    M1 --> M2["M2. Branch Intermediária<br/>Criar branch de integração<br/>para o lote ou épico"]
+    M2 --> M3["M3. invoke_subagent: self"]
+    M3 --> M4["M4. Merge Queue Sequencial<br/>Rebase e validação da<br/>suíte acumulada"]
+    M4 --> MCheck{"Rebase e Suíte<br/>100% GREEN?"}
+    MCheck -- "YES" --> M5["M5. Auto-Merge & Cleanup<br/>Integrar na branch intermediária<br/>e remover worktree"]
+    MCheck -- "NO" --> M6["M6. invoke_subagent: coder"]
+    M6 --> MLoop{"Reconciliação<br/>(Máx. 2)?"}
+    MLoop -- "PASSED" --> M5
+    MLoop -- "FAILED" --> M7["M7. Fail-Safe<br/>Marcar issue como falha<br/>e preservar worktree"]
+    M5 --> MMore{"Mais Ondas<br/>ou Issues?"}
+    M7 --> MMore
+    MMore -- "YES" --> M3
+    MMore -- "NO" --> M8["M8. invoke_subagent: gatekeeper"]
+    M8 --> M9["M9. Pull Request Consolidado<br/>PR único para main<br/>& Status In Review"]
+```
+
+### 📋 Responsabilidades por Estado (Modo Maestro)
+
+| Estado | Responsável | O que acontece nesta etapa |
+| :--- | :--- | :--- |
+| **M1. Pre-flight & Ondas** | Maestro (Control Plane) | Analisa os arquivos-alvo (`Target Files`) e dependências de cada issue, agrupando em ondas de até 3 issues com arquivos 100% disjuntos para eliminar conflitos paralelos. |
+| **M2. Branch Intermediária** | Maestro | Cria uma branch dedicada de integração para o lote ou épico a partir de `main`, servindo de base comum para todas as worktrees das ondas. |
+| **M3. Despacho de Workers** | Maestro ➔ `invoke_subagent: self` + [`Script-pipeline`](Script-pipeline) | Provisiona uma Git Worktree isolada com lock exclusivo por issue, atualiza os cartões para **`In Progress`** e despacha workers paralelos. Cada worker executa o fluxo completo do **Modo Unitário** confinado à sua worktree. |
+| **M4. Merge Queue Sequencial** | Maestro + [`Script-pipeline`](Script-pipeline) | Recebe os workers finalizados um por vez, sincroniza a worktree sobre a branch intermediária atualizada (rebase) e executa toda a suíte acumulada (`tests/core/` + `tests/features/`). |
+| **M5. Auto-Merge & Cleanup** | Maestro + [`Script-pipeline`](Script-pipeline) | Com a suíte acumulada 100% verde, integra a entrega na branch intermediária e remove a worktree e seu lock de forma limpa. |
+| **M6. Auto-Reconciliação** *(Condicional)* | [`coder`](Agent-coder) | Acionado apenas se houver conflito de rebase ou quebra na suíte acumulada. Tenta resolver o conflito semântico dentro da worktree em até **2 tentativas**, sem jamais alterar [`tests/core/`](Test-core) ou testes já integrados. |
+| **M7. Fail-Safe** *(Condicional)* | Maestro | Se as 2 tentativas falharem, isola a issue com status de falha, preserva sua worktree para inspeção humana e segue processando o restante da fila sem quebrar a branch intermediária. |
+| **M8. Auditoria Global** | [`gatekeeper`](Agent-gatekeeper) | Ao final de todas as ondas, audita a branch intermediária completa contra `main` (suíte global, *Golden Rule*, contexto e métricas de tokens) e compila o `walkthrough.md` consolidado. |
+| **M9. Pull Request Consolidado** | [`gatekeeper`](Agent-gatekeeper) + [`Script-pipeline`](Script-pipeline) | Abre um único Pull Request consolidado da branch intermediária para `main` e transita as issues do lote para **`In Review`** no quadro do projeto. |
 
 ---
 

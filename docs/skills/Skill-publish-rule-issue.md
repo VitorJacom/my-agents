@@ -43,7 +43,7 @@ Publique a regra aprendida nesta sessão no repositório central my-agents
 
 ## 📦 Artefatos Produzidos
 
-- Issue pronta para execução imediata no `my-agents` via [`/run-issue`](Skill-issue-pipeline).
+- Issue pronta para execução imediata no `my-agents` via [`/issue-pipeline`](Skill-issue-pipeline).
 
 ---
 
